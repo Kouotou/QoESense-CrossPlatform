@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "io.github.kouotou.qoesense"
-    compileSdk = flutter.compileSdkVersion
+    // 37: required by permission_handler_android (same as the reference app).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -53,4 +54,8 @@ flutter {
 dependencies {
     // Pigeon 29 generates `suspend` host APIs dispatched on Dispatchers.Main.
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    // The same versions as the reference app's libs.versions.toml.
+    implementation("androidx.core:core-ktx:1.19.0")
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
+    implementation("com.google.android.gms:play-services-location:21.4.0")
 }

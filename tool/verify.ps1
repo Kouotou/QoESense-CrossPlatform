@@ -20,6 +20,7 @@ $handWritten = Get-ChildItem -Recurse -Include *.dart -Path lib, test, pigeons |
 Step 'format check' { & $dart format --output=none --set-exit-if-changed @handWritten }
 Step 'regenerate Pigeon channel' { & $dart run pigeon --input pigeons/telemetry_api.dart }
 Step 'regenerate l10n' { & $flutter gen-l10n }
+Step 'regenerate drift database code' { & $dart run build_runner build }
 Step 'analyze' { & $flutter analyze }
 Step 'unit + widget + contract tests' { & $flutter test }
 if (-not $SkipAndroid) { Step 'Android debug build (compiles Kotlin)' { & $flutter build apk --debug } }

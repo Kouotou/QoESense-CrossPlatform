@@ -24,16 +24,21 @@ is committed. Nothing here is a new backend or cloud provider.
 | `pigeon` ^29.1.1 | dev, codegen | Type-safe Dart ↔ Kotlin/Swift channel (ARCHITECTURE §3) |
 | `org.jetbrains.kotlinx:kotlinx-coroutines-android` 1.10.2 | Android native | Pigeon 29 generates `suspend` host APIs |
 
+## Phase 3, in use now
+
+| Package | Why |
+|---|---|
+| `drift` ^2.35, `drift_flutter` ^0.3 (+ `drift_dev`, `build_runner` dev) | SQLite buffer, pending-MOS queue and settings, shared by the UI and the headless engines (WAL) |
+| `path_provider` | Database location (used by drift_flutter) |
+| `firebase_core` ^5.1, `firebase_auth` ^7.0, `firebase_storage` ^14.0, `cloud_firestore` ^7.1 | The existing `qoesense` project; inactive until `lib/firebase_options.dart` is filled in after registration |
+| `permission_handler` ^13.0 | Runtime permissions (location, phone, background location, notifications). Usage access, overlay and battery stay native intents. Needs compileSdk 37. |
+| Android: `androidx.core:core-ktx` 1.19.0, `androidx.work:work-runtime-ktx` 2.11.2, `play-services-location` 21.4.0 | The same versions as the reference app |
+
 ## Planned (not added yet: each comes with the phase that uses it)
 
 | Package | Phase | Purpose | Replaces in the reference app |
 |---|---|---|---|
-| `firebase_core`, `firebase_auth` | 2 | Anonymous identity, against the **existing** `qoesense` project | Firebase Android SDK Auth |
-| `cloud_firestore` | 2 | MOS ratings and the consent record | Firestore Android SDK |
-| `firebase_storage` | 4 | Telemetry batch upload | Storage Android SDK |
-| `drift` + `sqlite3` (+ `drift_dev`, `build_runner` dev) | 2 | Durable offline buffer with tested migrations, usable from several isolates | Room v1 |
 | `shared_preferences` or drift tables | 2 | Onboarding, consent and survey bookkeeping | DataStore |
-| `permission_handler` | 2 | One cross-platform permission flow. Usage access and overlay stay native, since the plugin can't grant them. | hand-rolled Android flow |
 | `workmanager` *or* native WorkManager + headless engine | 3/4 | Hourly Wi-Fi-only upload. Native is preferred, to keep the reference's exact constraints. | WorkManager |
 | iOS frameworks: CoreLocation, CoreTelephony, CallKit (`CXCallObserver`), Network (`NWPathMonitor`), BackgroundTasks, UserNotifications | 3 | iOS adapters. These are Apple system frameworks, not third-party packages. | n/a |
 | Android: `play-services-location` | 3 | Fused location, as in the reference | same |

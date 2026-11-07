@@ -1,5 +1,7 @@
 # QoESense data contract (v1 deployed, v2 proposed)
 
+**Approved by the owner on 2026-11-07 (v2 and §8.1–8.2). Not deployed yet.**
+
 **Status (2026-11-07):**
 - **v1** is the contract the reference Android app sends today. It is frozen.
 - **v2** is the proposed cross-platform contract. It is implemented in the Dart domain model
@@ -214,9 +216,8 @@ a sample to be dropped.**
 
 ### 8.3 Proposed, separate approval needed
 
-- `devices/{uid}.previousDeviceId` (Firestore), written by the new app only after the
-  participant enters the old app's ID and consents, plus a `device_links` export. This is a
-  new table, so it's a new resource. It also needs a consent-text change.
+- ~~`devices/{uid}.previousDeviceId` ID linking~~: **declined** (D-8). The new app will be the
+  primary app, and reference-app data won't be linked.
 - The datasets `qoesense_features` and `qoesense_predictions` (§6).
 
 ## 9. Example records

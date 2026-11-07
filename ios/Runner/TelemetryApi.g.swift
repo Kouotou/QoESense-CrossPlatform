@@ -198,6 +198,25 @@ enum Availability: Int, CaseIterable {
   case restricted = 3
 }
 
+/// Mirrors the Dart FieldStatus / DATA_CONTRACT §5.
+enum MeasurementStatus: Int, CaseIterable {
+  case ok = 0
+  case stale = 1
+  case notSupported = 2
+  case permissionDenied = 3
+  case restricted = 4
+  case notAttempted = 5
+  case unavailable = 6
+  case timeout = 7
+  case failed = 8
+}
+
+enum SessionTypeMessage: Int, CaseIterable {
+  case none = 0
+  case socialMedia = 1
+  case videoConferencing = 2
+}
+
 /// Generated class from Pigeon that represents data sent in messages.
 struct CapabilityReportMessage: Hashable, CustomStringConvertible {
   /// "ANDROID" or "IOS" - same values as the BigQuery `platform` column.
@@ -307,6 +326,340 @@ struct CapabilityReportMessage: Hashable, CustomStringConvertible {
   }
 }
 
+/// One whole capture, everything except RTT, from a single native call per tick.
+/// Field semantics are the reference app's (DATA_CONTRACT §3).
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct CapturedSampleMessage: Hashable, CustomStringConvertible {
+  var rsrp: Int64? = nil
+  var rsrq: Int64? = nil
+  var rssnr: Int64? = nil
+  var timingAdvance: Int64? = nil
+  var cellIdentityHash: String? = nil
+  var trackingAreaCode: Int64? = nil
+  var signalStrengthLevel: Int64? = nil
+  var radioStatus: MeasurementStatus
+  var cellInfoAgeMs: Int64? = nil
+  var cqi: Int64? = nil
+  var cqiStatus: MeasurementStatus
+  var cellBandwidthKhz: Int64? = nil
+  var downlinkChannelNumber: Int64? = nil
+  var uplinkChannelNumber: Int64? = nil
+  var physicalChannelStatus: MeasurementStatus
+  var networkType: String? = nil
+  var networkTypeStatus: MeasurementStatus
+  var connectionType: String? = nil
+  var isRoaming: Bool? = nil
+  var connectivityStatus: MeasurementStatus
+  var throughputBytesPerSecond: Int64? = nil
+  var throughputWindowMs: Int64? = nil
+  var throughputStatus: MeasurementStatus
+  var foregroundAppPackage: String? = nil
+  var appSessionType: SessionTypeMessage
+  var foregroundAppStatus: MeasurementStatus
+  var latitude: Double? = nil
+  var longitude: Double? = nil
+  var locationAccuracyMeters: Double? = nil
+  var locationAgeMs: Int64? = nil
+  var locationStatus: MeasurementStatus
+  /// SampleFieldGroup wire names (RADIO, CQI, …) this device could provide right now.
+  var capabilitySet: [String]
+  var deviceModel: String
+  var osSdkInt: Int64
+  var osVersion: String
+  var appId: String
+  var appVersion: String
+  var appBuild: Int64
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> CapturedSampleMessage? {
+    let rsrp: Int64? = nilOrValue(pigeonVar_list[0])
+    let rsrq: Int64? = nilOrValue(pigeonVar_list[1])
+    let rssnr: Int64? = nilOrValue(pigeonVar_list[2])
+    let timingAdvance: Int64? = nilOrValue(pigeonVar_list[3])
+    let cellIdentityHash: String? = nilOrValue(pigeonVar_list[4])
+    let trackingAreaCode: Int64? = nilOrValue(pigeonVar_list[5])
+    let signalStrengthLevel: Int64? = nilOrValue(pigeonVar_list[6])
+    let radioStatus = pigeonVar_list[7] as! MeasurementStatus
+    let cellInfoAgeMs: Int64? = nilOrValue(pigeonVar_list[8])
+    let cqi: Int64? = nilOrValue(pigeonVar_list[9])
+    let cqiStatus = pigeonVar_list[10] as! MeasurementStatus
+    let cellBandwidthKhz: Int64? = nilOrValue(pigeonVar_list[11])
+    let downlinkChannelNumber: Int64? = nilOrValue(pigeonVar_list[12])
+    let uplinkChannelNumber: Int64? = nilOrValue(pigeonVar_list[13])
+    let physicalChannelStatus = pigeonVar_list[14] as! MeasurementStatus
+    let networkType: String? = nilOrValue(pigeonVar_list[15])
+    let networkTypeStatus = pigeonVar_list[16] as! MeasurementStatus
+    let connectionType: String? = nilOrValue(pigeonVar_list[17])
+    let isRoaming: Bool? = nilOrValue(pigeonVar_list[18])
+    let connectivityStatus = pigeonVar_list[19] as! MeasurementStatus
+    let throughputBytesPerSecond: Int64? = nilOrValue(pigeonVar_list[20])
+    let throughputWindowMs: Int64? = nilOrValue(pigeonVar_list[21])
+    let throughputStatus = pigeonVar_list[22] as! MeasurementStatus
+    let foregroundAppPackage: String? = nilOrValue(pigeonVar_list[23])
+    let appSessionType = pigeonVar_list[24] as! SessionTypeMessage
+    let foregroundAppStatus = pigeonVar_list[25] as! MeasurementStatus
+    let latitude: Double? = nilOrValue(pigeonVar_list[26])
+    let longitude: Double? = nilOrValue(pigeonVar_list[27])
+    let locationAccuracyMeters: Double? = nilOrValue(pigeonVar_list[28])
+    let locationAgeMs: Int64? = nilOrValue(pigeonVar_list[29])
+    let locationStatus = pigeonVar_list[30] as! MeasurementStatus
+    let capabilitySet = pigeonVar_list[31] as! [String]
+    let deviceModel = pigeonVar_list[32] as! String
+    let osSdkInt = pigeonVar_list[33] as! Int64
+    let osVersion = pigeonVar_list[34] as! String
+    let appId = pigeonVar_list[35] as! String
+    let appVersion = pigeonVar_list[36] as! String
+    let appBuild = pigeonVar_list[37] as! Int64
+
+    return CapturedSampleMessage(
+      rsrp: rsrp,
+      rsrq: rsrq,
+      rssnr: rssnr,
+      timingAdvance: timingAdvance,
+      cellIdentityHash: cellIdentityHash,
+      trackingAreaCode: trackingAreaCode,
+      signalStrengthLevel: signalStrengthLevel,
+      radioStatus: radioStatus,
+      cellInfoAgeMs: cellInfoAgeMs,
+      cqi: cqi,
+      cqiStatus: cqiStatus,
+      cellBandwidthKhz: cellBandwidthKhz,
+      downlinkChannelNumber: downlinkChannelNumber,
+      uplinkChannelNumber: uplinkChannelNumber,
+      physicalChannelStatus: physicalChannelStatus,
+      networkType: networkType,
+      networkTypeStatus: networkTypeStatus,
+      connectionType: connectionType,
+      isRoaming: isRoaming,
+      connectivityStatus: connectivityStatus,
+      throughputBytesPerSecond: throughputBytesPerSecond,
+      throughputWindowMs: throughputWindowMs,
+      throughputStatus: throughputStatus,
+      foregroundAppPackage: foregroundAppPackage,
+      appSessionType: appSessionType,
+      foregroundAppStatus: foregroundAppStatus,
+      latitude: latitude,
+      longitude: longitude,
+      locationAccuracyMeters: locationAccuracyMeters,
+      locationAgeMs: locationAgeMs,
+      locationStatus: locationStatus,
+      capabilitySet: capabilitySet,
+      deviceModel: deviceModel,
+      osSdkInt: osSdkInt,
+      osVersion: osVersion,
+      appId: appId,
+      appVersion: appVersion,
+      appBuild: appBuild
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      rsrp,
+      rsrq,
+      rssnr,
+      timingAdvance,
+      cellIdentityHash,
+      trackingAreaCode,
+      signalStrengthLevel,
+      radioStatus,
+      cellInfoAgeMs,
+      cqi,
+      cqiStatus,
+      cellBandwidthKhz,
+      downlinkChannelNumber,
+      uplinkChannelNumber,
+      physicalChannelStatus,
+      networkType,
+      networkTypeStatus,
+      connectionType,
+      isRoaming,
+      connectivityStatus,
+      throughputBytesPerSecond,
+      throughputWindowMs,
+      throughputStatus,
+      foregroundAppPackage,
+      appSessionType,
+      foregroundAppStatus,
+      latitude,
+      longitude,
+      locationAccuracyMeters,
+      locationAgeMs,
+      locationStatus,
+      capabilitySet,
+      deviceModel,
+      osSdkInt,
+      osVersion,
+      appId,
+      appVersion,
+      appBuild,
+    ]
+  }
+  static func == (lhs: CapturedSampleMessage, rhs: CapturedSampleMessage) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return TelemetryApiPigeonInternal.deepEquals(lhs.rsrp, rhs.rsrp) && TelemetryApiPigeonInternal.deepEquals(lhs.rsrq, rhs.rsrq) && TelemetryApiPigeonInternal.deepEquals(lhs.rssnr, rhs.rssnr) && TelemetryApiPigeonInternal.deepEquals(lhs.timingAdvance, rhs.timingAdvance) && TelemetryApiPigeonInternal.deepEquals(lhs.cellIdentityHash, rhs.cellIdentityHash) && TelemetryApiPigeonInternal.deepEquals(lhs.trackingAreaCode, rhs.trackingAreaCode) && TelemetryApiPigeonInternal.deepEquals(lhs.signalStrengthLevel, rhs.signalStrengthLevel) && TelemetryApiPigeonInternal.deepEquals(lhs.radioStatus, rhs.radioStatus) && TelemetryApiPigeonInternal.deepEquals(lhs.cellInfoAgeMs, rhs.cellInfoAgeMs) && TelemetryApiPigeonInternal.deepEquals(lhs.cqi, rhs.cqi) && TelemetryApiPigeonInternal.deepEquals(lhs.cqiStatus, rhs.cqiStatus) && TelemetryApiPigeonInternal.deepEquals(lhs.cellBandwidthKhz, rhs.cellBandwidthKhz) && TelemetryApiPigeonInternal.deepEquals(lhs.downlinkChannelNumber, rhs.downlinkChannelNumber) && TelemetryApiPigeonInternal.deepEquals(lhs.uplinkChannelNumber, rhs.uplinkChannelNumber) && TelemetryApiPigeonInternal.deepEquals(lhs.physicalChannelStatus, rhs.physicalChannelStatus) && TelemetryApiPigeonInternal.deepEquals(lhs.networkType, rhs.networkType) && TelemetryApiPigeonInternal.deepEquals(lhs.networkTypeStatus, rhs.networkTypeStatus) && TelemetryApiPigeonInternal.deepEquals(lhs.connectionType, rhs.connectionType) && TelemetryApiPigeonInternal.deepEquals(lhs.isRoaming, rhs.isRoaming) && TelemetryApiPigeonInternal.deepEquals(lhs.connectivityStatus, rhs.connectivityStatus) && TelemetryApiPigeonInternal.deepEquals(lhs.throughputBytesPerSecond, rhs.throughputBytesPerSecond) && TelemetryApiPigeonInternal.deepEquals(lhs.throughputWindowMs, rhs.throughputWindowMs) && TelemetryApiPigeonInternal.deepEquals(lhs.throughputStatus, rhs.throughputStatus) && TelemetryApiPigeonInternal.deepEquals(lhs.foregroundAppPackage, rhs.foregroundAppPackage) && TelemetryApiPigeonInternal.deepEquals(lhs.appSessionType, rhs.appSessionType) && TelemetryApiPigeonInternal.deepEquals(lhs.foregroundAppStatus, rhs.foregroundAppStatus) && TelemetryApiPigeonInternal.deepEquals(lhs.latitude, rhs.latitude) && TelemetryApiPigeonInternal.deepEquals(lhs.longitude, rhs.longitude) && TelemetryApiPigeonInternal.deepEquals(lhs.locationAccuracyMeters, rhs.locationAccuracyMeters) && TelemetryApiPigeonInternal.deepEquals(lhs.locationAgeMs, rhs.locationAgeMs) && TelemetryApiPigeonInternal.deepEquals(lhs.locationStatus, rhs.locationStatus) && TelemetryApiPigeonInternal.deepEquals(lhs.capabilitySet, rhs.capabilitySet) && TelemetryApiPigeonInternal.deepEquals(lhs.deviceModel, rhs.deviceModel) && TelemetryApiPigeonInternal.deepEquals(lhs.osSdkInt, rhs.osSdkInt) && TelemetryApiPigeonInternal.deepEquals(lhs.osVersion, rhs.osVersion) && TelemetryApiPigeonInternal.deepEquals(lhs.appId, rhs.appId) && TelemetryApiPigeonInternal.deepEquals(lhs.appVersion, rhs.appVersion) && TelemetryApiPigeonInternal.deepEquals(lhs.appBuild, rhs.appBuild)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("CapturedSampleMessage")
+    TelemetryApiPigeonInternal.deepHash(value: rsrp, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: rsrq, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: rssnr, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: timingAdvance, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: cellIdentityHash, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: trackingAreaCode, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: signalStrengthLevel, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: radioStatus, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: cellInfoAgeMs, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: cqi, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: cqiStatus, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: cellBandwidthKhz, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: downlinkChannelNumber, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: uplinkChannelNumber, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: physicalChannelStatus, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: networkType, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: networkTypeStatus, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: connectionType, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: isRoaming, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: connectivityStatus, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: throughputBytesPerSecond, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: throughputWindowMs, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: throughputStatus, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: foregroundAppPackage, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: appSessionType, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: foregroundAppStatus, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: latitude, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: longitude, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: locationAccuracyMeters, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: locationAgeMs, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: locationStatus, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: capabilitySet, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: deviceModel, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: osSdkInt, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: osVersion, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: appId, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: appVersion, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: appBuild, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "CapturedSampleMessage(rsrp: \(String(describing: rsrp)), rsrq: \(String(describing: rsrq)), rssnr: \(String(describing: rssnr)), timingAdvance: \(String(describing: timingAdvance)), cellIdentityHash: \(String(describing: cellIdentityHash)), trackingAreaCode: \(String(describing: trackingAreaCode)), signalStrengthLevel: \(String(describing: signalStrengthLevel)), radioStatus: \(String(describing: radioStatus)), cellInfoAgeMs: \(String(describing: cellInfoAgeMs)), cqi: \(String(describing: cqi)), cqiStatus: \(String(describing: cqiStatus)), cellBandwidthKhz: \(String(describing: cellBandwidthKhz)), downlinkChannelNumber: \(String(describing: downlinkChannelNumber)), uplinkChannelNumber: \(String(describing: uplinkChannelNumber)), physicalChannelStatus: \(String(describing: physicalChannelStatus)), networkType: \(String(describing: networkType)), networkTypeStatus: \(String(describing: networkTypeStatus)), connectionType: \(String(describing: connectionType)), isRoaming: \(String(describing: isRoaming)), connectivityStatus: \(String(describing: connectivityStatus)), throughputBytesPerSecond: \(String(describing: throughputBytesPerSecond)), throughputWindowMs: \(String(describing: throughputWindowMs)), throughputStatus: \(String(describing: throughputStatus)), foregroundAppPackage: \(String(describing: foregroundAppPackage)), appSessionType: \(String(describing: appSessionType)), foregroundAppStatus: \(String(describing: foregroundAppStatus)), latitude: \(String(describing: latitude)), longitude: \(String(describing: longitude)), locationAccuracyMeters: \(String(describing: locationAccuracyMeters)), locationAgeMs: \(String(describing: locationAgeMs)), locationStatus: \(String(describing: locationStatus)), capabilitySet: \(String(describing: capabilitySet)), deviceModel: \(String(describing: deviceModel)), osSdkInt: \(String(describing: osSdkInt)), osVersion: \(String(describing: osVersion)), appId: \(String(describing: appId)), appVersion: \(String(describing: appVersion)), appBuild: \(String(describing: appBuild)))"
+  }
+}
+
+/// A rating tapped in the native overlay or notification, queued natively until Dart has
+/// stored it durably and acknowledged it.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct SurveyAnswerMessage: Hashable, CustomStringConvertible {
+  var responseId: String
+  var score: Int64
+  /// PERIODIC, POST_SESSION or ANOMALY.
+  var triggerType: String
+  var tapMs: Int64
+  var promptedAtMs: Int64? = nil
+  /// OVERLAY, NOTIFICATION or IN_APP.
+  var presentationMode: String
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> SurveyAnswerMessage? {
+    let responseId = pigeonVar_list[0] as! String
+    let score = pigeonVar_list[1] as! Int64
+    let triggerType = pigeonVar_list[2] as! String
+    let tapMs = pigeonVar_list[3] as! Int64
+    let promptedAtMs: Int64? = nilOrValue(pigeonVar_list[4])
+    let presentationMode = pigeonVar_list[5] as! String
+
+    return SurveyAnswerMessage(
+      responseId: responseId,
+      score: score,
+      triggerType: triggerType,
+      tapMs: tapMs,
+      promptedAtMs: promptedAtMs,
+      presentationMode: presentationMode
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      responseId,
+      score,
+      triggerType,
+      tapMs,
+      promptedAtMs,
+      presentationMode,
+    ]
+  }
+  static func == (lhs: SurveyAnswerMessage, rhs: SurveyAnswerMessage) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return TelemetryApiPigeonInternal.deepEquals(lhs.responseId, rhs.responseId) && TelemetryApiPigeonInternal.deepEquals(lhs.score, rhs.score) && TelemetryApiPigeonInternal.deepEquals(lhs.triggerType, rhs.triggerType) && TelemetryApiPigeonInternal.deepEquals(lhs.tapMs, rhs.tapMs) && TelemetryApiPigeonInternal.deepEquals(lhs.promptedAtMs, rhs.promptedAtMs) && TelemetryApiPigeonInternal.deepEquals(lhs.presentationMode, rhs.presentationMode)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("SurveyAnswerMessage")
+    TelemetryApiPigeonInternal.deepHash(value: responseId, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: score, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: triggerType, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: tapMs, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: promptedAtMs, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: presentationMode, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "SurveyAnswerMessage(responseId: \(String(describing: responseId)), score: \(String(describing: score)), triggerType: \(String(describing: triggerType)), tapMs: \(String(describing: tapMs)), promptedAtMs: \(String(describing: promptedAtMs)), presentationMode: \(String(describing: presentationMode)))"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct CollectorStatusMessage: Hashable, CustomStringConvertible {
+  var collectionEnabled: Bool
+  var serviceRunning: Bool
+  var lastUploadMs: Int64? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> CollectorStatusMessage? {
+    let collectionEnabled = pigeonVar_list[0] as! Bool
+    let serviceRunning = pigeonVar_list[1] as! Bool
+    let lastUploadMs: Int64? = nilOrValue(pigeonVar_list[2])
+
+    return CollectorStatusMessage(
+      collectionEnabled: collectionEnabled,
+      serviceRunning: serviceRunning,
+      lastUploadMs: lastUploadMs
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      collectionEnabled,
+      serviceRunning,
+      lastUploadMs,
+    ]
+  }
+  static func == (lhs: CollectorStatusMessage, rhs: CollectorStatusMessage) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return TelemetryApiPigeonInternal.deepEquals(lhs.collectionEnabled, rhs.collectionEnabled) && TelemetryApiPigeonInternal.deepEquals(lhs.serviceRunning, rhs.serviceRunning) && TelemetryApiPigeonInternal.deepEquals(lhs.lastUploadMs, rhs.lastUploadMs)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("CollectorStatusMessage")
+    TelemetryApiPigeonInternal.deepHash(value: collectionEnabled, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: serviceRunning, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: lastUploadMs, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "CollectorStatusMessage(collectionEnabled: \(String(describing: collectionEnabled)), serviceRunning: \(String(describing: serviceRunning)), lastUploadMs: \(String(describing: lastUploadMs)))"
+  }
+}
+
 private class TelemetryApiPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
@@ -317,7 +670,25 @@ private class TelemetryApiPigeonCodecReader: FlutterStandardReader {
       }
       return nil
     case 130:
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return MeasurementStatus(rawValue: enumResultAsInt)
+      }
+      return nil
+    case 131:
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return SessionTypeMessage(rawValue: enumResultAsInt)
+      }
+      return nil
+    case 132:
       return CapabilityReportMessage.fromList(self.readValue() as! [Any?])
+    case 133:
+      return CapturedSampleMessage.fromList(self.readValue() as! [Any?])
+    case 134:
+      return SurveyAnswerMessage.fromList(self.readValue() as! [Any?])
+    case 135:
+      return CollectorStatusMessage.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -329,8 +700,23 @@ private class TelemetryApiPigeonCodecWriter: FlutterStandardWriter {
     if let value = value as? Availability {
       super.writeByte(129)
       super.writeValue(value.rawValue)
-    } else if let value = value as? CapabilityReportMessage {
+    } else if let value = value as? MeasurementStatus {
       super.writeByte(130)
+      super.writeValue(value.rawValue)
+    } else if let value = value as? SessionTypeMessage {
+      super.writeByte(131)
+      super.writeValue(value.rawValue)
+    } else if let value = value as? CapabilityReportMessage {
+      super.writeByte(132)
+      super.writeValue(value.toList())
+    } else if let value = value as? CapturedSampleMessage {
+      super.writeByte(133)
+      super.writeValue(value.toList())
+    } else if let value = value as? SurveyAnswerMessage {
+      super.writeByte(134)
+      super.writeValue(value.toList())
+    } else if let value = value as? CollectorStatusMessage {
+      super.writeByte(135)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -378,6 +764,194 @@ class TelemetryHostApiSetup {
       }
     } else {
       getCapabilityReportChannel.setMessageHandler(nil)
+    }
+  }
+}
+/// Generated protocol from Pigeon that represents a handler of messages from Flutter.
+protocol AndroidCollectorApi {
+  /// One full capture. Location waits at most [locationTimeoutMs] (SamplingPolicy). A radio
+  /// or location reading older than [staleAfterMs] (the current sampling interval) is
+  /// reported STALE, with its value kept.
+  func captureSample(locationTimeoutMs: Int64, staleAfterMs: Int64) async throws -> CapturedSampleMessage
+  /// Persists the flag (read by BootReceiver), starts/stops the foreground service and
+  /// schedules/cancels the hourly upload work.
+  func setCollectionEnabled(enabled: Bool) throws
+  func status() throws -> CollectorStatusMessage
+  /// Shows the overlay survey, or the notification fallback without overlay permission.
+  func presentSurvey(triggerType: String) throws
+  func pendingSurveyAnswers() throws -> [SurveyAnswerMessage]
+  func acknowledgeSurveyAnswers(responseIds: [String]) throws
+  /// Called by the headless upload entrypoint when its run ends.
+  func uploadRunFinished(success: Bool, uploadedRows: Int64) throws
+  /// Opens a system settings screen: usageAccess, overlay, batteryOptimization or appDetails.
+  func openSystemSettings(target: String) throws
+  /// One-off upload now (same constraints as the hourly job).
+  func requestUploadNow() throws
+  func recordConsent(timestampMs: Int64) throws
+}
+
+/// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
+class AndroidCollectorApiSetup {
+  static var codec: FlutterStandardMessageCodec { TelemetryApiPigeonCodec.shared }
+  /// Sets up an instance of `AndroidCollectorApi` to handle messages through the `binaryMessenger`.
+  static func setUp(binaryMessenger: FlutterBinaryMessenger, api: AndroidCollectorApi?, messageChannelSuffix: String = "") {
+    let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
+    /// One full capture. Location waits at most [locationTimeoutMs] (SamplingPolicy). A radio
+    /// or location reading older than [staleAfterMs] (the current sampling interval) is
+    /// reported STALE, with its value kept.
+    let captureSampleChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.captureSample\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      captureSampleChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let locationTimeoutMsArg = args[0] as! Int64
+        let staleAfterMsArg = args[1] as! Int64
+        Task { @MainActor in
+          do {
+            let result = try await api.captureSample(locationTimeoutMs: locationTimeoutMsArg, staleAfterMs: staleAfterMsArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      captureSampleChannel.setMessageHandler(nil)
+    }
+    /// Persists the flag (read by BootReceiver), starts/stops the foreground service and
+    /// schedules/cancels the hourly upload work.
+    let setCollectionEnabledChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.setCollectionEnabled\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      setCollectionEnabledChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let enabledArg = args[0] as! Bool
+        do {
+          try api.setCollectionEnabled(enabled: enabledArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      setCollectionEnabledChannel.setMessageHandler(nil)
+    }
+    let statusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.status\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      statusChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.status()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      statusChannel.setMessageHandler(nil)
+    }
+    /// Shows the overlay survey, or the notification fallback without overlay permission.
+    let presentSurveyChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.presentSurvey\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      presentSurveyChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let triggerTypeArg = args[0] as! String
+        do {
+          try api.presentSurvey(triggerType: triggerTypeArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      presentSurveyChannel.setMessageHandler(nil)
+    }
+    let pendingSurveyAnswersChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.pendingSurveyAnswers\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      pendingSurveyAnswersChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.pendingSurveyAnswers()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      pendingSurveyAnswersChannel.setMessageHandler(nil)
+    }
+    let acknowledgeSurveyAnswersChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.acknowledgeSurveyAnswers\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      acknowledgeSurveyAnswersChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let responseIdsArg = args[0] as! [String]
+        do {
+          try api.acknowledgeSurveyAnswers(responseIds: responseIdsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      acknowledgeSurveyAnswersChannel.setMessageHandler(nil)
+    }
+    /// Called by the headless upload entrypoint when its run ends.
+    let uploadRunFinishedChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.uploadRunFinished\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      uploadRunFinishedChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let successArg = args[0] as! Bool
+        let uploadedRowsArg = args[1] as! Int64
+        do {
+          try api.uploadRunFinished(success: successArg, uploadedRows: uploadedRowsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      uploadRunFinishedChannel.setMessageHandler(nil)
+    }
+    /// Opens a system settings screen: usageAccess, overlay, batteryOptimization or appDetails.
+    let openSystemSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.openSystemSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      openSystemSettingsChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let targetArg = args[0] as! String
+        do {
+          try api.openSystemSettings(target: targetArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      openSystemSettingsChannel.setMessageHandler(nil)
+    }
+    /// One-off upload now (same constraints as the hourly job).
+    let requestUploadNowChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.requestUploadNow\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestUploadNowChannel.setMessageHandler { _, reply in
+        do {
+          try api.requestUploadNow()
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      requestUploadNowChannel.setMessageHandler(nil)
+    }
+    let recordConsentChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.recordConsent\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      recordConsentChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let timestampMsArg = args[0] as! Int64
+        do {
+          try api.recordConsent(timestampMs: timestampMsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      recordConsentChannel.setMessageHandler(nil)
     }
   }
 }

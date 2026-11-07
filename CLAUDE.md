@@ -12,6 +12,10 @@ changing any model, serializer or channel.
   format, codegen, analyze, test and the APK build.
 - After editing `pigeons/telemetry_api.dart`, run `dart run pigeon --input pigeons/telemetry_api.dart`.
 - After editing `lib/l10n/*.arb`, run `flutter gen-l10n`.
+- After editing `lib/src/data/local/database.dart`, run `dart run build_runner build`. Any change to
+  the schema needs a bumped `schemaVersion` and a tested migration. Rows store contract JSON, so
+  new contract fields need no migration.
+- Android: compileSdk 37. Phase 3 architecture and the device protocol are in `docs/PHASE3_ANDROID.md`.
 - Swift can't be compiled on Windows. Only the CI `ios` job or a Mac proves it builds.
 - A new Swift file must also be added to `ios/Runner.xcodeproj/project.pbxproj`, because the
   project doesn't use synchronized folders.

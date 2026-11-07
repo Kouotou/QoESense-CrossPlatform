@@ -30,19 +30,25 @@ void main() {
   });
 
   test('no secrets or reference-app credentials in the workspace', () {
-    for (final forbidden in ['keystore.properties', 'google-services.json', 'GoogleService-Info.plist']) {
-      final hits = Directory('.')
-          .listSync(recursive: true, followLinks: false)
-          .whereType<File>()
-          .where((f) => !f.path.contains('${Platform.pathSeparator}build${Platform.pathSeparator}'))
-          .where((f) => !f.path.contains('.dart_tool'))
-          .where((f) => f.uri.pathSegments.last == forbidden);
-      expect(hits, isEmpty, reason: '$forbidden must not be in this workspace yet (see docs/ARCHITECTURE.md §7)');
+    // Walk only source folders: build outputs and tool caches are regenerated, never
+    // committed, and contain paths longer than Windows' 260-character limit.
+    const skip = {'build', '.dart_tool', '.gradle', '.git', '.idea', 'Pods', '.symlinks'};
+    Iterable<File> sourceFiles(Directory dir) sync* {
+      for (final e in dir.listSync(followLinks: false)) {
+        final name = e.uri.pathSegments.lastWhere((s) => s.isNotEmpty);
+        if (e is Directory) {
+          if (!skip.contains(name)) yield* sourceFiles(e);
+        } else if (e is File) {
+          yield e;
+        }
+      }
     }
-    final keystores = Directory('.')
-        .listSync(recursive: true, followLinks: false)
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.jks') || f.path.endsWith('.keystore'));
-    expect(keystores, isEmpty);
+
+    final files = sourceFiles(Directory('.')).toList();
+    final names = files.map((f) => f.uri.pathSegments.last).toList();
+    for (final forbidden in ['keystore.properties', 'google-services.json', 'GoogleService-Info.plist']) {
+      expect(names, isNot(contains(forbidden)), reason: '$forbidden must not be in this workspace (ARCHITECTURE §7)');
+    }
+    expect(names.where((n) => n.endsWith('.jks') || n.endsWith('.keystore')), isEmpty);
   });
 }

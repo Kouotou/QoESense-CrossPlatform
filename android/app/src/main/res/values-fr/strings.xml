@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copied verbatim from ../QoESense res/values-fr/strings.xml: survey and notification strings only. -->
+<resources>
+    <string name="mos_survey_title">Comment était votre expérience réseau à l\'instant ?</string>
+    <string name="mos_survey_caption">1 = très mauvaise, 5 = excellente</string>
+    <string name="notif_collection_channel_name">Collecte en arrière-plan</string>
+    <string name="notif_collection_channel_desc">S\'affiche lorsque QoESense collecte des données de télémétrie réseau en arrière-plan</string>
+    <string name="notif_collection_title">QoESense est en cours d\'exécution</string>
+    <string name="notif_collection_text">Collecte des données de qualité réseau pour l\'étude de recherche</string>
+    <string name="notif_survey_channel_name">Invites d\'évaluation de la qualité</string>
+    <string name="notif_survey_channel_desc">Invites occasionnelles en un clic demandant comment était votre expérience réseau</string>
+    <string name="notif_survey_title">Question rapide</string>
+    <string name="notif_survey_text">Comment était votre expérience réseau à l\'instant ? Appuyez pour évaluer de 1 à 5.</string>
+</resources>

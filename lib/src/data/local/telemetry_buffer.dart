@@ -28,6 +28,10 @@ abstract interface class TelemetryBuffer {
   Future<int> count();
 
   Stream<int> watchCount();
+
+  /// The most recent sample with startMs <= timestampMs <= endMs, or null. Used for a MOS
+  /// rating's context, as in the reference MosSubmitWorker.
+  Future<TelemetrySample?> latestInWindow(int startMs, int endMs);
 }
 
 /// Test/dev implementation. Not durable - never use it for real collection.
@@ -75,6 +79,16 @@ class InMemoryTelemetryBuffer implements TelemetryBuffer {
   Stream<int> watchCount() async* {
     yield _rows.length;
     yield* _counts.stream;
+  }
+
+  @override
+  Future<TelemetrySample?> latestInWindow(int startMs, int endMs) async {
+    TelemetrySample? best;
+    for (final s in _rows.values) {
+      if (s.timestampMs < startMs || s.timestampMs > endMs) continue;
+      if (best == null || s.timestampMs >= best.timestampMs) best = s;
+    }
+    return best;
   }
 
   void _emit() => _counts.add(_rows.length);

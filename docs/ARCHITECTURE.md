@@ -183,7 +183,9 @@ Answered by the project owner on 2026-11-07, except where marked otherwise.
 | D-4 | On iOS, any CallKit-detected call counts as `VIDEO_CONFERENCING`, so the 15 s cadence applies to every call. On iOS rows this value means "some call was active". | **Decided** |
 | D-5 | On iOS rows, `androidVersion` holds the iOS **major** version. Rows are told apart by tier and platform. | **Decided** |
 | D-6 | The iOS self-report sets `contextSessionType` from the answer, and `contextAppPackage` to the **Android package name** of the chosen app (e.g. `com.whatsapp`). Self-reported vs. observed is told apart by `platform`. | **Decided** |
-| D-7 | New **private** GitHub repo `Kouotou/QoESense-CrossPlatform`, whose CI includes the macOS Swift build. | **Decided.** The owner creates the repo. |
+| D-7 | New **private** GitHub repo `Kouotou/QoESense-CrossPlatform`, whose CI includes the macOS Swift build. | **Decided.** The repo exists; Actions are blocked by the GitHub billing lock. |
+| D-8 | **No ID linking.** Once validated, this app becomes the study's primary app, and reference-app data isn't carried over or linked (owner, 2026-11-07). | **Decided** |
+| D-9 | Contract v2 and the proposed BigQuery changes (DATA_CONTRACT §8.1–8.2) | **Approved** 2026-11-07; not yet deployed (billing) |
 
 ### 9.1 Replacing the reference Android app (D-1)
 

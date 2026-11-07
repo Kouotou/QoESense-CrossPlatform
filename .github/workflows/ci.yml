@@ -30,7 +30,8 @@ jobs:
         run: |
           dart run pigeon --input pigeons/telemetry_api.dart
           flutter gen-l10n
-          git diff --exit-code -- lib/src/platform android/app/src/main/kotlin ios/Runner lib/l10n/generated
+          dart run build_runner build
+          git diff --exit-code -- lib/src/platform android/app/src/main/kotlin ios/Runner lib/l10n/generated lib/src/data/local/database.g.dart
       - run: flutter analyze
       - run: flutter test --coverage
 

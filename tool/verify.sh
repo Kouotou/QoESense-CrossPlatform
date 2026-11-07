@@ -11,6 +11,7 @@ step "pub get" flutter pub get
 step "format check" bash -c "find lib test pigeons -name '*.dart' ! -name '*.g.dart' -print0 | xargs -0 dart format --output=none --set-exit-if-changed"
 step "regenerate Pigeon channel" dart run pigeon --input pigeons/telemetry_api.dart
 step "regenerate l10n" flutter gen-l10n
+step "regenerate drift database code" dart run build_runner build
 step "analyze" flutter analyze
 step "tests" flutter test
 

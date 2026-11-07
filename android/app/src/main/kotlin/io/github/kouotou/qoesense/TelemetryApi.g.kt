@@ -222,6 +222,37 @@ enum class Availability(val raw: Int) {
   }
 }
 
+/** Mirrors the Dart FieldStatus / DATA_CONTRACT §5. */
+enum class MeasurementStatus(val raw: Int) {
+  OK(0),
+  STALE(1),
+  NOT_SUPPORTED(2),
+  PERMISSION_DENIED(3),
+  RESTRICTED(4),
+  NOT_ATTEMPTED(5),
+  UNAVAILABLE(6),
+  TIMEOUT(7),
+  FAILED(8);
+
+  companion object {
+    fun ofRaw(raw: Int): MeasurementStatus? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
+enum class SessionTypeMessage(val raw: Int) {
+  NONE(0),
+  SOCIAL_MEDIA(1),
+  VIDEO_CONFERENCING(2);
+
+  companion object {
+    fun ofRaw(raw: Int): SessionTypeMessage? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class CapabilityReportMessage (
   /** "ANDROID" or "IOS" - same values as the BigQuery `platform` column. */
@@ -318,6 +349,306 @@ data class CapabilityReportMessage (
     return "CapabilityReportMessage(platform=$platform, osMajorVersion=$osMajorVersion, deviceModel=$deviceModel, radioSignal=$radioSignal, cqi=$cqi, physicalChannel=$physicalChannel, radioAccessTechnology=$radioAccessTechnology, connectivity=$connectivity, throughput=$throughput, foregroundApp=$foregroundApp, callDetection=$callDetection, location=$location, backgroundLocation=$backgroundLocation, notifications=$notifications, surveyOverlay=$surveyOverlay)"
   }
 }
+
+/**
+ * One whole capture, everything except RTT, from a single native call per tick.
+ * Field semantics are the reference app's (DATA_CONTRACT §3).
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class CapturedSampleMessage (
+  val rsrp: Long? = null,
+  val rsrq: Long? = null,
+  val rssnr: Long? = null,
+  val timingAdvance: Long? = null,
+  val cellIdentityHash: String? = null,
+  val trackingAreaCode: Long? = null,
+  val signalStrengthLevel: Long? = null,
+  val radioStatus: MeasurementStatus,
+  val cellInfoAgeMs: Long? = null,
+  val cqi: Long? = null,
+  val cqiStatus: MeasurementStatus,
+  val cellBandwidthKhz: Long? = null,
+  val downlinkChannelNumber: Long? = null,
+  val uplinkChannelNumber: Long? = null,
+  val physicalChannelStatus: MeasurementStatus,
+  val networkType: String? = null,
+  val networkTypeStatus: MeasurementStatus,
+  val connectionType: String? = null,
+  val isRoaming: Boolean? = null,
+  val connectivityStatus: MeasurementStatus,
+  val throughputBytesPerSecond: Long? = null,
+  val throughputWindowMs: Long? = null,
+  val throughputStatus: MeasurementStatus,
+  val foregroundAppPackage: String? = null,
+  val appSessionType: SessionTypeMessage,
+  val foregroundAppStatus: MeasurementStatus,
+  val latitude: Double? = null,
+  val longitude: Double? = null,
+  val locationAccuracyMeters: Double? = null,
+  val locationAgeMs: Long? = null,
+  val locationStatus: MeasurementStatus,
+  /** SampleFieldGroup wire names (RADIO, CQI, …) this device could provide right now. */
+  val capabilitySet: List<String>,
+  val deviceModel: String,
+  val osSdkInt: Long,
+  val osVersion: String,
+  val appId: String,
+  val appVersion: String,
+  val appBuild: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): CapturedSampleMessage {
+      val rsrp = pigeonVar_list[0] as Long?
+      val rsrq = pigeonVar_list[1] as Long?
+      val rssnr = pigeonVar_list[2] as Long?
+      val timingAdvance = pigeonVar_list[3] as Long?
+      val cellIdentityHash = pigeonVar_list[4] as String?
+      val trackingAreaCode = pigeonVar_list[5] as Long?
+      val signalStrengthLevel = pigeonVar_list[6] as Long?
+      val radioStatus = pigeonVar_list[7] as MeasurementStatus
+      val cellInfoAgeMs = pigeonVar_list[8] as Long?
+      val cqi = pigeonVar_list[9] as Long?
+      val cqiStatus = pigeonVar_list[10] as MeasurementStatus
+      val cellBandwidthKhz = pigeonVar_list[11] as Long?
+      val downlinkChannelNumber = pigeonVar_list[12] as Long?
+      val uplinkChannelNumber = pigeonVar_list[13] as Long?
+      val physicalChannelStatus = pigeonVar_list[14] as MeasurementStatus
+      val networkType = pigeonVar_list[15] as String?
+      val networkTypeStatus = pigeonVar_list[16] as MeasurementStatus
+      val connectionType = pigeonVar_list[17] as String?
+      val isRoaming = pigeonVar_list[18] as Boolean?
+      val connectivityStatus = pigeonVar_list[19] as MeasurementStatus
+      val throughputBytesPerSecond = pigeonVar_list[20] as Long?
+      val throughputWindowMs = pigeonVar_list[21] as Long?
+      val throughputStatus = pigeonVar_list[22] as MeasurementStatus
+      val foregroundAppPackage = pigeonVar_list[23] as String?
+      val appSessionType = pigeonVar_list[24] as SessionTypeMessage
+      val foregroundAppStatus = pigeonVar_list[25] as MeasurementStatus
+      val latitude = pigeonVar_list[26] as Double?
+      val longitude = pigeonVar_list[27] as Double?
+      val locationAccuracyMeters = pigeonVar_list[28] as Double?
+      val locationAgeMs = pigeonVar_list[29] as Long?
+      val locationStatus = pigeonVar_list[30] as MeasurementStatus
+      val capabilitySet = pigeonVar_list[31] as List<String>
+      val deviceModel = pigeonVar_list[32] as String
+      val osSdkInt = pigeonVar_list[33] as Long
+      val osVersion = pigeonVar_list[34] as String
+      val appId = pigeonVar_list[35] as String
+      val appVersion = pigeonVar_list[36] as String
+      val appBuild = pigeonVar_list[37] as Long
+      return CapturedSampleMessage(rsrp, rsrq, rssnr, timingAdvance, cellIdentityHash, trackingAreaCode, signalStrengthLevel, radioStatus, cellInfoAgeMs, cqi, cqiStatus, cellBandwidthKhz, downlinkChannelNumber, uplinkChannelNumber, physicalChannelStatus, networkType, networkTypeStatus, connectionType, isRoaming, connectivityStatus, throughputBytesPerSecond, throughputWindowMs, throughputStatus, foregroundAppPackage, appSessionType, foregroundAppStatus, latitude, longitude, locationAccuracyMeters, locationAgeMs, locationStatus, capabilitySet, deviceModel, osSdkInt, osVersion, appId, appVersion, appBuild)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      rsrp,
+      rsrq,
+      rssnr,
+      timingAdvance,
+      cellIdentityHash,
+      trackingAreaCode,
+      signalStrengthLevel,
+      radioStatus,
+      cellInfoAgeMs,
+      cqi,
+      cqiStatus,
+      cellBandwidthKhz,
+      downlinkChannelNumber,
+      uplinkChannelNumber,
+      physicalChannelStatus,
+      networkType,
+      networkTypeStatus,
+      connectionType,
+      isRoaming,
+      connectivityStatus,
+      throughputBytesPerSecond,
+      throughputWindowMs,
+      throughputStatus,
+      foregroundAppPackage,
+      appSessionType,
+      foregroundAppStatus,
+      latitude,
+      longitude,
+      locationAccuracyMeters,
+      locationAgeMs,
+      locationStatus,
+      capabilitySet,
+      deviceModel,
+      osSdkInt,
+      osVersion,
+      appId,
+      appVersion,
+      appBuild,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as CapturedSampleMessage
+    return TelemetryApiPigeonUtils.deepEquals(this.rsrp, other.rsrp) && TelemetryApiPigeonUtils.deepEquals(this.rsrq, other.rsrq) && TelemetryApiPigeonUtils.deepEquals(this.rssnr, other.rssnr) && TelemetryApiPigeonUtils.deepEquals(this.timingAdvance, other.timingAdvance) && TelemetryApiPigeonUtils.deepEquals(this.cellIdentityHash, other.cellIdentityHash) && TelemetryApiPigeonUtils.deepEquals(this.trackingAreaCode, other.trackingAreaCode) && TelemetryApiPigeonUtils.deepEquals(this.signalStrengthLevel, other.signalStrengthLevel) && TelemetryApiPigeonUtils.deepEquals(this.radioStatus, other.radioStatus) && TelemetryApiPigeonUtils.deepEquals(this.cellInfoAgeMs, other.cellInfoAgeMs) && TelemetryApiPigeonUtils.deepEquals(this.cqi, other.cqi) && TelemetryApiPigeonUtils.deepEquals(this.cqiStatus, other.cqiStatus) && TelemetryApiPigeonUtils.deepEquals(this.cellBandwidthKhz, other.cellBandwidthKhz) && TelemetryApiPigeonUtils.deepEquals(this.downlinkChannelNumber, other.downlinkChannelNumber) && TelemetryApiPigeonUtils.deepEquals(this.uplinkChannelNumber, other.uplinkChannelNumber) && TelemetryApiPigeonUtils.deepEquals(this.physicalChannelStatus, other.physicalChannelStatus) && TelemetryApiPigeonUtils.deepEquals(this.networkType, other.networkType) && TelemetryApiPigeonUtils.deepEquals(this.networkTypeStatus, other.networkTypeStatus) && TelemetryApiPigeonUtils.deepEquals(this.connectionType, other.connectionType) && TelemetryApiPigeonUtils.deepEquals(this.isRoaming, other.isRoaming) && TelemetryApiPigeonUtils.deepEquals(this.connectivityStatus, other.connectivityStatus) && TelemetryApiPigeonUtils.deepEquals(this.throughputBytesPerSecond, other.throughputBytesPerSecond) && TelemetryApiPigeonUtils.deepEquals(this.throughputWindowMs, other.throughputWindowMs) && TelemetryApiPigeonUtils.deepEquals(this.throughputStatus, other.throughputStatus) && TelemetryApiPigeonUtils.deepEquals(this.foregroundAppPackage, other.foregroundAppPackage) && TelemetryApiPigeonUtils.deepEquals(this.appSessionType, other.appSessionType) && TelemetryApiPigeonUtils.deepEquals(this.foregroundAppStatus, other.foregroundAppStatus) && TelemetryApiPigeonUtils.deepEquals(this.latitude, other.latitude) && TelemetryApiPigeonUtils.deepEquals(this.longitude, other.longitude) && TelemetryApiPigeonUtils.deepEquals(this.locationAccuracyMeters, other.locationAccuracyMeters) && TelemetryApiPigeonUtils.deepEquals(this.locationAgeMs, other.locationAgeMs) && TelemetryApiPigeonUtils.deepEquals(this.locationStatus, other.locationStatus) && TelemetryApiPigeonUtils.deepEquals(this.capabilitySet, other.capabilitySet) && TelemetryApiPigeonUtils.deepEquals(this.deviceModel, other.deviceModel) && TelemetryApiPigeonUtils.deepEquals(this.osSdkInt, other.osSdkInt) && TelemetryApiPigeonUtils.deepEquals(this.osVersion, other.osVersion) && TelemetryApiPigeonUtils.deepEquals(this.appId, other.appId) && TelemetryApiPigeonUtils.deepEquals(this.appVersion, other.appVersion) && TelemetryApiPigeonUtils.deepEquals(this.appBuild, other.appBuild)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.rsrp)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.rsrq)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.rssnr)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.timingAdvance)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.cellIdentityHash)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.trackingAreaCode)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.signalStrengthLevel)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.radioStatus)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.cellInfoAgeMs)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.cqi)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.cqiStatus)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.cellBandwidthKhz)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.downlinkChannelNumber)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.uplinkChannelNumber)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.physicalChannelStatus)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.networkType)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.networkTypeStatus)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.connectionType)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.isRoaming)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.connectivityStatus)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.throughputBytesPerSecond)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.throughputWindowMs)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.throughputStatus)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.foregroundAppPackage)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.appSessionType)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.foregroundAppStatus)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.latitude)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.longitude)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.locationAccuracyMeters)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.locationAgeMs)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.locationStatus)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.capabilitySet)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.deviceModel)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.osSdkInt)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.osVersion)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.appId)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.appVersion)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.appBuild)
+    return result
+  }
+  override fun toString(): String {
+    return "CapturedSampleMessage(rsrp=$rsrp, rsrq=$rsrq, rssnr=$rssnr, timingAdvance=$timingAdvance, cellIdentityHash=$cellIdentityHash, trackingAreaCode=$trackingAreaCode, signalStrengthLevel=$signalStrengthLevel, radioStatus=$radioStatus, cellInfoAgeMs=$cellInfoAgeMs, cqi=$cqi, cqiStatus=$cqiStatus, cellBandwidthKhz=$cellBandwidthKhz, downlinkChannelNumber=$downlinkChannelNumber, uplinkChannelNumber=$uplinkChannelNumber, physicalChannelStatus=$physicalChannelStatus, networkType=$networkType, networkTypeStatus=$networkTypeStatus, connectionType=$connectionType, isRoaming=$isRoaming, connectivityStatus=$connectivityStatus, throughputBytesPerSecond=$throughputBytesPerSecond, throughputWindowMs=$throughputWindowMs, throughputStatus=$throughputStatus, foregroundAppPackage=$foregroundAppPackage, appSessionType=$appSessionType, foregroundAppStatus=$foregroundAppStatus, latitude=$latitude, longitude=$longitude, locationAccuracyMeters=$locationAccuracyMeters, locationAgeMs=$locationAgeMs, locationStatus=$locationStatus, capabilitySet=$capabilitySet, deviceModel=$deviceModel, osSdkInt=$osSdkInt, osVersion=$osVersion, appId=$appId, appVersion=$appVersion, appBuild=$appBuild)"
+  }
+}
+
+/**
+ * A rating tapped in the native overlay or notification, queued natively until Dart has
+ * stored it durably and acknowledged it.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class SurveyAnswerMessage (
+  val responseId: String,
+  val score: Long,
+  /** PERIODIC, POST_SESSION or ANOMALY. */
+  val triggerType: String,
+  val tapMs: Long,
+  val promptedAtMs: Long? = null,
+  /** OVERLAY, NOTIFICATION or IN_APP. */
+  val presentationMode: String
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): SurveyAnswerMessage {
+      val responseId = pigeonVar_list[0] as String
+      val score = pigeonVar_list[1] as Long
+      val triggerType = pigeonVar_list[2] as String
+      val tapMs = pigeonVar_list[3] as Long
+      val promptedAtMs = pigeonVar_list[4] as Long?
+      val presentationMode = pigeonVar_list[5] as String
+      return SurveyAnswerMessage(responseId, score, triggerType, tapMs, promptedAtMs, presentationMode)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      responseId,
+      score,
+      triggerType,
+      tapMs,
+      promptedAtMs,
+      presentationMode,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as SurveyAnswerMessage
+    return TelemetryApiPigeonUtils.deepEquals(this.responseId, other.responseId) && TelemetryApiPigeonUtils.deepEquals(this.score, other.score) && TelemetryApiPigeonUtils.deepEquals(this.triggerType, other.triggerType) && TelemetryApiPigeonUtils.deepEquals(this.tapMs, other.tapMs) && TelemetryApiPigeonUtils.deepEquals(this.promptedAtMs, other.promptedAtMs) && TelemetryApiPigeonUtils.deepEquals(this.presentationMode, other.presentationMode)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.responseId)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.score)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.triggerType)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.tapMs)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.promptedAtMs)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.presentationMode)
+    return result
+  }
+  override fun toString(): String {
+    return "SurveyAnswerMessage(responseId=$responseId, score=$score, triggerType=$triggerType, tapMs=$tapMs, promptedAtMs=$promptedAtMs, presentationMode=$presentationMode)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class CollectorStatusMessage (
+  val collectionEnabled: Boolean,
+  val serviceRunning: Boolean,
+  val lastUploadMs: Long? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): CollectorStatusMessage {
+      val collectionEnabled = pigeonVar_list[0] as Boolean
+      val serviceRunning = pigeonVar_list[1] as Boolean
+      val lastUploadMs = pigeonVar_list[2] as Long?
+      return CollectorStatusMessage(collectionEnabled, serviceRunning, lastUploadMs)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      collectionEnabled,
+      serviceRunning,
+      lastUploadMs,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as CollectorStatusMessage
+    return TelemetryApiPigeonUtils.deepEquals(this.collectionEnabled, other.collectionEnabled) && TelemetryApiPigeonUtils.deepEquals(this.serviceRunning, other.serviceRunning) && TelemetryApiPigeonUtils.deepEquals(this.lastUploadMs, other.lastUploadMs)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.collectionEnabled)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.serviceRunning)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.lastUploadMs)
+    return result
+  }
+  override fun toString(): String {
+    return "CollectorStatusMessage(collectionEnabled=$collectionEnabled, serviceRunning=$serviceRunning, lastUploadMs=$lastUploadMs)"
+  }
+}
 private open class TelemetryApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
@@ -327,8 +658,33 @@ private open class TelemetryApiPigeonCodec : StandardMessageCodec() {
         }
       }
       130.toByte() -> {
+        (readValue(buffer) as Long?)?.let {
+          MeasurementStatus.ofRaw(it.toInt())
+        }
+      }
+      131.toByte() -> {
+        (readValue(buffer) as Long?)?.let {
+          SessionTypeMessage.ofRaw(it.toInt())
+        }
+      }
+      132.toByte() -> {
         (readValue(buffer) as? List<Any?>)?.let {
           CapabilityReportMessage.fromList(it)
+        }
+      }
+      133.toByte() -> {
+        (readValue(buffer) as? List<Any?>)?.let {
+          CapturedSampleMessage.fromList(it)
+        }
+      }
+      134.toByte() -> {
+        (readValue(buffer) as? List<Any?>)?.let {
+          SurveyAnswerMessage.fromList(it)
+        }
+      }
+      135.toByte() -> {
+        (readValue(buffer) as? List<Any?>)?.let {
+          CollectorStatusMessage.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -340,8 +696,28 @@ private open class TelemetryApiPigeonCodec : StandardMessageCodec() {
         stream.write(129)
         writeValue(stream, value.raw.toLong())
       }
-      is CapabilityReportMessage -> {
+      is MeasurementStatus -> {
         stream.write(130)
+        writeValue(stream, value.raw.toLong())
+      }
+      is SessionTypeMessage -> {
+        stream.write(131)
+        writeValue(stream, value.raw.toLong())
+      }
+      is CapabilityReportMessage -> {
+        stream.write(132)
+        writeValue(stream, value.toList())
+      }
+      is CapturedSampleMessage -> {
+        stream.write(133)
+        writeValue(stream, value.toList())
+      }
+      is SurveyAnswerMessage -> {
+        stream.write(134)
+        writeValue(stream, value.toList())
+      }
+      is CollectorStatusMessage -> {
+        stream.write(135)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -375,6 +751,219 @@ interface TelemetryHostApi {
               }
               reply.reply(wrapped)
             }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+}
+/** Generated interface from Pigeon that represents a handler of messages from Flutter. */
+interface AndroidCollectorApi {
+  /**
+   * One full capture. Location waits at most [locationTimeoutMs] (SamplingPolicy). A radio
+   * or location reading older than [staleAfterMs] (the current sampling interval) is
+   * reported STALE, with its value kept.
+   */
+  suspend fun captureSample(locationTimeoutMs: Long, staleAfterMs: Long): CapturedSampleMessage
+  /**
+   * Persists the flag (read by BootReceiver), starts/stops the foreground service and
+   * schedules/cancels the hourly upload work.
+   */
+  fun setCollectionEnabled(enabled: Boolean)
+  fun status(): CollectorStatusMessage
+  /** Shows the overlay survey, or the notification fallback without overlay permission. */
+  fun presentSurvey(triggerType: String)
+  fun pendingSurveyAnswers(): List<SurveyAnswerMessage>
+  fun acknowledgeSurveyAnswers(responseIds: List<String>)
+  /** Called by the headless upload entrypoint when its run ends. */
+  fun uploadRunFinished(success: Boolean, uploadedRows: Long)
+  /** Opens a system settings screen: usageAccess, overlay, batteryOptimization or appDetails. */
+  fun openSystemSettings(target: String)
+  /** One-off upload now (same constraints as the hourly job). */
+  fun requestUploadNow()
+  fun recordConsent(timestampMs: Long)
+
+  companion object {
+    /** The codec used by AndroidCollectorApi. */
+    val codec: MessageCodec<Any?> by lazy {
+      TelemetryApiPigeonCodec()
+    }
+    /** Sets up an instance of `AndroidCollectorApi` to handle messages through the `binaryMessenger`. */
+    @JvmOverloads
+    fun setUp(binaryMessenger: BinaryMessenger, api: AndroidCollectorApi?, messageChannelSuffix: String = "") {
+      val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.captureSample$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val locationTimeoutMsArg = args[0] as Long
+            val staleAfterMsArg = args[1] as Long
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.captureSample(locationTimeoutMsArg, staleAfterMsArg))
+              } catch (exception: Throwable) {
+                TelemetryApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.setCollectionEnabled$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val enabledArg = args[0] as Boolean
+            val wrapped: List<Any?> = try {
+              api.setCollectionEnabled(enabledArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.status$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.status())
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.presentSurvey$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val triggerTypeArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              api.presentSurvey(triggerTypeArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.pendingSurveyAnswers$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.pendingSurveyAnswers())
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.acknowledgeSurveyAnswers$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val responseIdsArg = args[0] as List<String>
+            val wrapped: List<Any?> = try {
+              api.acknowledgeSurveyAnswers(responseIdsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.uploadRunFinished$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val successArg = args[0] as Boolean
+            val uploadedRowsArg = args[1] as Long
+            val wrapped: List<Any?> = try {
+              api.uploadRunFinished(successArg, uploadedRowsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.openSystemSettings$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val targetArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              api.openSystemSettings(targetArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.requestUploadNow$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.requestUploadNow()
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.recordConsent$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val timestampMsArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.recordConsent(timestampMsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)

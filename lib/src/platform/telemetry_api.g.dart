@@ -111,6 +111,25 @@ enum Availability {
   restricted;
 }
 
+/// Mirrors the Dart FieldStatus / DATA_CONTRACT §5.
+enum MeasurementStatus {
+  ok,
+  stale,
+  notSupported,
+  permissionDenied,
+  restricted,
+  notAttempted,
+  unavailable,
+  timeout,
+  failed;
+}
+
+enum SessionTypeMessage {
+  none,
+  socialMedia,
+  videoConferencing;
+}
+
 class CapabilityReportMessage {
   CapabilityReportMessage({
     required this.platform,
@@ -230,6 +249,368 @@ class CapabilityReportMessage {
   }
 }
 
+/// One whole capture, everything except RTT, from a single native call per tick.
+/// Field semantics are the reference app's (DATA_CONTRACT §3).
+class CapturedSampleMessage {
+  CapturedSampleMessage({
+    this.rsrp,
+    this.rsrq,
+    this.rssnr,
+    this.timingAdvance,
+    this.cellIdentityHash,
+    this.trackingAreaCode,
+    this.signalStrengthLevel,
+    required this.radioStatus,
+    this.cellInfoAgeMs,
+    this.cqi,
+    required this.cqiStatus,
+    this.cellBandwidthKhz,
+    this.downlinkChannelNumber,
+    this.uplinkChannelNumber,
+    required this.physicalChannelStatus,
+    this.networkType,
+    required this.networkTypeStatus,
+    this.connectionType,
+    this.isRoaming,
+    required this.connectivityStatus,
+    this.throughputBytesPerSecond,
+    this.throughputWindowMs,
+    required this.throughputStatus,
+    this.foregroundAppPackage,
+    required this.appSessionType,
+    required this.foregroundAppStatus,
+    this.latitude,
+    this.longitude,
+    this.locationAccuracyMeters,
+    this.locationAgeMs,
+    required this.locationStatus,
+    required this.capabilitySet,
+    required this.deviceModel,
+    required this.osSdkInt,
+    required this.osVersion,
+    required this.appId,
+    required this.appVersion,
+    required this.appBuild,
+  });
+
+  int? rsrp;
+
+  int? rsrq;
+
+  int? rssnr;
+
+  int? timingAdvance;
+
+  String? cellIdentityHash;
+
+  int? trackingAreaCode;
+
+  int? signalStrengthLevel;
+
+  MeasurementStatus radioStatus;
+
+  int? cellInfoAgeMs;
+
+  int? cqi;
+
+  MeasurementStatus cqiStatus;
+
+  int? cellBandwidthKhz;
+
+  int? downlinkChannelNumber;
+
+  int? uplinkChannelNumber;
+
+  MeasurementStatus physicalChannelStatus;
+
+  String? networkType;
+
+  MeasurementStatus networkTypeStatus;
+
+  String? connectionType;
+
+  bool? isRoaming;
+
+  MeasurementStatus connectivityStatus;
+
+  int? throughputBytesPerSecond;
+
+  int? throughputWindowMs;
+
+  MeasurementStatus throughputStatus;
+
+  String? foregroundAppPackage;
+
+  SessionTypeMessage appSessionType;
+
+  MeasurementStatus foregroundAppStatus;
+
+  double? latitude;
+
+  double? longitude;
+
+  double? locationAccuracyMeters;
+
+  int? locationAgeMs;
+
+  MeasurementStatus locationStatus;
+
+  /// SampleFieldGroup wire names (RADIO, CQI, …) this device could provide right now.
+  List<String> capabilitySet;
+
+  String deviceModel;
+
+  int osSdkInt;
+
+  String osVersion;
+
+  String appId;
+
+  String appVersion;
+
+  int appBuild;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      rsrp,
+      rsrq,
+      rssnr,
+      timingAdvance,
+      cellIdentityHash,
+      trackingAreaCode,
+      signalStrengthLevel,
+      radioStatus,
+      cellInfoAgeMs,
+      cqi,
+      cqiStatus,
+      cellBandwidthKhz,
+      downlinkChannelNumber,
+      uplinkChannelNumber,
+      physicalChannelStatus,
+      networkType,
+      networkTypeStatus,
+      connectionType,
+      isRoaming,
+      connectivityStatus,
+      throughputBytesPerSecond,
+      throughputWindowMs,
+      throughputStatus,
+      foregroundAppPackage,
+      appSessionType,
+      foregroundAppStatus,
+      latitude,
+      longitude,
+      locationAccuracyMeters,
+      locationAgeMs,
+      locationStatus,
+      capabilitySet,
+      deviceModel,
+      osSdkInt,
+      osVersion,
+      appId,
+      appVersion,
+      appBuild,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static CapturedSampleMessage decode(Object result) {
+    result as List<Object?>;
+    return CapturedSampleMessage(
+      rsrp: result[0] as int?,
+      rsrq: result[1] as int?,
+      rssnr: result[2] as int?,
+      timingAdvance: result[3] as int?,
+      cellIdentityHash: result[4] as String?,
+      trackingAreaCode: result[5] as int?,
+      signalStrengthLevel: result[6] as int?,
+      radioStatus: result[7]! as MeasurementStatus,
+      cellInfoAgeMs: result[8] as int?,
+      cqi: result[9] as int?,
+      cqiStatus: result[10]! as MeasurementStatus,
+      cellBandwidthKhz: result[11] as int?,
+      downlinkChannelNumber: result[12] as int?,
+      uplinkChannelNumber: result[13] as int?,
+      physicalChannelStatus: result[14]! as MeasurementStatus,
+      networkType: result[15] as String?,
+      networkTypeStatus: result[16]! as MeasurementStatus,
+      connectionType: result[17] as String?,
+      isRoaming: result[18] as bool?,
+      connectivityStatus: result[19]! as MeasurementStatus,
+      throughputBytesPerSecond: result[20] as int?,
+      throughputWindowMs: result[21] as int?,
+      throughputStatus: result[22]! as MeasurementStatus,
+      foregroundAppPackage: result[23] as String?,
+      appSessionType: result[24]! as SessionTypeMessage,
+      foregroundAppStatus: result[25]! as MeasurementStatus,
+      latitude: result[26] as double?,
+      longitude: result[27] as double?,
+      locationAccuracyMeters: result[28] as double?,
+      locationAgeMs: result[29] as int?,
+      locationStatus: result[30]! as MeasurementStatus,
+      capabilitySet: (result[31]! as List<Object?>).cast<String>(),
+      deviceModel: result[32]! as String,
+      osSdkInt: result[33]! as int,
+      osVersion: result[34]! as String,
+      appId: result[35]! as String,
+      appVersion: result[36]! as String,
+      appBuild: result[37]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! CapturedSampleMessage || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(rsrp, other.rsrp) && _deepEquals(rsrq, other.rsrq) && _deepEquals(rssnr, other.rssnr) && _deepEquals(timingAdvance, other.timingAdvance) && _deepEquals(cellIdentityHash, other.cellIdentityHash) && _deepEquals(trackingAreaCode, other.trackingAreaCode) && _deepEquals(signalStrengthLevel, other.signalStrengthLevel) && _deepEquals(radioStatus, other.radioStatus) && _deepEquals(cellInfoAgeMs, other.cellInfoAgeMs) && _deepEquals(cqi, other.cqi) && _deepEquals(cqiStatus, other.cqiStatus) && _deepEquals(cellBandwidthKhz, other.cellBandwidthKhz) && _deepEquals(downlinkChannelNumber, other.downlinkChannelNumber) && _deepEquals(uplinkChannelNumber, other.uplinkChannelNumber) && _deepEquals(physicalChannelStatus, other.physicalChannelStatus) && _deepEquals(networkType, other.networkType) && _deepEquals(networkTypeStatus, other.networkTypeStatus) && _deepEquals(connectionType, other.connectionType) && _deepEquals(isRoaming, other.isRoaming) && _deepEquals(connectivityStatus, other.connectivityStatus) && _deepEquals(throughputBytesPerSecond, other.throughputBytesPerSecond) && _deepEquals(throughputWindowMs, other.throughputWindowMs) && _deepEquals(throughputStatus, other.throughputStatus) && _deepEquals(foregroundAppPackage, other.foregroundAppPackage) && _deepEquals(appSessionType, other.appSessionType) && _deepEquals(foregroundAppStatus, other.foregroundAppStatus) && _deepEquals(latitude, other.latitude) && _deepEquals(longitude, other.longitude) && _deepEquals(locationAccuracyMeters, other.locationAccuracyMeters) && _deepEquals(locationAgeMs, other.locationAgeMs) && _deepEquals(locationStatus, other.locationStatus) && _deepEquals(capabilitySet, other.capabilitySet) && _deepEquals(deviceModel, other.deviceModel) && _deepEquals(osSdkInt, other.osSdkInt) && _deepEquals(osVersion, other.osVersion) && _deepEquals(appId, other.appId) && _deepEquals(appVersion, other.appVersion) && _deepEquals(appBuild, other.appBuild);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'CapturedSampleMessage(rsrp: $rsrp, rsrq: $rsrq, rssnr: $rssnr, timingAdvance: $timingAdvance, cellIdentityHash: $cellIdentityHash, trackingAreaCode: $trackingAreaCode, signalStrengthLevel: $signalStrengthLevel, radioStatus: $radioStatus, cellInfoAgeMs: $cellInfoAgeMs, cqi: $cqi, cqiStatus: $cqiStatus, cellBandwidthKhz: $cellBandwidthKhz, downlinkChannelNumber: $downlinkChannelNumber, uplinkChannelNumber: $uplinkChannelNumber, physicalChannelStatus: $physicalChannelStatus, networkType: $networkType, networkTypeStatus: $networkTypeStatus, connectionType: $connectionType, isRoaming: $isRoaming, connectivityStatus: $connectivityStatus, throughputBytesPerSecond: $throughputBytesPerSecond, throughputWindowMs: $throughputWindowMs, throughputStatus: $throughputStatus, foregroundAppPackage: $foregroundAppPackage, appSessionType: $appSessionType, foregroundAppStatus: $foregroundAppStatus, latitude: $latitude, longitude: $longitude, locationAccuracyMeters: $locationAccuracyMeters, locationAgeMs: $locationAgeMs, locationStatus: $locationStatus, capabilitySet: $capabilitySet, deviceModel: $deviceModel, osSdkInt: $osSdkInt, osVersion: $osVersion, appId: $appId, appVersion: $appVersion, appBuild: $appBuild)';
+  }
+}
+
+/// A rating tapped in the native overlay or notification, queued natively until Dart has
+/// stored it durably and acknowledged it.
+class SurveyAnswerMessage {
+  SurveyAnswerMessage({
+    required this.responseId,
+    required this.score,
+    required this.triggerType,
+    required this.tapMs,
+    this.promptedAtMs,
+    required this.presentationMode,
+  });
+
+  String responseId;
+
+  int score;
+
+  /// PERIODIC, POST_SESSION or ANOMALY.
+  String triggerType;
+
+  int tapMs;
+
+  int? promptedAtMs;
+
+  /// OVERLAY, NOTIFICATION or IN_APP.
+  String presentationMode;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      responseId,
+      score,
+      triggerType,
+      tapMs,
+      promptedAtMs,
+      presentationMode,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static SurveyAnswerMessage decode(Object result) {
+    result as List<Object?>;
+    return SurveyAnswerMessage(
+      responseId: result[0]! as String,
+      score: result[1]! as int,
+      triggerType: result[2]! as String,
+      tapMs: result[3]! as int,
+      promptedAtMs: result[4] as int?,
+      presentationMode: result[5]! as String,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! SurveyAnswerMessage || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(responseId, other.responseId) && _deepEquals(score, other.score) && _deepEquals(triggerType, other.triggerType) && _deepEquals(tapMs, other.tapMs) && _deepEquals(promptedAtMs, other.promptedAtMs) && _deepEquals(presentationMode, other.presentationMode);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'SurveyAnswerMessage(responseId: $responseId, score: $score, triggerType: $triggerType, tapMs: $tapMs, promptedAtMs: $promptedAtMs, presentationMode: $presentationMode)';
+  }
+}
+
+class CollectorStatusMessage {
+  CollectorStatusMessage({
+    required this.collectionEnabled,
+    required this.serviceRunning,
+    this.lastUploadMs,
+  });
+
+  bool collectionEnabled;
+
+  bool serviceRunning;
+
+  int? lastUploadMs;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      collectionEnabled,
+      serviceRunning,
+      lastUploadMs,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static CollectorStatusMessage decode(Object result) {
+    result as List<Object?>;
+    return CollectorStatusMessage(
+      collectionEnabled: result[0]! as bool,
+      serviceRunning: result[1]! as bool,
+      lastUploadMs: result[2] as int?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! CollectorStatusMessage || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(collectionEnabled, other.collectionEnabled) && _deepEquals(serviceRunning, other.serviceRunning) && _deepEquals(lastUploadMs, other.lastUploadMs);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'CollectorStatusMessage(collectionEnabled: $collectionEnabled, serviceRunning: $serviceRunning, lastUploadMs: $lastUploadMs)';
+  }
+}
+
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -241,8 +622,23 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is Availability) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is CapabilityReportMessage) {
+    }    else if (value is MeasurementStatus) {
       buffer.putUint8(130);
+      writeValue(buffer, value.index);
+    }    else if (value is SessionTypeMessage) {
+      buffer.putUint8(131);
+      writeValue(buffer, value.index);
+    }    else if (value is CapabilityReportMessage) {
+      buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    }    else if (value is CapturedSampleMessage) {
+      buffer.putUint8(133);
+      writeValue(buffer, value.encode());
+    }    else if (value is SurveyAnswerMessage) {
+      buffer.putUint8(134);
+      writeValue(buffer, value.encode());
+    }    else if (value is CollectorStatusMessage) {
+      buffer.putUint8(135);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -256,7 +652,19 @@ class _PigeonCodec extends StandardMessageCodec {
         final value = readValue(buffer) as int?;
         return value == null ? null : Availability.values[value];
       case 130:
+        final value = readValue(buffer) as int?;
+        return value == null ? null : MeasurementStatus.values[value];
+      case 131:
+        final value = readValue(buffer) as int?;
+        return value == null ? null : SessionTypeMessage.values[value];
+      case 132:
         return CapabilityReportMessage.decode(readValue(buffer)!);
+      case 133:
+        return CapturedSampleMessage.decode(readValue(buffer)!);
+      case 134:
+        return SurveyAnswerMessage.decode(readValue(buffer)!);
+      case 135:
+        return CollectorStatusMessage.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -297,5 +705,215 @@ class TelemetryHostApi {
     )
     ;
     return pigeonVar_replyValue! as CapabilityReportMessage;
+  }
+}
+
+class AndroidCollectorApi {
+  /// Constructor for [AndroidCollectorApi]. The [binaryMessenger] named argument is
+  /// available for dependency injection. If it is left null, the default
+  /// BinaryMessenger will be used which routes to the host platform.
+  AndroidCollectorApi({
+      BinaryMessenger? binaryMessenger, 
+      String messageChannelSuffix = '', 
+      })
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+
+  final BinaryMessenger? pigeonVar_binaryMessenger;
+  static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
+
+  final String pigeonVar_messageChannelSuffix;
+
+
+  /// One full capture. Location waits at most [locationTimeoutMs] (SamplingPolicy). A radio
+  /// or location reading older than [staleAfterMs] (the current sampling interval) is
+  /// reported STALE, with its value kept.
+  Future<CapturedSampleMessage> captureSample(int locationTimeoutMs, int staleAfterMs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.captureSample$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[locationTimeoutMs, staleAfterMs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as CapturedSampleMessage;
+  }
+
+  /// Persists the flag (read by BootReceiver), starts/stops the foreground service and
+  /// schedules/cancels the hourly upload work.
+  Future<void> setCollectionEnabled(bool enabled) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.setCollectionEnabled$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[enabled]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<CollectorStatusMessage> status() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.status$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as CollectorStatusMessage;
+  }
+
+  /// Shows the overlay survey, or the notification fallback without overlay permission.
+  Future<void> presentSurvey(String triggerType) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.presentSurvey$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[triggerType]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<List<SurveyAnswerMessage>> pendingSurveyAnswers() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.pendingSurveyAnswers$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return (pigeonVar_replyValue! as List<Object?>).cast<SurveyAnswerMessage>();
+  }
+
+  Future<void> acknowledgeSurveyAnswers(List<String> responseIds) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.acknowledgeSurveyAnswers$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[responseIds]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Called by the headless upload entrypoint when its run ends.
+  Future<void> uploadRunFinished(bool success, int uploadedRows) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.uploadRunFinished$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[success, uploadedRows]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Opens a system settings screen: usageAccess, overlay, batteryOptimization or appDetails.
+  Future<void> openSystemSettings(String target) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.openSystemSettings$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[target]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// One-off upload now (same constraints as the hourly job).
+  Future<void> requestUploadNow() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.requestUploadNow$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<void> recordConsent(int timestampMs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.recordConsent$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[timestampMs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 }
