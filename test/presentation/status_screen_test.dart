@@ -35,8 +35,9 @@ class _Control implements CollectorControl {
     enabled = e;
   }
 
+  bool? runningOverride;
   @override
-  Future<CollectorStatus> status() async => CollectorStatus(enabled: enabled, running: enabled);
+  Future<CollectorStatus> status() async => CollectorStatus(enabled: enabled, running: runningOverride ?? enabled);
   @override
   Future<void> presentTestSurvey() async => log.add('testSurvey');
   @override
@@ -131,6 +132,17 @@ void main() {
     expect(await buffer.count(), 1);
 
     await tester.tap(find.byKey(const ValueKey('collection')));
+    await tester.pumpAndSettle();
+    expect(log, contains('collection:true'));
+  });
+
+  testWidgets('opening the app restarts collection that should be on but was killed', (tester) async {
+    kv.values[SettingsKeys.onboardingComplete] = 'true';
+    final svc = services();
+    (svc.control as _Control).enabled = true; // flag on...
+    final control = svc.control as _Control;
+    control.runningOverride = false; // ...but the service isn't running
+    await tester.pumpWidget(QoESenseApp(services: svc));
     await tester.pumpAndSettle();
     expect(log, contains('collection:true'));
   });

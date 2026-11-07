@@ -122,6 +122,20 @@ void main() {
     expect(c.recentRsrp.last, -109);
   });
 
+  test('STALE (cached) RSRP readings never enter the anomaly window', () async {
+    final c = collector(
+      ScriptedSource([
+        () => captured(rsrp: -90),
+        () => captured(rsrp: -90, radioStatus: FieldStatus.stale),
+        () => captured(rsrp: -91),
+      ]),
+    );
+    for (var i = 0; i < 3; i++) {
+      await c.tick();
+    }
+    expect(c.recentRsrp, [-90, -91]);
+  });
+
   test('a failed capture is logged and the loop keeps going (one bad tick never stops collection)', () async {
     final errors = <Object>[];
     final source = ScriptedSource([captured])..throwOnNext = StateError('modem busy');

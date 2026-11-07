@@ -31,6 +31,12 @@ class _QoESenseAppState extends State<QoESenseApp> {
 
   Future<void> _load() async {
     final done = await _s.settings.read(SettingsKeys.onboardingComplete) == 'true';
+    if (done) {
+      // Safety net: some OEMs (e.g. Infinix/Transsion "AutoStart Limit") block the boot and
+      // after-update restarts. Opening the app brings collection back if it should be on.
+      final status = await _s.control.status();
+      if (status.enabled && !status.running) await _s.control.setCollectionEnabled(true);
+    }
     if (mounted) setState(() => _onboarded = done);
   }
 

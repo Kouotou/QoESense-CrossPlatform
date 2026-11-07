@@ -86,8 +86,10 @@ class Collector {
         await surveys.maybeTriggerPostSession();
       }
 
+      // Only FRESH readings feed the detector (owner decision, 2026-11-07). A STALE reading
+      // is a repeat of the modem's cache, and repeats would fake "prolonged stability".
       final rsrp = sample.rsrp;
-      if (rsrp != null) {
+      if (rsrp != null && sample.provenance.statusOf(SampleFieldGroup.radio) == FieldStatus.ok) {
         recentRsrp.add(rsrp);
         while (recentRsrp.length > RsrpAnomalyDetector.stabilityWindowSize) {
           recentRsrp.removeAt(0);

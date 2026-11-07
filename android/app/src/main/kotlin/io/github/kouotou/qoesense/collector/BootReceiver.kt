@@ -12,7 +12,9 @@ import io.github.kouotou.qoesense.upload.UploadScheduler
  */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
+        // MY_PACKAGE_REPLACED: an app update kills the process. Without this, collection would
+        // stay off until the next reboot or until the participant opens the app.
+        if (intent.action != Intent.ACTION_BOOT_COMPLETED && intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
         val app = context.applicationContext
         if (CollectorPrefs(app).collectionEnabled) {
             CollectorService.start(app)

@@ -14,6 +14,9 @@ import androidx.annotation.RequiresApi
 import io.github.kouotou.qoesense.MeasurementStatus
 import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Port of the reference telemetry/CellularTelemetrySource.kt. The capture logic is unchanged:
@@ -26,7 +29,12 @@ import java.util.concurrent.atomic.AtomicReference
  * - a status per group;
  * - the reading's own age from CellInfo's timestamp;
  * - networkType read independently of whether an LTE cell is visible (in the reference it
- *   was null whenever no LTE cell was visible).
+ *   was null whenever no LTE cell was visible);
+ * - **a fresh modem reading every capture** (requestCellInfoUpdate, API 29+). getAllCellInfo()
+ *   alone returns the modem's cached list. On the first test phone (Infinix X669, Android 12)
+ *   every sample was 7-10 minutes old with an identical RSRP: the cause of the reference's
+ *   duplicate rows. If no fresh list arrives within [FRESH_TIMEOUT_MS], it falls back to the
+ *   cached list, and the stale check marks that reading STALE.
  */
 class CellularTelemetrySource(private val context: Context) {
 
@@ -49,6 +57,11 @@ class CellularTelemetrySource(private val context: Context) {
         val networkType: String?,
         val networkTypeStatus: MeasurementStatus,
     )
+
+    private companion object {
+        /** Fits inside the 8 s in-call location budget, which runs concurrently. */
+        const val FRESH_TIMEOUT_MS = 5_000L
+    }
 
     private val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
     private val hasTelephony = context.packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
@@ -87,7 +100,7 @@ class CellularTelemetrySource(private val context: Context) {
     }
 
     @SuppressLint("MissingPermission") // guarded by PermissionUtils checks
-    fun readCurrent(staleAfterMs: Long): Reading {
+    suspend fun readCurrent(staleAfterMs: Long): Reading {
         if (!hasTelephony) return unsupported()
         start() // idempotent; picks up a permission granted after the service started
 
@@ -101,7 +114,7 @@ class CellularTelemetrySource(private val context: Context) {
             return empty(denied, cqiStatus(denied), physStatusIfNoValue, networkType, networkTypeStatus)
         }
 
-        val lteCells = telephonyManager.allCellInfo.orEmpty().filterIsInstance<CellInfoLte>()
+        val lteCells = cellInfo().filterIsInstance<CellInfoLte>()
         val cell = lteCells.firstOrNull { it.isRegistered } ?: lteCells.firstOrNull()
         if (cell == null) {
             val unavailable = MeasurementStatus.UNAVAILABLE
@@ -141,6 +154,35 @@ class CellularTelemetrySource(private val context: Context) {
             networkType = networkType,
             networkTypeStatus = networkTypeStatus,
         )
+    }
+
+    /** A fresh list from the modem when the platform supports it, else the cached list. */
+    @SuppressLint("MissingPermission") // callers check location + phone state first
+    private suspend fun cellInfo(): List<CellInfo> {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val fresh = withTimeoutOrNull(FRESH_TIMEOUT_MS) {
+                suspendCancellableCoroutine<List<CellInfo>?> { cont ->
+                    try {
+                        telephonyManager.requestCellInfoUpdate(
+                            context.mainExecutor,
+                            object : TelephonyManager.CellInfoCallback() {
+                                override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
+                                    if (cont.isActive) cont.resume(cellInfo.toList())
+                                }
+
+                                override fun onError(errorCode: Int, detail: Throwable?) {
+                                    if (cont.isActive) cont.resume(null)
+                                }
+                            },
+                        )
+                    } catch (e: SecurityException) {
+                        if (cont.isActive) cont.resume(null)
+                    }
+                }
+            }
+            if (!fresh.isNullOrEmpty()) return fresh
+        }
+        return telephonyManager.allCellInfo.orEmpty()
     }
 
     private fun cqiStatus(radio: MeasurementStatus) =

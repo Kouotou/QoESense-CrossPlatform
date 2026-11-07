@@ -9,22 +9,14 @@ import 'dart:typed_data' show Float64List, Int32List, Int64List;
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
-Object? _extractReplyValueOrThrow(
-    List<Object?>? replyList,
-    String channelName, {
-    required bool isNullValid,
-}) {
+Object? _extractReplyValueOrThrow(List<Object?>? replyList, String channelName, {required bool isNullValid}) {
   if (replyList == null) {
     throw PlatformException(
       code: 'channel-error',
       message: 'Unable to establish connection on channel: "$channelName".',
     );
   } else if (replyList.length > 1) {
-    throw PlatformException(
-      code: replyList[0]! as String,
-      message: replyList[1] as String?,
-      details: replyList[2],
-    );
+    throw PlatformException(code: replyList[0]! as String, message: replyList[1] as String?, details: replyList[2]);
   } else if (!isNullValid && (replyList.isNotEmpty && replyList[0] == null)) {
     throw PlatformException(
       code: 'null-error',
@@ -45,9 +37,7 @@ bool _deepEquals(Object? a, Object? b) {
     return a == b;
   }
   if (a is List && b is List) {
-    return a.length == b.length &&
-        a.indexed
-            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+    return a.length == b.length && a.indexed.every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -96,19 +86,21 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
-
 /// Whether a telemetry field group can actually be measured right now. Never faked: a group
 /// that is not [available] is written as null on the wire.
 enum Availability {
   /// The OS and hardware provide it and any needed permission is granted.
   available,
+
   /// The platform supports it but the participant hasn't granted the permission (yet).
   permissionMissing,
+
   /// No API exists on this platform at all (e.g. RSRP on iOS).
   unsupportedOnPlatform,
+
   /// An API exists but this app can't use it (e.g. carrier-privileged PhysicalChannelConfig,
   /// or an MDM/parental restriction on location).
-  restricted;
+  restricted,
 }
 
 /// Mirrors the Dart FieldStatus / DATA_CONTRACT §5.
@@ -121,14 +113,10 @@ enum MeasurementStatus {
   notAttempted,
   unavailable,
   timeout,
-  failed;
+  failed,
 }
 
-enum SessionTypeMessage {
-  none,
-  socialMedia,
-  videoConferencing;
-}
+enum SessionTypeMessage { none, socialMedia, videoConferencing }
 
 class CapabilityReportMessage {
   CapabilityReportMessage({
@@ -204,7 +192,8 @@ class CapabilityReportMessage {
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static CapabilityReportMessage decode(Object result) {
     result as List<Object?>;
@@ -236,7 +225,21 @@ class CapabilityReportMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(platform, other.platform) && _deepEquals(osMajorVersion, other.osMajorVersion) && _deepEquals(deviceModel, other.deviceModel) && _deepEquals(radioSignal, other.radioSignal) && _deepEquals(cqi, other.cqi) && _deepEquals(physicalChannel, other.physicalChannel) && _deepEquals(radioAccessTechnology, other.radioAccessTechnology) && _deepEquals(connectivity, other.connectivity) && _deepEquals(throughput, other.throughput) && _deepEquals(foregroundApp, other.foregroundApp) && _deepEquals(callDetection, other.callDetection) && _deepEquals(location, other.location) && _deepEquals(backgroundLocation, other.backgroundLocation) && _deepEquals(notifications, other.notifications) && _deepEquals(surveyOverlay, other.surveyOverlay);
+    return _deepEquals(platform, other.platform) &&
+        _deepEquals(osMajorVersion, other.osMajorVersion) &&
+        _deepEquals(deviceModel, other.deviceModel) &&
+        _deepEquals(radioSignal, other.radioSignal) &&
+        _deepEquals(cqi, other.cqi) &&
+        _deepEquals(physicalChannel, other.physicalChannel) &&
+        _deepEquals(radioAccessTechnology, other.radioAccessTechnology) &&
+        _deepEquals(connectivity, other.connectivity) &&
+        _deepEquals(throughput, other.throughput) &&
+        _deepEquals(foregroundApp, other.foregroundApp) &&
+        _deepEquals(callDetection, other.callDetection) &&
+        _deepEquals(location, other.location) &&
+        _deepEquals(backgroundLocation, other.backgroundLocation) &&
+        _deepEquals(notifications, other.notifications) &&
+        _deepEquals(surveyOverlay, other.surveyOverlay);
   }
 
   @override
@@ -414,7 +417,8 @@ class CapturedSampleMessage {
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static CapturedSampleMessage decode(Object result) {
     result as List<Object?>;
@@ -469,7 +473,44 @@ class CapturedSampleMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(rsrp, other.rsrp) && _deepEquals(rsrq, other.rsrq) && _deepEquals(rssnr, other.rssnr) && _deepEquals(timingAdvance, other.timingAdvance) && _deepEquals(cellIdentityHash, other.cellIdentityHash) && _deepEquals(trackingAreaCode, other.trackingAreaCode) && _deepEquals(signalStrengthLevel, other.signalStrengthLevel) && _deepEquals(radioStatus, other.radioStatus) && _deepEquals(cellInfoAgeMs, other.cellInfoAgeMs) && _deepEquals(cqi, other.cqi) && _deepEquals(cqiStatus, other.cqiStatus) && _deepEquals(cellBandwidthKhz, other.cellBandwidthKhz) && _deepEquals(downlinkChannelNumber, other.downlinkChannelNumber) && _deepEquals(uplinkChannelNumber, other.uplinkChannelNumber) && _deepEquals(physicalChannelStatus, other.physicalChannelStatus) && _deepEquals(networkType, other.networkType) && _deepEquals(networkTypeStatus, other.networkTypeStatus) && _deepEquals(connectionType, other.connectionType) && _deepEquals(isRoaming, other.isRoaming) && _deepEquals(connectivityStatus, other.connectivityStatus) && _deepEquals(throughputBytesPerSecond, other.throughputBytesPerSecond) && _deepEquals(throughputWindowMs, other.throughputWindowMs) && _deepEquals(throughputStatus, other.throughputStatus) && _deepEquals(foregroundAppPackage, other.foregroundAppPackage) && _deepEquals(appSessionType, other.appSessionType) && _deepEquals(foregroundAppStatus, other.foregroundAppStatus) && _deepEquals(latitude, other.latitude) && _deepEquals(longitude, other.longitude) && _deepEquals(locationAccuracyMeters, other.locationAccuracyMeters) && _deepEquals(locationAgeMs, other.locationAgeMs) && _deepEquals(locationStatus, other.locationStatus) && _deepEquals(capabilitySet, other.capabilitySet) && _deepEquals(deviceModel, other.deviceModel) && _deepEquals(osSdkInt, other.osSdkInt) && _deepEquals(osVersion, other.osVersion) && _deepEquals(appId, other.appId) && _deepEquals(appVersion, other.appVersion) && _deepEquals(appBuild, other.appBuild);
+    return _deepEquals(rsrp, other.rsrp) &&
+        _deepEquals(rsrq, other.rsrq) &&
+        _deepEquals(rssnr, other.rssnr) &&
+        _deepEquals(timingAdvance, other.timingAdvance) &&
+        _deepEquals(cellIdentityHash, other.cellIdentityHash) &&
+        _deepEquals(trackingAreaCode, other.trackingAreaCode) &&
+        _deepEquals(signalStrengthLevel, other.signalStrengthLevel) &&
+        _deepEquals(radioStatus, other.radioStatus) &&
+        _deepEquals(cellInfoAgeMs, other.cellInfoAgeMs) &&
+        _deepEquals(cqi, other.cqi) &&
+        _deepEquals(cqiStatus, other.cqiStatus) &&
+        _deepEquals(cellBandwidthKhz, other.cellBandwidthKhz) &&
+        _deepEquals(downlinkChannelNumber, other.downlinkChannelNumber) &&
+        _deepEquals(uplinkChannelNumber, other.uplinkChannelNumber) &&
+        _deepEquals(physicalChannelStatus, other.physicalChannelStatus) &&
+        _deepEquals(networkType, other.networkType) &&
+        _deepEquals(networkTypeStatus, other.networkTypeStatus) &&
+        _deepEquals(connectionType, other.connectionType) &&
+        _deepEquals(isRoaming, other.isRoaming) &&
+        _deepEquals(connectivityStatus, other.connectivityStatus) &&
+        _deepEquals(throughputBytesPerSecond, other.throughputBytesPerSecond) &&
+        _deepEquals(throughputWindowMs, other.throughputWindowMs) &&
+        _deepEquals(throughputStatus, other.throughputStatus) &&
+        _deepEquals(foregroundAppPackage, other.foregroundAppPackage) &&
+        _deepEquals(appSessionType, other.appSessionType) &&
+        _deepEquals(foregroundAppStatus, other.foregroundAppStatus) &&
+        _deepEquals(latitude, other.latitude) &&
+        _deepEquals(longitude, other.longitude) &&
+        _deepEquals(locationAccuracyMeters, other.locationAccuracyMeters) &&
+        _deepEquals(locationAgeMs, other.locationAgeMs) &&
+        _deepEquals(locationStatus, other.locationStatus) &&
+        _deepEquals(capabilitySet, other.capabilitySet) &&
+        _deepEquals(deviceModel, other.deviceModel) &&
+        _deepEquals(osSdkInt, other.osSdkInt) &&
+        _deepEquals(osVersion, other.osVersion) &&
+        _deepEquals(appId, other.appId) &&
+        _deepEquals(appVersion, other.appVersion) &&
+        _deepEquals(appBuild, other.appBuild);
   }
 
   @override
@@ -509,18 +550,12 @@ class SurveyAnswerMessage {
   String presentationMode;
 
   List<Object?> _toList() {
-    return <Object?>[
-      responseId,
-      score,
-      triggerType,
-      tapMs,
-      promptedAtMs,
-      presentationMode,
-    ];
+    return <Object?>[responseId, score, triggerType, tapMs, promptedAtMs, presentationMode];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static SurveyAnswerMessage decode(Object result) {
     result as List<Object?>;
@@ -543,7 +578,12 @@ class SurveyAnswerMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(responseId, other.responseId) && _deepEquals(score, other.score) && _deepEquals(triggerType, other.triggerType) && _deepEquals(tapMs, other.tapMs) && _deepEquals(promptedAtMs, other.promptedAtMs) && _deepEquals(presentationMode, other.presentationMode);
+    return _deepEquals(responseId, other.responseId) &&
+        _deepEquals(score, other.score) &&
+        _deepEquals(triggerType, other.triggerType) &&
+        _deepEquals(tapMs, other.tapMs) &&
+        _deepEquals(promptedAtMs, other.promptedAtMs) &&
+        _deepEquals(presentationMode, other.presentationMode);
   }
 
   @override
@@ -557,11 +597,7 @@ class SurveyAnswerMessage {
 }
 
 class CollectorStatusMessage {
-  CollectorStatusMessage({
-    required this.collectionEnabled,
-    required this.serviceRunning,
-    this.lastUploadMs,
-  });
+  CollectorStatusMessage({required this.collectionEnabled, required this.serviceRunning, this.lastUploadMs});
 
   bool collectionEnabled;
 
@@ -570,15 +606,12 @@ class CollectorStatusMessage {
   int? lastUploadMs;
 
   List<Object?> _toList() {
-    return <Object?>[
-      collectionEnabled,
-      serviceRunning,
-      lastUploadMs,
-    ];
+    return <Object?>[collectionEnabled, serviceRunning, lastUploadMs];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static CollectorStatusMessage decode(Object result) {
     result as List<Object?>;
@@ -598,7 +631,9 @@ class CollectorStatusMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(collectionEnabled, other.collectionEnabled) && _deepEquals(serviceRunning, other.serviceRunning) && _deepEquals(lastUploadMs, other.lastUploadMs);
+    return _deepEquals(collectionEnabled, other.collectionEnabled) &&
+        _deepEquals(serviceRunning, other.serviceRunning) &&
+        _deepEquals(lastUploadMs, other.lastUploadMs);
   }
 
   @override
@@ -611,7 +646,6 @@ class CollectorStatusMessage {
   }
 }
 
-
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -619,25 +653,25 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is Availability) {
+    } else if (value is Availability) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is MeasurementStatus) {
+    } else if (value is MeasurementStatus) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    }    else if (value is SessionTypeMessage) {
+    } else if (value is SessionTypeMessage) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    }    else if (value is CapabilityReportMessage) {
+    } else if (value is CapabilityReportMessage) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    }    else if (value is CapturedSampleMessage) {
+    } else if (value is CapturedSampleMessage) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    }    else if (value is SurveyAnswerMessage) {
+    } else if (value is SurveyAnswerMessage) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    }    else if (value is CollectorStatusMessage) {
+    } else if (value is CollectorStatusMessage) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
     } else {
@@ -675,21 +709,18 @@ class TelemetryHostApi {
   /// Constructor for [TelemetryHostApi]. The [binaryMessenger] named argument is
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  TelemetryHostApi({
-      BinaryMessenger? binaryMessenger, 
-      String messageChannelSuffix = '', 
-      })
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  TelemetryHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+    : pigeonVar_binaryMessenger = binaryMessenger,
+      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
 
   final BinaryMessenger? pigeonVar_binaryMessenger;
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
   final String pigeonVar_messageChannelSuffix;
 
-
   Future<CapabilityReportMessage> getCapabilityReport() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.TelemetryHostApi.getCapabilityReport$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.TelemetryHostApi.getCapabilityReport$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -699,11 +730,10 @@ class TelemetryHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as CapabilityReportMessage;
   }
 }
@@ -712,24 +742,21 @@ class AndroidCollectorApi {
   /// Constructor for [AndroidCollectorApi]. The [binaryMessenger] named argument is
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  AndroidCollectorApi({
-      BinaryMessenger? binaryMessenger, 
-      String messageChannelSuffix = '', 
-      })
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  AndroidCollectorApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+    : pigeonVar_binaryMessenger = binaryMessenger,
+      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
 
   final BinaryMessenger? pigeonVar_binaryMessenger;
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
   final String pigeonVar_messageChannelSuffix;
 
-
   /// One full capture. Location waits at most [locationTimeoutMs] (SamplingPolicy). A radio
   /// or location reading older than [staleAfterMs] (the current sampling interval) is
   /// reported STALE, with its value kept.
   Future<CapturedSampleMessage> captureSample(int locationTimeoutMs, int staleAfterMs) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.captureSample$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.captureSample$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -739,18 +766,18 @@ class AndroidCollectorApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as CapturedSampleMessage;
   }
 
   /// Persists the flag (read by BootReceiver), starts/stops the foreground service and
   /// schedules/cancels the hourly upload work.
   Future<void> setCollectionEnabled(bool enabled) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.setCollectionEnabled$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.setCollectionEnabled$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -759,16 +786,12 @@ class AndroidCollectorApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[enabled]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
   Future<CollectorStatusMessage> status() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.status$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.status$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -778,17 +801,17 @@ class AndroidCollectorApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as CollectorStatusMessage;
   }
 
   /// Shows the overlay survey, or the notification fallback without overlay permission.
   Future<void> presentSurvey(String triggerType) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.presentSurvey$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.presentSurvey$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -797,16 +820,12 @@ class AndroidCollectorApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[triggerType]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
   Future<List<SurveyAnswerMessage>> pendingSurveyAnswers() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.pendingSurveyAnswers$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.pendingSurveyAnswers$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -816,16 +835,16 @@ class AndroidCollectorApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return (pigeonVar_replyValue! as List<Object?>).cast<SurveyAnswerMessage>();
   }
 
   Future<void> acknowledgeSurveyAnswers(List<String> responseIds) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.acknowledgeSurveyAnswers$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.acknowledgeSurveyAnswers$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -834,17 +853,13 @@ class AndroidCollectorApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[responseIds]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
   /// Called by the headless upload entrypoint when its run ends.
   Future<void> uploadRunFinished(bool success, int uploadedRows) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.uploadRunFinished$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.uploadRunFinished$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -853,17 +868,13 @@ class AndroidCollectorApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[success, uploadedRows]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
   /// Opens a system settings screen: usageAccess, overlay, batteryOptimization or appDetails.
   Future<void> openSystemSettings(String target) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.openSystemSettings$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.openSystemSettings$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -872,17 +883,13 @@ class AndroidCollectorApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[target]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
   /// One-off upload now (same constraints as the hourly job).
   Future<void> requestUploadNow() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.requestUploadNow$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.requestUploadNow$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -891,16 +898,12 @@ class AndroidCollectorApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 
   Future<void> recordConsent(int timestampMs) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.recordConsent$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.qoesense.AndroidCollectorApi.recordConsent$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -909,11 +912,6 @@ class AndroidCollectorApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[timestampMs]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
-    _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
   }
 }

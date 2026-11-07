@@ -45,11 +45,14 @@ class AndroidCollectorHost(
     fun stop() = cellular.stop()
 
     override suspend fun captureSample(locationTimeoutMs: Long, staleAfterMs: Long): CapturedSampleMessage = coroutineScope {
-        val radio = cellular.readCurrent(staleAfterMs)
+        // The fresh radio read (≤5 s) and the location wait run concurrently, as RTT does in Dart.
+        val radioJob = async { cellular.readCurrent(staleAfterMs) }
+        val locJob = async { location.sampleOnce(locationTimeoutMs, staleAfterMs) }
         val net = connectivity.readCurrent()
         val session = usage.currentForegroundSession()
         val tput = throughput.sample()
-        val loc = async { location.sampleOnce(locationTimeoutMs, staleAfterMs) }.await()
+        val radio = radioJob.await()
+        val loc = locJob.await()
 
         val statuses = mapOf(
             "RADIO" to radio.radioStatus,
