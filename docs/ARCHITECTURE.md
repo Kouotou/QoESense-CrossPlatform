@@ -171,17 +171,45 @@ Each row is a Dart interface (`PermissionStrategy`, `BackgroundStrategy`,
 `SurveyPresenter`) with one implementation per platform, selected at startup. The shared UI
 asks *what* is needed; the strategy knows *how*.
 
-## 9. Open decisions (need your approval before the phase that uses them)
+## 9. Decisions
 
-| ID | Decision | Recommendation | Needed by |
-|---|---|---|---|
-| D-1 | Does this app eventually **replace** the reference Android app on participants' phones, or does Android stay on the native app? | Keep the native app for Android participants until this project's Android build has passed the same device verification. Then decide. Replacing it means the same `applicationId` and signing key, and a Room → drift data migration. | Phase 4 |
-| D-2 | Final application ID / bundle ID. The placeholder is `org.qoesense.xplat.qoesense`, which differs from the reference so both can be installed side by side for comparison. | Pick a real reverse-DNS ID you control, e.g. `cm.<university>.qoesense`. It's needed before the Firebase iOS registration. | Before Firebase registration |
-| D-3 | New `telemetryCapabilityTier` value **`IOS_RAT`** for iOS rows | Yes. It's a STRING column, so it's not a schema change, and it makes iOS rows identifiable even before `platform` is deployed. | Phase 3 |
-| D-4 | iOS `appSessionType` during a CallKit-detected call. CallKit can't tell a WhatsApp video call from a cellular voice call. | Use `VIDEO_CONFERENCING`, so the 15 s cadence applies to every call, and document that on iOS it means "some call was active". The alternative is a new value `CALL`, which loses the cadence rule. | Phase 3 |
-| D-5 | `androidVersion` (REQUIRED INT) on iOS rows | Write the iOS major version. Rows are told apart by tier and platform. A later additive `osVersion` column could clean this up. | Phase 3 |
-| D-6 | Where to store the iOS "what were you doing?" self-report | `contextSessionType` from the answer, and `contextAppPackage` from the Android package name of the chosen app (e.g. `com.whatsapp`), so analyses join uniformly. Self-reported vs. observed is told apart by `platform`. | Phase 3 |
-| D-7 | GitHub repository for this project | A new private repo, `QoESense-CrossPlatform`. Its CI includes a macOS job that compiles the Swift code, so not every iOS check needs the borrowed Mac. | Before pushing |
+Answered by the project owner on 2026-11-07, except where marked otherwise.
+
+| ID | Decision | Status |
+|---|---|---|
+| D-1 | **This app will replace the reference Android app on participants' phones.** The handover plan is in §9.1. | **Decided** |
+| D-2 | Final application ID / bundle ID. The placeholder is `org.qoesense.xplat.qoesense`. Recommended: `io.github.kouotou.qoesense`, the namespace of the owner's GitHub account. | **Awaiting confirmation.** Needed before the Firebase app registration. |
+| D-3 | iOS rows use the new `telemetryCapabilityTier` value **`IOS_RAT`**. It's a STRING value, not a schema change. | **Decided** |
+| D-4 | On iOS, any CallKit-detected call counts as `VIDEO_CONFERENCING`, so the 15 s cadence applies to every call. On iOS rows this value means "some call was active". | **Decided** |
+| D-5 | On iOS rows, `androidVersion` holds the iOS **major** version. Rows are told apart by tier and platform. | **Decided** |
+| D-6 | The iOS self-report sets `contextSessionType` from the answer, and `contextAppPackage` to the **Android package name** of the chosen app (e.g. `com.whatsapp`). Self-reported vs. observed is told apart by `platform`. | **Decided** |
+| D-7 | New **private** GitHub repo `Kouotou/QoESense-CrossPlatform`, whose CI includes the macOS Swift build. | **Decided.** The owner creates the repo. |
+
+### 9.1 Replacing the reference Android app (D-1)
+
+The new app uses a new application ID (D-2). `com.example.qoesense` can't go on the Play
+Store, and an Android ID can't be changed in place. So Android sees the new app as a
+**separate app**, not an update. The handover is:
+
+1. Participants install the new app next to the old one.
+2. The old app keeps running until its buffer has uploaded. Its status screen shows the
+   buffered count, which must reach 0.
+3. Then the participant uninstalls the old app.
+
+The old app's buffer is drained by the old app itself, so no data migration (Room → drift)
+is needed.
+
+**Research consequence:** the new install has a new anonymous UID, so each Android
+participant appears under two device IDs, an old one and a new one. If analyses need one
+continuous participant timeline, Phase 4 can add an optional, consented "link my previous
+device ID" step: the old app shows its UID, and the new app records it in
+`devices/{uid}.previousDeviceId`. That is a new Firestore field, not a BigQuery change, and
+it must be added to the consent text.
+
+**The alternative, if there will be no Play Store release:** keep `com.example.qoesense` and
+the reference signing key, so the new app installs as an update over the old one. That
+avoids the second UID, but it needs a Room → drift migration of the unsent buffer. It also
+locks out the Play Store, and the iOS bundle ID would still differ.
 
 ## 10. Phases
 

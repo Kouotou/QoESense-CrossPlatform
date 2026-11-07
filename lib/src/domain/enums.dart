@@ -39,7 +39,7 @@ enum TelemetryCapabilityTier {
   physchan30('PHYSCHAN_30'),
 
   /// iOS: radio access technology, connectivity, RTT, throughput, location only.
-  /// PROVISIONAL - pending decision D-3. A new STRING value, not a schema change.
+  /// Decision D-3 (2026-11-07). A new STRING value, not a schema change.
   iosRat('IOS_RAT');
 
   const TelemetryCapabilityTier(this.wireName);

@@ -55,7 +55,7 @@ explicitly, never omitted. Kotlin's `Json { encodeDefaults = true }` does the sa
 | 24 | `deviceModel` | string | **yes** | `Build.MODEL` | hardware identifier, e.g. `"iPhone14,5"` |
 | 25 | `androidVersion` | int | **yes** | `SDK_INT` | iOS **major** version, e.g. `18`; see D-5 |
 | 26 | `appVersion` | string | **yes** | versionName | `CFBundleShortVersionString` |
-| 27 | `telemetryCapabilityTier` | string | **yes** | `BASE_26`, `CQI_29`, `PHYSCHAN_30` | `IOS_RAT` (proposed); see D-3 |
+| 27 | `telemetryCapabilityTier` | string | **yes** | `BASE_26`, `CQI_29`, `PHYSCHAN_30` | `IOS_RAT` (decided, D-3) |
 | 28 | `deviceId` | string | **yes** | added at serialization | same |
 | 29 | `platform` | string\|null | | **only after functions are deployed** | 〃 |
 
