@@ -1,4 +1,4 @@
-package org.qoesense.xplat.qoesense
+package io.github.kouotou.qoesense
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

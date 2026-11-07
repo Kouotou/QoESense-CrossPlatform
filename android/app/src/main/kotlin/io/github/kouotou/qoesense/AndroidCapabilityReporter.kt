@@ -1,4 +1,4 @@
-package org.qoesense.xplat.qoesense
+package io.github.kouotou.qoesense
 
 import android.Manifest
 import android.app.AppOpsManager

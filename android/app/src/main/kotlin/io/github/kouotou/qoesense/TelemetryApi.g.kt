@@ -2,7 +2,7 @@
 // See also: https://pub.dev/packages/pigeon
 @file:Suppress("UNCHECKED_CAST", "ArrayInDataClass")
 
-package org.qoesense.xplat.qoesense
+package io.github.kouotou.qoesense
 
 import android.util.Log
 import io.flutter.plugin.common.BasicMessageChannel

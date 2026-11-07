@@ -28,4 +28,7 @@ changing any model, serializer or channel.
   `google-services.json`. `test/architecture/layering_test.dart` enforces this.
 - `domain/` and `application/` stay pure Dart, which is also enforced by a test.
 - iOS fields without a public API are null, never estimated.
-- Placeholder app ID `org.qoesense.xplat.qoesense` stays until decision D-2.
+- App ID / bundle ID is `io.github.kouotou.qoesense` (D-2). It is final, so never change it.
+- The new app replaces the reference app through a side-by-side handover (D-1, ARCHITECTURE §9.1).
+- GitHub `Kouotou/QoESense-CrossPlatform` (private). Actions are blocked while the GitHub
+  account's billing is locked, so run `tool\verify.ps1` locally before every push.

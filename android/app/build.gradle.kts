@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "org.qoesense.xplat.qoesense"
+    namespace = "io.github.kouotou.qoesense"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,9 +15,10 @@ android {
     }
 
     defaultConfig {
-        // PLACEHOLDER - see docs/ARCHITECTURE.md decision D-2. Deliberately different from the
-        // reference app's com.example.qoesense so both can be installed side by side.
-        applicationId = "org.qoesense.xplat.qoesense"
+        // Final ID (decision D-2, 2026-11-07). Different from the reference app's
+        // com.example.qoesense, so both install side by side during the D-1 handover.
+        // Never change it after release: a new ID is a new app.
+        applicationId = "io.github.kouotou.qoesense"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

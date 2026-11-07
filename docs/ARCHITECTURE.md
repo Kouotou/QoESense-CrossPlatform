@@ -178,7 +178,7 @@ Answered by the project owner on 2026-11-07, except where marked otherwise.
 | ID | Decision | Status |
 |---|---|---|
 | D-1 | **This app will replace the reference Android app on participants' phones.** The handover plan is in §9.1. | **Decided** |
-| D-2 | Final application ID / bundle ID. The placeholder is `org.qoesense.xplat.qoesense`. Recommended: `io.github.kouotou.qoesense`, the namespace of the owner's GitHub account. | **Awaiting confirmation.** Needed before the Firebase app registration. |
+| D-2 | Application ID and iOS bundle ID **`io.github.kouotou.qoesense`**, the namespace of the owner's GitHub account. It is the same on both platforms and must never change after release. | **Decided** |
 | D-3 | iOS rows use the new `telemetryCapabilityTier` value **`IOS_RAT`**. It's a STRING value, not a schema change. | **Decided** |
 | D-4 | On iOS, any CallKit-detected call counts as `VIDEO_CONFERENCING`, so the 15 s cadence applies to every call. On iOS rows this value means "some call was active". | **Decided** |
 | D-5 | On iOS rows, `androidVersion` holds the iOS **major** version. Rows are told apart by tier and platform. | **Decided** |

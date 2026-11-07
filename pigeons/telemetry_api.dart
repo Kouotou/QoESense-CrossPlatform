@@ -11,8 +11,8 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/src/platform/telemetry_api.g.dart',
     dartPackageName: 'qoesense',
-    kotlinOut: 'android/app/src/main/kotlin/org/qoesense/xplat/qoesense/TelemetryApi.g.kt',
-    kotlinOptions: KotlinOptions(package: 'org.qoesense.xplat.qoesense'),
+    kotlinOut: 'android/app/src/main/kotlin/io/github/kouotou/qoesense/TelemetryApi.g.kt',
+    kotlinOptions: KotlinOptions(package: 'io.github.kouotou.qoesense'),
     swiftOut: 'ios/Runner/TelemetryApi.g.swift',
   ),
 )
