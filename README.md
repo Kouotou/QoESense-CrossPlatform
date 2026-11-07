@@ -50,5 +50,6 @@ On a Mac: `./tool/verify.sh`. That script also compiles the Swift code.
 - Sampling: **60 s at rest / 15 s during a video call.** The handbook's 20 s / 5 s is superseded.
 - MOS: 1–5. Triggers: PERIODIC 2 h / POST_SESSION 15 min / ANOMALY 10 min. Cap: 6 per local day.
 - A row is deleted from the buffer only after a confirmed upload. Drain first, then retention (45 days).
-- `platform` isn't sent in telemetry batches until the functions deployment is confirmed.
+- Telemetry batches stay on contract **v1** until the v2 functions are deployed. v2 adds `platform`,
+  per-field status and quality metadata (docs/DATA_CONTRACT.md).
 - No secrets in this repo. The reference keystore and `google-services.json` are never copied here.

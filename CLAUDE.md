@@ -21,9 +21,11 @@ changing any model, serializer or channel.
 - Sampling is **60 s at rest / 15 s in a video call**. Older prompts and the handbook say
   20 s / 5 s; ignore them.
 - Backend is the existing Firebase/GCP `qoesense` project only.
-- No BigQuery schema or cloud-resource changes. Contract changes follow DATA_CONTRACT §6.
-- `BatchSerializer.defaultEmitPlatformField` stays `false` until the functions deployment is
-  confirmed. As of 2026-11-07 the deploy is blocked by billing.
+- No BigQuery schema or cloud-resource changes. Contract changes follow DATA_CONTRACT §7.
+- `BatchSerializer.defaultVersion` stays `ContractVersion.v1` until the v2 functions deployment
+  is confirmed (DATA_CONTRACT §7). As of 2026-11-07 the deploy is blocked by billing.
+- Golden files in `contracts/fixtures/` are the contract. Regenerate them with
+  `test/support/print_goldens.dart` only on purpose, and review the diff line by line.
 - No secrets in this repo: no keystores, no `keystore.properties`, no reference
   `google-services.json`. `test/architecture/layering_test.dart` enforces this.
 - `domain/` and `application/` stay pure Dart, which is also enforced by a test.
