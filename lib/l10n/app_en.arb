@@ -1,0 +1,26 @@
+{
+  "@@locale": "en",
+  "appTitle": "QoESense",
+  "statusTitle": "Device capabilities",
+  "statusIntro": "What this phone can measure for the study. Nothing is collected yet in this build.",
+  "statusLoadFailed": "Could not read device capabilities: {error}",
+  "@statusLoadFailed": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "availabilityAvailable": "Available",
+  "availabilityPermissionMissing": "Permission needed",
+  "availabilityUnsupported": "Not possible on this platform",
+  "availabilityRestricted": "Restricted by the system or carrier",
+  "groupRadioSignal": "Signal quality (RSRP, RSRQ, SINR, timing advance, cell)",
+  "groupCqi": "Channel quality indicator (CQI)",
+  "groupPhysicalChannel": "Physical channel (bandwidth, channel numbers)",
+  "groupRadioAccessTechnology": "Network type (LTE / 5G)",
+  "groupConnectivity": "Connection type (Wi-Fi / mobile)",
+  "groupThroughput": "Throughput",
+  "groupForegroundApp": "App in use",
+  "groupCallDetection": "Call detection",
+  "groupLocation": "Location",
+  "groupBackgroundLocation": "Location in the background",
+  "groupNotifications": "Notifications",
+  "groupSurveyOverlay": "Survey over other apps"
+}

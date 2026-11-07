@@ -1,0 +1,56 @@
+{
+  "source": "QoESense/functions/index.js on main @ 83a5821 (platform column committed, NOT yet deployed)",
+  "table": "qoesense_telemetry.mos_responses",
+  "fields": [
+    {
+      "name": "deviceId",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "responseId",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "score",
+      "type": "INTEGER",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "submittedAtMs",
+      "type": "INTEGER",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "triggerType",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "contextAppPackage",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "contextSessionType",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "windowStartMs",
+      "type": "INTEGER",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "windowEndMs",
+      "type": "INTEGER",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "platform",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ]
+}

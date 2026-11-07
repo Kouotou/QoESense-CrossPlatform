@@ -1,0 +1,14 @@
+package org.qoesense.xplat.qoesense
+
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+
+class MainActivity : FlutterActivity() {
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        TelemetryHostApi.setUp(
+            flutterEngine.dartExecutor.binaryMessenger,
+            AndroidCapabilityReporter(applicationContext),
+        )
+    }
+}

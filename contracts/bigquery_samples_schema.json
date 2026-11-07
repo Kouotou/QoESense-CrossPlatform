@@ -1,0 +1,151 @@
+{
+  "source": "QoESense/functions/index.js on main @ 83a5821 (platform column committed, NOT yet deployed)",
+  "table": "qoesense_telemetry.samples",
+  "fields": [
+    {
+      "name": "deviceId",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "timestampMs",
+      "type": "INTEGER",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "rsrp",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "rsrq",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "rssnr",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "timingAdvance",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "networkType",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "cellIdentityHash",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "trackingAreaCode",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "signalStrengthLevel",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "cqi",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "cqiSupported",
+      "type": "BOOLEAN",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "cellBandwidthKhz",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "downlinkChannelNumber",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "uplinkChannelNumber",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "connectionType",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "isRoaming",
+      "type": "BOOLEAN",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "throughputBytesPerSecond",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "rttMs",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "foregroundAppPackage",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "appSessionType",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "latitude",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "longitude",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "locationAccuracyMeters",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "deviceModel",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "androidVersion",
+      "type": "INTEGER",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "appVersion",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "telemetryCapabilityTier",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "platform",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ]
+}

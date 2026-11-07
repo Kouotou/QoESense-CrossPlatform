@@ -1,0 +1,27 @@
+include: package:flutter_lints/flutter.yaml
+
+formatter:
+  page_width: 120
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    # Generated code - checked by the "generated files are up to date" CI step instead.
+    - lib/src/platform/*.g.dart
+    - lib/l10n/generated/**
+  language:
+    strict-casts: true
+    strict-raw-types: true
+  errors:
+    # A missing case is a silent data bug in a research app - make it an error.
+    missing_enum_constant_in_switch: error
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - prefer_final_locals
+    - unawaited_futures
+    - directives_ordering

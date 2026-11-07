@@ -1,0 +1,7 @@
+# Normalise line endings in the repo so the Windows machine and the borrowed Mac produce
+# identical files (and the CI "generated files are up to date" diff stays clean).
+* text=auto eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.png binary
+*.jar binary
