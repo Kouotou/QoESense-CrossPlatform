@@ -156,7 +156,7 @@ class AppUsageMonitor(private val context: Context) {
         val pkg = trackForeground() ?: return Session(null, SessionTypeMessage.NONE, MeasurementStatus.UNAVAILABLE)
         val type = when {
             pkg in MonitoredApps.VIDEO_CONFERENCING_PACKAGES -> SessionTypeMessage.VIDEO_CONFERENCING
-            pkg == MonitoredApps.WHATSAPP_PACKAGE && isAudioCallActive() -> SessionTypeMessage.VIDEO_CONFERENCING
+            pkg in MonitoredApps.WHATSAPP_PACKAGES && isAudioCallActive() -> SessionTypeMessage.VIDEO_CONFERENCING
             pkg in MonitoredApps.SOCIAL_MEDIA_PACKAGES -> SessionTypeMessage.SOCIAL_MEDIA
             else -> SessionTypeMessage.NONE
         }
@@ -192,13 +192,17 @@ class AppUsageMonitor(private val context: Context) {
     }
 }
 
-/** Port of the reference MonitoredApps, unchanged. */
+/**
+ * Port of the reference MonitoredApps, plus **WhatsApp Business** (com.whatsapp.w4b). The
+ * reference only knew com.whatsapp, so a WhatsApp Business call (found on the test phone,
+ * 2026-11-09) never got the 15 s cadence. Business gets exactly the same treatment.
+ */
 object MonitoredApps {
-    val SOCIAL_MEDIA_PACKAGES = setOf("com.whatsapp", "com.facebook.katana", "com.instagram.android")
+    val WHATSAPP_PACKAGES = setOf("com.whatsapp", "com.whatsapp.w4b")
+    val SOCIAL_MEDIA_PACKAGES = WHATSAPP_PACKAGES + setOf("com.facebook.katana", "com.instagram.android")
     val VIDEO_CONFERENCING_PACKAGES = setOf(
         "us.zoom.videomeetings",
         "com.google.android.apps.meetings",
         "com.google.android.apps.classroom",
     )
-    const val WHATSAPP_PACKAGE = "com.whatsapp"
 }

@@ -55,6 +55,10 @@ private func wrapError(_ error: Any) -> [Any?] {
   ]
 }
 
+private func createConnectionError(withChannelName channelName: String) -> PigeonError {
+  return PigeonError(code: "channel-error", message: "Unable to establish connection on channel: '\(channelName)'.", details: "")
+}
+
 enum TelemetryApiPigeonInternal {
   static func isNullish(_ value: Any?) -> Bool {
     guard let innerValue = value else {
@@ -952,6 +956,50 @@ class AndroidCollectorApiSetup {
       }
     } else {
       recordConsentChannel.setMessageHandler(nil)
+    }
+  }
+}
+
+/// Native -> Dart events for the collector engine.
+///
+/// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
+protocol CollectorEventsProtocol {
+  /// A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
+  /// While the CPU sleeps, Dart timers don't advance. This lets the collector take an
+  /// overdue sample while the native wake lock is held.
+  @MainActor func wakeTick() async throws
+}
+class CollectorEvents: CollectorEventsProtocol {
+  private let binaryMessenger: FlutterBinaryMessenger
+  private let messageChannelSuffix: String
+  init(binaryMessenger: FlutterBinaryMessenger, messageChannelSuffix: String = "") {
+    self.binaryMessenger = binaryMessenger
+    self.messageChannelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
+  }
+  var codec: TelemetryApiPigeonCodec {
+    return TelemetryApiPigeonCodec.shared
+  }
+  /// A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
+  /// While the CPU sleeps, Dart timers don't advance. This lets the collector take an
+  /// overdue sample while the native wake lock is held.
+  @MainActor func wakeTick() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      let channelName: String = "dev.flutter.pigeon.qoesense.CollectorEvents.wakeTick\(messageChannelSuffix)"
+      let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+      channel.sendMessage(nil) { response in
+        guard let listResponse = response as? [Any?] else {
+          continuation.resume(throwing: createConnectionError(withChannelName: channelName))
+          return
+        }
+        if listResponse.count > 1 {
+          let code: String = listResponse[0] as! String
+          let message: String? = nilOrValue(listResponse[1])
+          let details: String? = nilOrValue(listResponse[2])
+          continuation.resume(throwing: PigeonError(code: code, message: message, details: details))
+        } else {
+          continuation.resume()
+        }
+      }
     }
   }
 }

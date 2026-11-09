@@ -18,11 +18,17 @@ import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.github.kouotou.qoesense.AndroidCollectorApi
+import io.github.kouotou.qoesense.CollectorEvents
 import io.github.kouotou.qoesense.MainActivity
 import io.github.kouotou.qoesense.R
 import io.github.kouotou.qoesense.TelemetryHostApi
 import io.github.kouotou.qoesense.AndroidCapabilityReporter
 import io.github.kouotou.qoesense.capture.PermissionUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /**
  * The native foreground service. Same lifecycle as the reference TelemetryForegroundService:
@@ -39,6 +45,8 @@ import io.github.kouotou.qoesense.capture.PermissionUtils
 class CollectorService : Service() {
     private var engine: FlutterEngine? = null
     private var host: AndroidCollectorHost? = null
+    private var events: CollectorEvents? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onCreate() {
         super.onCreate()
@@ -49,6 +57,8 @@ class CollectorService : Service() {
         ServiceCompat.startForeground(this, NOTIFICATION_ID, buildNotification(), foregroundTypes())
         isRunning = true
         if (engine == null) startEngine()
+        WakeAlarm.schedule(this)
+        instance = this
         return START_STICKY
     }
 
@@ -77,11 +87,14 @@ class CollectorService : Service() {
         )
         engine = e
         host = h
+        events = CollectorEvents(e.dartExecutor.binaryMessenger)
         Log.i(TAG, "collector engine started")
     }
 
     override fun onDestroy() {
         isRunning = false
+        instance = null
+        scope.cancel()
         host?.stop()
         engine?.destroy()
         engine = null
@@ -111,6 +124,21 @@ class CollectorService : Service() {
         @Volatile
         var isRunning = false
             private set
+
+        @Volatile
+        private var instance: CollectorService? = null
+
+        /** Forwards a Doze wake-up to the Dart collector (see WakeAlarm). */
+        fun wake() {
+            val s = instance ?: return
+            s.scope.launch {
+                try {
+                    s.events?.wakeTick()
+                } catch (e: Exception) {
+                    Log.w(TAG, "wakeTick not delivered", e)
+                }
+            }
+        }
 
         fun start(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, CollectorService::class.java))

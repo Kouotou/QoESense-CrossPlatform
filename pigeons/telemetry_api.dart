@@ -235,3 +235,12 @@ abstract class AndroidCollectorApi {
 
   void recordConsent(int timestampMs);
 }
+
+/// Native -> Dart events for the collector engine.
+@FlutterApi()
+abstract class CollectorEvents {
+  /// A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
+  /// While the CPU sleeps, Dart timers don't advance. This lets the collector take an
+  /// overdue sample while the native wake lock is held.
+  void wakeTick();
+}

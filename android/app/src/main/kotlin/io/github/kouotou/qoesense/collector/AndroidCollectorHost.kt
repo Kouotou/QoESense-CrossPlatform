@@ -117,6 +117,7 @@ class AndroidCollectorHost(
         } else {
             CollectorService.stop(appContext)
             UploadScheduler.cancel(appContext)
+            WakeAlarm.cancel(appContext)
         }
     }
 

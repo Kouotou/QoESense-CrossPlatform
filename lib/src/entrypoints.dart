@@ -75,10 +75,19 @@ Future<void> runCollector() async {
       );
     },
   );
+  CollectorEvents.setUp(_CollectorEvents(collector));
   _log('collector started (backend configured: ${backend.isConfigured})');
   await collector.run(
     afterTick: () => unawaited(mos?.run().catchError((Object e, StackTrace st) => _log('MOS pipeline failed', e, st))),
   );
+}
+
+class _CollectorEvents implements CollectorEvents {
+  _CollectorEvents(this._collector);
+  final Collector _collector;
+
+  @override
+  void wakeTick() => _collector.wake();
 }
 
 /// Body of the `uploadMain` entrypoint, run in a headless engine by the native

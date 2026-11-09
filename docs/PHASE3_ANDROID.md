@@ -1,8 +1,8 @@
 # Phase 3: Android integration
 
-**Status (2026-11-07):** the code is complete and compiles, and all host tests pass.
-**Device validation has not been done yet:** no phone was connected. Phase 3 isn't
-complete until §5 has been carried out on a physical phone, next to the reference app.
+**Status (2026-11-09): validated on a physical phone** (Infinix X669, Android 12, 2 days of
+collection, 1,103 samples). See §7 for the results. Still open: the battery comparison, and
+uploads to BigQuery (Firebase billing is blocked).
 
 The reference app `../QoESense` wasn't modified.
 
@@ -127,3 +127,24 @@ C:\Users\Ahmad\AppData\Local\Android\sdk\platform-tools\adb.exe logcat -s QoESen
 cmd /c "C:\Users\Ahmad\AppData\Local\Android\sdk\platform-tools\adb.exe exec-out run-as io.github.kouotou.qoesense cat app_flutter/qoesense.sqlite > qoesense.sqlite"
 cmd /c "C:\Users\Ahmad\AppData\Local\Android\sdk\platform-tools\adb.exe exec-out run-as io.github.kouotou.qoesense cat app_flutter/qoesense.sqlite-wal > qoesense.sqlite-wal"
 ```
+
+## 7. Device validation results (Infinix X669, Android 12, 2026-11-07 → 11-09)
+
+| Check | Result |
+|---|---|
+| Fresh radio readings | ✅ after fix M: 1,087/1,089 `OK`, median age 10 ms; RSRP −112…−70 across 13 cells. Identical back-to-back rows fell from 100% to 10%. |
+| Cadence while awake | ✅ exactly 60 samples/h (e.g. 11-07 20:00 → 11-08 04:00) |
+| Restart after reboot | ✅ once Auto-start was enabled. The Infinix "AutoStart Limit" blocks it otherwise; the participant instructions must say so. |
+| Restart after an app update | ✅ with Auto-start enabled, plus the open-app safety net |
+| Gaps while asleep (Doze) | ❌ → fixed by **decision C**: a `WakeAlarm` about every 10 min. Before the fix: ~1 sample/45 min, and one 5 h gap. |
+| Location/connectivity null for 36 h | ✅ explained: the owner had Wi-Fi and mobile data off. The statuses correctly said UNAVAILABLE / TIMEOUT. |
+| Survey daily cap | ✅ 6 prompts on 11-08, then none |
+| No stuck data | ✅ both the native and SQLite MOS queues were empty |
+| 15 s in-call cadence | ❌ for a **WhatsApp Business** call: `com.whatsapp.w4b` wasn't in the reference package list → fixed (difference O). See the re-test below. |
+| Battery | ⏳ not measured yet (statistics were reset by a charge) |
+| Uploads / BigQuery | ⏳ blocked by Firebase billing. The worker ran and correctly asked to retry. |
+
+| # | Behaviour | Reference | New app | Why |
+|---|---|---|---|---|
+| O | WhatsApp Business | Not monitored | `com.whatsapp.w4b` is treated exactly like `com.whatsapp` (social media, plus the call heuristic) | Found on the test phone. Very common in Cameroon. |
+| C | Gaps while asleep | Same coroutine timer, so presumably the same Doze gaps | `WakeAlarm` (`setAndAllowWhileIdle`, ~10 min) + a 30 s wake lock. The Dart loop takes the overdue sample. | Owner decision C, 2026-11-09 |

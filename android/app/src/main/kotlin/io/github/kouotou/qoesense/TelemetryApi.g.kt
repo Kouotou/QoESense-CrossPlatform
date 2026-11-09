@@ -21,6 +21,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 private object TelemetryApiPigeonUtils {
 
+  fun createConnectionError(channelName: String): FlutterError {
+    return FlutterError("channel-error",  "Unable to establish connection on channel: '$channelName'.", "")  }
+
   fun wrapResult(result: Any?): List<Any?> {
     return listOf(result)
   }
@@ -968,6 +971,43 @@ interface AndroidCollectorApi {
         } else {
           channel.setMessageHandler(null)
         }
+      }
+    }
+  }
+}
+/**
+ * Native -> Dart events for the collector engine.
+ *
+ * Generated class from Pigeon that represents Flutter messages that can be called from Kotlin.
+ */
+class CollectorEvents(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
+  companion object {
+    /** The codec used by CollectorEvents. */
+    val codec: MessageCodec<Any?> by lazy {
+      TelemetryApiPigeonCodec()
+    }
+  }
+  /**
+   * A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
+   * While the CPU sleeps, Dart timers don't advance. This lets the collector take an
+   * overdue sample while the native wake lock is held.
+   */
+  suspend fun wakeTick()
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    return suspendCancellableCoroutine { continuation ->
+      val channelName = "dev.flutter.pigeon.qoesense.CollectorEvents.wakeTick$separatedMessageChannelSuffix"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(null) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            continuation.resumeWithException(FlutterError(it[0] as String, it[1] as String, it[2] as String?))
+          } else {
+            continuation.resume(Unit)
+          }
+        } else {
+          continuation.resumeWithException(TelemetryApiPigeonUtils.createConnectionError(channelName))
+        } 
       }
     }
   }

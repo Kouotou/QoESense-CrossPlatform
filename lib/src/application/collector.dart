@@ -110,17 +110,49 @@ class Collector {
 
   /// Runs ticks until [stop]. [afterTick] lets the entrypoint piggyback light work (the MOS
   /// pipeline) without delaying the cadence.
+  ///
+  /// The wait between ticks ends either when its (monotonic) delay elapses, or when [wake]
+  /// is called **and** a full interval has passed on the wall clock. While the phone is in
+  /// Doze the CPU is suspended, monotonic time stands still, and timers stop. Native
+  /// wake-ups (decision C, about every 10 min) then take the overdue sample. A wake-up that
+  /// arrives before the interval is up (e.g. while the screen is on) is ignored, so it never
+  /// adds samples beyond the cadence.
   Future<void> run({void Function()? afterTick}) async {
     if (_running) return;
     _running = true;
     await surveys.ensureBaseline();
     while (_running) {
+      _lastTickAt = clock();
       final delayMs = await tick();
       afterTick?.call();
-      if (!_running) break;
-      await Future<void>.delayed(Duration(milliseconds: delayMs));
+      final intervalMs = SamplingPolicy.intervalFor(lastSessionType);
+      var remainingMs = delayMs;
+      while (_running) {
+        final signal = _wakeSignal = Completer<void>();
+        final woken = await Future.any([
+          Future<bool>.delayed(Duration(milliseconds: remainingMs), () => false),
+          signal.future.then((_) => true),
+        ]);
+        if (!woken) break;
+        final elapsedMs = clock().difference(_lastTickAt!).inMilliseconds;
+        if (elapsedMs >= intervalMs - _wakeSlackMs) break;
+        remainingMs = intervalMs - elapsedMs;
+      }
     }
   }
 
-  void stop() => _running = false;
+  /// Native Doze wake-up (CollectorEvents.wakeTick).
+  void wake() {
+    final s = _wakeSignal;
+    if (s != null && !s.isCompleted) s.complete();
+  }
+
+  void stop() {
+    _running = false;
+    wake();
+  }
+
+  Completer<void>? _wakeSignal;
+  DateTime? _lastTickAt;
+  static const _wakeSlackMs = 1000;
 }

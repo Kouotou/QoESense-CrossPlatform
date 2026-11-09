@@ -3,7 +3,8 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $BufferedSamplesTable extends BufferedSamples with TableInfo<$BufferedSamplesTable, BufferedSampleRow> {
+class $BufferedSamplesTable extends BufferedSamples
+    with TableInfo<$BufferedSamplesTable, BufferedSampleRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -17,9 +18,13 @@ class $BufferedSamplesTable extends BufferedSamples with TableInfo<$BufferedSamp
     hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'),
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
   );
-  static const VerificationMeta _timestampMsMeta = const VerificationMeta('timestampMs');
+  static const VerificationMeta _timestampMsMeta = const VerificationMeta(
+    'timestampMs',
+  );
   @override
   late final GeneratedColumn<int> timestampMs = GeneratedColumn<int>(
     'timestamp_ms',
@@ -28,7 +33,9 @@ class $BufferedSamplesTable extends BufferedSamples with TableInfo<$BufferedSamp
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _payloadMeta = const VerificationMeta('payload');
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
   @override
   late final GeneratedColumn<String> payload = GeneratedColumn<String>(
     'payload',
@@ -45,19 +52,31 @@ class $BufferedSamplesTable extends BufferedSamples with TableInfo<$BufferedSamp
   String get actualTableName => $name;
   static const String $name = 'buffered_samples';
   @override
-  VerificationContext validateIntegrity(Insertable<BufferedSampleRow> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<BufferedSampleRow> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('timestamp_ms')) {
-      context.handle(_timestampMsMeta, timestampMs.isAcceptableOrUnknown(data['timestamp_ms']!, _timestampMsMeta));
+      context.handle(
+        _timestampMsMeta,
+        timestampMs.isAcceptableOrUnknown(
+          data['timestamp_ms']!,
+          _timestampMsMeta,
+        ),
+      );
     } else if (isInserting) {
       context.missing(_timestampMsMeta);
     }
     if (data.containsKey('payload')) {
-      context.handle(_payloadMeta, payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
     } else if (isInserting) {
       context.missing(_payloadMeta);
     }
@@ -70,9 +89,18 @@ class $BufferedSamplesTable extends BufferedSamples with TableInfo<$BufferedSamp
   BufferedSampleRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return BufferedSampleRow(
-      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      timestampMs: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}timestamp_ms'])!,
-      payload: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      timestampMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}timestamp_ms'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
     );
   }
 
@@ -82,11 +110,16 @@ class $BufferedSamplesTable extends BufferedSamples with TableInfo<$BufferedSamp
   }
 }
 
-class BufferedSampleRow extends DataClass implements Insertable<BufferedSampleRow> {
+class BufferedSampleRow extends DataClass
+    implements Insertable<BufferedSampleRow> {
   final int id;
   final int timestampMs;
   final String payload;
-  const BufferedSampleRow({required this.id, required this.timestampMs, required this.payload});
+  const BufferedSampleRow({
+    required this.id,
+    required this.timestampMs,
+    required this.payload,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -97,10 +130,17 @@ class BufferedSampleRow extends DataClass implements Insertable<BufferedSampleRo
   }
 
   BufferedSamplesCompanion toCompanion(bool nullToAbsent) {
-    return BufferedSamplesCompanion(id: Value(id), timestampMs: Value(timestampMs), payload: Value(payload));
+    return BufferedSamplesCompanion(
+      id: Value(id),
+      timestampMs: Value(timestampMs),
+      payload: Value(payload),
+    );
   }
 
-  factory BufferedSampleRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory BufferedSampleRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BufferedSampleRow(
       id: serializer.fromJson<int>(json['id']),
@@ -118,15 +158,18 @@ class BufferedSampleRow extends DataClass implements Insertable<BufferedSampleRo
     };
   }
 
-  BufferedSampleRow copyWith({int? id, int? timestampMs, String? payload}) => BufferedSampleRow(
-    id: id ?? this.id,
-    timestampMs: timestampMs ?? this.timestampMs,
-    payload: payload ?? this.payload,
-  );
+  BufferedSampleRow copyWith({int? id, int? timestampMs, String? payload}) =>
+      BufferedSampleRow(
+        id: id ?? this.id,
+        timestampMs: timestampMs ?? this.timestampMs,
+        payload: payload ?? this.payload,
+      );
   BufferedSampleRow copyWithCompanion(BufferedSamplesCompanion data) {
     return BufferedSampleRow(
       id: data.id.present ? data.id.value : this.id,
-      timestampMs: data.timestampMs.present ? data.timestampMs.value : this.timestampMs,
+      timestampMs: data.timestampMs.present
+          ? data.timestampMs.value
+          : this.timestampMs,
       payload: data.payload.present ? data.payload.value : this.payload,
     );
   }
@@ -161,9 +204,12 @@ class BufferedSamplesCompanion extends UpdateCompanion<BufferedSampleRow> {
     this.timestampMs = const Value.absent(),
     this.payload = const Value.absent(),
   });
-  BufferedSamplesCompanion.insert({this.id = const Value.absent(), required int timestampMs, required String payload})
-    : timestampMs = Value(timestampMs),
-      payload = Value(payload);
+  BufferedSamplesCompanion.insert({
+    this.id = const Value.absent(),
+    required int timestampMs,
+    required String payload,
+  }) : timestampMs = Value(timestampMs),
+       payload = Value(payload);
   static Insertable<BufferedSampleRow> custom({
     Expression<int>? id,
     Expression<int>? timestampMs,
@@ -176,7 +222,11 @@ class BufferedSamplesCompanion extends UpdateCompanion<BufferedSampleRow> {
     });
   }
 
-  BufferedSamplesCompanion copyWith({Value<int>? id, Value<int>? timestampMs, Value<String>? payload}) {
+  BufferedSamplesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? timestampMs,
+    Value<String>? payload,
+  }) {
     return BufferedSamplesCompanion(
       id: id ?? this.id,
       timestampMs: timestampMs ?? this.timestampMs,
@@ -216,7 +266,9 @@ class $PendingMosResponsesTable extends PendingMosResponses
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $PendingMosResponsesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _responseIdMeta = const VerificationMeta('responseId');
+  static const VerificationMeta _responseIdMeta = const VerificationMeta(
+    'responseId',
+  );
   @override
   late final GeneratedColumn<String> responseId = GeneratedColumn<String>(
     'response_id',
@@ -225,7 +277,9 @@ class $PendingMosResponsesTable extends PendingMosResponses
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _payloadMeta = const VerificationMeta('payload');
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
   @override
   late final GeneratedColumn<String> payload = GeneratedColumn<String>(
     'payload',
@@ -234,7 +288,9 @@ class $PendingMosResponsesTable extends PendingMosResponses
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _attemptsMeta = const VerificationMeta('attempts');
+  static const VerificationMeta _attemptsMeta = const VerificationMeta(
+    'attempts',
+  );
   @override
   late final GeneratedColumn<int> attempts = GeneratedColumn<int>(
     'attempts',
@@ -244,7 +300,9 @@ class $PendingMosResponsesTable extends PendingMosResponses
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _createdAtMsMeta = const VerificationMeta('createdAtMs');
+  static const VerificationMeta _createdAtMsMeta = const VerificationMeta(
+    'createdAtMs',
+  );
   @override
   late final GeneratedColumn<int> createdAtMs = GeneratedColumn<int>(
     'created_at_ms',
@@ -254,31 +312,54 @@ class $PendingMosResponsesTable extends PendingMosResponses
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [responseId, payload, attempts, createdAtMs];
+  List<GeneratedColumn> get $columns => [
+    responseId,
+    payload,
+    attempts,
+    createdAtMs,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'pending_mos_responses';
   @override
-  VerificationContext validateIntegrity(Insertable<PendingMosResponse> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<PendingMosResponse> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('response_id')) {
-      context.handle(_responseIdMeta, responseId.isAcceptableOrUnknown(data['response_id']!, _responseIdMeta));
+      context.handle(
+        _responseIdMeta,
+        responseId.isAcceptableOrUnknown(data['response_id']!, _responseIdMeta),
+      );
     } else if (isInserting) {
       context.missing(_responseIdMeta);
     }
     if (data.containsKey('payload')) {
-      context.handle(_payloadMeta, payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
     } else if (isInserting) {
       context.missing(_payloadMeta);
     }
     if (data.containsKey('attempts')) {
-      context.handle(_attemptsMeta, attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta));
+      context.handle(
+        _attemptsMeta,
+        attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta),
+      );
     }
     if (data.containsKey('created_at_ms')) {
-      context.handle(_createdAtMsMeta, createdAtMs.isAcceptableOrUnknown(data['created_at_ms']!, _createdAtMsMeta));
+      context.handle(
+        _createdAtMsMeta,
+        createdAtMs.isAcceptableOrUnknown(
+          data['created_at_ms']!,
+          _createdAtMsMeta,
+        ),
+      );
     } else if (isInserting) {
       context.missing(_createdAtMsMeta);
     }
@@ -291,10 +372,22 @@ class $PendingMosResponsesTable extends PendingMosResponses
   PendingMosResponse map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return PendingMosResponse(
-      responseId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}response_id'])!,
-      payload: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
-      attempts: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}attempts'])!,
-      createdAtMs: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}created_at_ms'])!,
+      responseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}response_id'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      attempts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempts'],
+      )!,
+      createdAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_ms'],
+      )!,
     );
   }
 
@@ -304,7 +397,8 @@ class $PendingMosResponsesTable extends PendingMosResponses
   }
 }
 
-class PendingMosResponse extends DataClass implements Insertable<PendingMosResponse> {
+class PendingMosResponse extends DataClass
+    implements Insertable<PendingMosResponse> {
   final String responseId;
   final String payload;
   final int attempts;
@@ -334,7 +428,10 @@ class PendingMosResponse extends DataClass implements Insertable<PendingMosRespo
     );
   }
 
-  factory PendingMosResponse.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory PendingMosResponse.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PendingMosResponse(
       responseId: serializer.fromJson<String>(json['responseId']),
@@ -354,19 +451,27 @@ class PendingMosResponse extends DataClass implements Insertable<PendingMosRespo
     };
   }
 
-  PendingMosResponse copyWith({String? responseId, String? payload, int? attempts, int? createdAtMs}) =>
-      PendingMosResponse(
-        responseId: responseId ?? this.responseId,
-        payload: payload ?? this.payload,
-        attempts: attempts ?? this.attempts,
-        createdAtMs: createdAtMs ?? this.createdAtMs,
-      );
+  PendingMosResponse copyWith({
+    String? responseId,
+    String? payload,
+    int? attempts,
+    int? createdAtMs,
+  }) => PendingMosResponse(
+    responseId: responseId ?? this.responseId,
+    payload: payload ?? this.payload,
+    attempts: attempts ?? this.attempts,
+    createdAtMs: createdAtMs ?? this.createdAtMs,
+  );
   PendingMosResponse copyWithCompanion(PendingMosResponsesCompanion data) {
     return PendingMosResponse(
-      responseId: data.responseId.present ? data.responseId.value : this.responseId,
+      responseId: data.responseId.present
+          ? data.responseId.value
+          : this.responseId,
       payload: data.payload.present ? data.payload.value : this.payload,
       attempts: data.attempts.present ? data.attempts.value : this.attempts,
-      createdAtMs: data.createdAtMs.present ? data.createdAtMs.value : this.createdAtMs,
+      createdAtMs: data.createdAtMs.present
+          ? data.createdAtMs.value
+          : this.createdAtMs,
     );
   }
 
@@ -481,7 +586,8 @@ class PendingMosResponsesCompanion extends UpdateCompanion<PendingMosResponse> {
   }
 }
 
-class $KeyValuesTable extends KeyValues with TableInfo<$KeyValuesTable, KeyValue> {
+class $KeyValuesTable extends KeyValues
+    with TableInfo<$KeyValuesTable, KeyValue> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -512,16 +618,25 @@ class $KeyValuesTable extends KeyValues with TableInfo<$KeyValuesTable, KeyValue
   String get actualTableName => $name;
   static const String $name = 'key_values';
   @override
-  VerificationContext validateIntegrity(Insertable<KeyValue> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<KeyValue> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('key')) {
-      context.handle(_keyMeta, key.isAcceptableOrUnknown(data['key']!, _keyMeta));
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
     } else if (isInserting) {
       context.missing(_keyMeta);
     }
     if (data.containsKey('value')) {
-      context.handle(_valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
     } else if (isInserting) {
       context.missing(_valueMeta);
     }
@@ -534,8 +649,14 @@ class $KeyValuesTable extends KeyValues with TableInfo<$KeyValuesTable, KeyValue
   KeyValue map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return KeyValue(
-      key: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}key'])!,
-      value: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}value'])!,
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
     );
   }
 
@@ -561,17 +682,27 @@ class KeyValue extends DataClass implements Insertable<KeyValue> {
     return KeyValuesCompanion(key: Value(key), value: Value(value));
   }
 
-  factory KeyValue.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory KeyValue.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return KeyValue(key: serializer.fromJson<String>(json['key']), value: serializer.fromJson<String>(json['value']));
+    return KeyValue(
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+    );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{'key': serializer.toJson<String>(key), 'value': serializer.toJson<String>(value)};
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+    };
   }
 
-  KeyValue copyWith({String? key, String? value}) => KeyValue(key: key ?? this.key, value: value ?? this.value);
+  KeyValue copyWith({String? key, String? value}) =>
+      KeyValue(key: key ?? this.key, value: value ?? this.value);
   KeyValue copyWithCompanion(KeyValuesCompanion data) {
     return KeyValue(
       key: data.key.present ? data.key.value : this.key,
@@ -592,7 +723,8 @@ class KeyValue extends DataClass implements Insertable<KeyValue> {
   int get hashCode => Object.hash(key, value);
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is KeyValue && other.key == this.key && other.value == this.value);
+      identical(this, other) ||
+      (other is KeyValue && other.key == this.key && other.value == this.value);
 }
 
 class KeyValuesCompanion extends UpdateCompanion<KeyValue> {
@@ -604,10 +736,17 @@ class KeyValuesCompanion extends UpdateCompanion<KeyValue> {
     this.value = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  KeyValuesCompanion.insert({required String key, required String value, this.rowid = const Value.absent()})
-    : key = Value(key),
-      value = Value(value);
-  static Insertable<KeyValue> custom({Expression<String>? key, Expression<String>? value, Expression<int>? rowid}) {
+  KeyValuesCompanion.insert({
+    required String key,
+    required String value,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       value = Value(value);
+  static Insertable<KeyValue> custom({
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
     return RawValuesInsertable({
       if (key != null) 'key': key,
       if (value != null) 'value': value,
@@ -615,8 +754,16 @@ class KeyValuesCompanion extends UpdateCompanion<KeyValue> {
     });
   }
 
-  KeyValuesCompanion copyWith({Value<String>? key, Value<String>? value, Value<int>? rowid}) {
-    return KeyValuesCompanion(key: key ?? this.key, value: value ?? this.value, rowid: rowid ?? this.rowid);
+  KeyValuesCompanion copyWith({
+    Value<String>? key,
+    Value<String>? value,
+    Value<int>? rowid,
+  }) {
+    return KeyValuesCompanion(
+      key: key ?? this.key,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
   }
 
   @override
@@ -648,15 +795,19 @@ class KeyValuesCompanion extends UpdateCompanion<KeyValue> {
 abstract class _$QoESenseDatabase extends GeneratedDatabase {
   _$QoESenseDatabase(QueryExecutor e) : super(e);
   $QoESenseDatabaseManager get managers => $QoESenseDatabaseManager(this);
-  late final $BufferedSamplesTable bufferedSamples = $BufferedSamplesTable(this);
-  late final $PendingMosResponsesTable pendingMosResponses = $PendingMosResponsesTable(this);
+  late final $BufferedSamplesTable bufferedSamples = $BufferedSamplesTable(
+    this,
+  );
+  late final $PendingMosResponsesTable pendingMosResponses =
+      $PendingMosResponsesTable(this);
   late final $KeyValuesTable keyValues = $KeyValuesTable(this);
   late final Index bufferedSamplesTs = Index(
     'buffered_samples_ts',
     'CREATE INDEX buffered_samples_ts ON buffered_samples (timestamp_ms)',
   );
   @override
-  Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+  Iterable<TableInfo<Table, Object?>> get allTables =>
+      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     bufferedSamples,
@@ -666,18 +817,21 @@ abstract class _$QoESenseDatabase extends GeneratedDatabase {
   ];
 }
 
-typedef $$BufferedSamplesTableCreateCompanionBuilder = BufferedSamplesCompanion Function({
-  Value<int> id,
-  required int timestampMs,
-  required String payload,
-});
-typedef $$BufferedSamplesTableUpdateCompanionBuilder = BufferedSamplesCompanion Function({
-  Value<int> id,
-  Value<int> timestampMs,
-  Value<String> payload,
-});
+typedef $$BufferedSamplesTableCreateCompanionBuilder =
+    BufferedSamplesCompanion Function({
+      Value<int> id,
+      required int timestampMs,
+      required String payload,
+    });
+typedef $$BufferedSamplesTableUpdateCompanionBuilder =
+    BufferedSamplesCompanion Function({
+      Value<int> id,
+      Value<int> timestampMs,
+      Value<String> payload,
+    });
 
-class $$BufferedSamplesTableFilterComposer extends Composer<_$QoESenseDatabase, $BufferedSamplesTable> {
+class $$BufferedSamplesTableFilterComposer
+    extends Composer<_$QoESenseDatabase, $BufferedSamplesTable> {
   $$BufferedSamplesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -685,16 +839,24 @@ class $$BufferedSamplesTableFilterComposer extends Composer<_$QoESenseDatabase, 
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get timestampMs =>
-      $composableBuilder(column: $table.timestampMs, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get timestampMs => $composableBuilder(
+    column: $table.timestampMs,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get payload =>
-      $composableBuilder(column: $table.payload, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
-class $$BufferedSamplesTableOrderingComposer extends Composer<_$QoESenseDatabase, $BufferedSamplesTable> {
+class $$BufferedSamplesTableOrderingComposer
+    extends Composer<_$QoESenseDatabase, $BufferedSamplesTable> {
   $$BufferedSamplesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -702,16 +864,24 @@ class $$BufferedSamplesTableOrderingComposer extends Composer<_$QoESenseDatabase
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get timestampMs =>
-      $composableBuilder(column: $table.timestampMs, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get timestampMs => $composableBuilder(
+    column: $table.timestampMs,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get payload =>
-      $composableBuilder(column: $table.payload, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$BufferedSamplesTableAnnotationComposer extends Composer<_$QoESenseDatabase, $BufferedSamplesTable> {
+class $$BufferedSamplesTableAnnotationComposer
+    extends Composer<_$QoESenseDatabase, $BufferedSamplesTable> {
   $$BufferedSamplesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -719,11 +889,16 @@ class $$BufferedSamplesTableAnnotationComposer extends Composer<_$QoESenseDataba
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get timestampMs => $composableBuilder(column: $table.timestampMs, builder: (column) => column);
+  GeneratedColumn<int> get timestampMs => $composableBuilder(
+    column: $table.timestampMs,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<String> get payload => $composableBuilder(column: $table.payload, builder: (column) => column);
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
 }
 
 class $$BufferedSamplesTableTableManager
@@ -737,33 +912,59 @@ class $$BufferedSamplesTableTableManager
           $$BufferedSamplesTableAnnotationComposer,
           $$BufferedSamplesTableCreateCompanionBuilder,
           $$BufferedSamplesTableUpdateCompanionBuilder,
-          (BufferedSampleRow, BaseReferences<_$QoESenseDatabase, $BufferedSamplesTable, BufferedSampleRow>),
+          (
+            BufferedSampleRow,
+            BaseReferences<
+              _$QoESenseDatabase,
+              $BufferedSamplesTable,
+              BufferedSampleRow
+            >,
+          ),
           BufferedSampleRow,
           PrefetchHooks Function()
         > {
-  $$BufferedSamplesTableTableManager(_$QoESenseDatabase db, $BufferedSamplesTable table)
-    : super(
+  $$BufferedSamplesTableTableManager(
+    _$QoESenseDatabase db,
+    $BufferedSamplesTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () => $$BufferedSamplesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () => $$BufferedSamplesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () => $$BufferedSamplesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<int> timestampMs = const Value.absent(),
-            Value<String> payload = const Value.absent(),
-          }) => BufferedSamplesCompanion(id: id, timestampMs: timestampMs, payload: payload),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required int timestampMs,
-            required String payload,
-          }) => BufferedSamplesCompanion.insert(id: id, timestampMs: timestampMs, payload: payload),
+          createFilteringComposer: () =>
+              $$BufferedSamplesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BufferedSamplesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BufferedSamplesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> timestampMs = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+              }) => BufferedSamplesCompanion(
+                id: id,
+                timestampMs: timestampMs,
+                payload: payload,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int timestampMs,
+                required String payload,
+              }) => BufferedSamplesCompanion.insert(
+                id: id,
+                timestampMs: timestampMs,
+                payload: payload,
+              ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable<$BufferedSamplesTable, BufferedSampleRow>(table),
-                  BaseReferences<_$QoESenseDatabase, $BufferedSamplesTable, BufferedSampleRow>(db, table, e),
+                  BaseReferences<
+                    _$QoESenseDatabase,
+                    $BufferedSamplesTable,
+                    BufferedSampleRow
+                  >(db, table, e),
                 ),
               )
               .toList(),
@@ -782,26 +983,36 @@ typedef $$BufferedSamplesTableProcessedTableManager =
       $$BufferedSamplesTableAnnotationComposer,
       $$BufferedSamplesTableCreateCompanionBuilder,
       $$BufferedSamplesTableUpdateCompanionBuilder,
-      (BufferedSampleRow, BaseReferences<_$QoESenseDatabase, $BufferedSamplesTable, BufferedSampleRow>),
+      (
+        BufferedSampleRow,
+        BaseReferences<
+          _$QoESenseDatabase,
+          $BufferedSamplesTable,
+          BufferedSampleRow
+        >,
+      ),
       BufferedSampleRow,
       PrefetchHooks Function()
     >;
-typedef $$PendingMosResponsesTableCreateCompanionBuilder = PendingMosResponsesCompanion Function({
-  required String responseId,
-  required String payload,
-  Value<int> attempts,
-  required int createdAtMs,
-  Value<int> rowid,
-});
-typedef $$PendingMosResponsesTableUpdateCompanionBuilder = PendingMosResponsesCompanion Function({
-  Value<String> responseId,
-  Value<String> payload,
-  Value<int> attempts,
-  Value<int> createdAtMs,
-  Value<int> rowid,
-});
+typedef $$PendingMosResponsesTableCreateCompanionBuilder =
+    PendingMosResponsesCompanion Function({
+      required String responseId,
+      required String payload,
+      Value<int> attempts,
+      required int createdAtMs,
+      Value<int> rowid,
+    });
+typedef $$PendingMosResponsesTableUpdateCompanionBuilder =
+    PendingMosResponsesCompanion Function({
+      Value<String> responseId,
+      Value<String> payload,
+      Value<int> attempts,
+      Value<int> createdAtMs,
+      Value<int> rowid,
+    });
 
-class $$PendingMosResponsesTableFilterComposer extends Composer<_$QoESenseDatabase, $PendingMosResponsesTable> {
+class $$PendingMosResponsesTableFilterComposer
+    extends Composer<_$QoESenseDatabase, $PendingMosResponsesTable> {
   $$PendingMosResponsesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -809,20 +1020,29 @@ class $$PendingMosResponsesTableFilterComposer extends Composer<_$QoESenseDataba
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get responseId =>
-      $composableBuilder(column: $table.responseId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get responseId => $composableBuilder(
+    column: $table.responseId,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get payload =>
-      $composableBuilder(column: $table.payload, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get attempts =>
-      $composableBuilder(column: $table.attempts, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get attempts => $composableBuilder(
+    column: $table.attempts,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get createdAtMs =>
-      $composableBuilder(column: $table.createdAtMs, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
-class $$PendingMosResponsesTableOrderingComposer extends Composer<_$QoESenseDatabase, $PendingMosResponsesTable> {
+class $$PendingMosResponsesTableOrderingComposer
+    extends Composer<_$QoESenseDatabase, $PendingMosResponsesTable> {
   $$PendingMosResponsesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -830,20 +1050,29 @@ class $$PendingMosResponsesTableOrderingComposer extends Composer<_$QoESenseData
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get responseId =>
-      $composableBuilder(column: $table.responseId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get responseId => $composableBuilder(
+    column: $table.responseId,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get payload =>
-      $composableBuilder(column: $table.payload, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get attempts =>
-      $composableBuilder(column: $table.attempts, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get attempts => $composableBuilder(
+    column: $table.attempts,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get createdAtMs =>
-      $composableBuilder(column: $table.createdAtMs, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$PendingMosResponsesTableAnnotationComposer extends Composer<_$QoESenseDatabase, $PendingMosResponsesTable> {
+class $$PendingMosResponsesTableAnnotationComposer
+    extends Composer<_$QoESenseDatabase, $PendingMosResponsesTable> {
   $$PendingMosResponsesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -851,13 +1080,21 @@ class $$PendingMosResponsesTableAnnotationComposer extends Composer<_$QoESenseDa
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get responseId => $composableBuilder(column: $table.responseId, builder: (column) => column);
+  GeneratedColumn<String> get responseId => $composableBuilder(
+    column: $table.responseId,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<String> get payload => $composableBuilder(column: $table.payload, builder: (column) => column);
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
 
-  GeneratedColumn<int> get attempts => $composableBuilder(column: $table.attempts, builder: (column) => column);
+  GeneratedColumn<int> get attempts =>
+      $composableBuilder(column: $table.attempts, builder: (column) => column);
 
-  GeneratedColumn<int> get createdAtMs => $composableBuilder(column: $table.createdAtMs, builder: (column) => column);
+  GeneratedColumn<int> get createdAtMs => $composableBuilder(
+    column: $table.createdAtMs,
+    builder: (column) => column,
+  );
 }
 
 class $$PendingMosResponsesTableTableManager
@@ -871,18 +1108,36 @@ class $$PendingMosResponsesTableTableManager
           $$PendingMosResponsesTableAnnotationComposer,
           $$PendingMosResponsesTableCreateCompanionBuilder,
           $$PendingMosResponsesTableUpdateCompanionBuilder,
-          (PendingMosResponse, BaseReferences<_$QoESenseDatabase, $PendingMosResponsesTable, PendingMosResponse>),
+          (
+            PendingMosResponse,
+            BaseReferences<
+              _$QoESenseDatabase,
+              $PendingMosResponsesTable,
+              PendingMosResponse
+            >,
+          ),
           PendingMosResponse,
           PrefetchHooks Function()
         > {
-  $$PendingMosResponsesTableTableManager(_$QoESenseDatabase db, $PendingMosResponsesTable table)
-    : super(
+  $$PendingMosResponsesTableTableManager(
+    _$QoESenseDatabase db,
+    $PendingMosResponsesTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () => $$PendingMosResponsesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () => $$PendingMosResponsesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () => $$PendingMosResponsesTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () =>
+              $$PendingMosResponsesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PendingMosResponsesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PendingMosResponsesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
           updateCompanionCallback:
               ({
                 Value<String> responseId = const Value.absent(),
@@ -914,8 +1169,14 @@ class $$PendingMosResponsesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$PendingMosResponsesTable, PendingMosResponse>(table),
-                  BaseReferences<_$QoESenseDatabase, $PendingMosResponsesTable, PendingMosResponse>(db, table, e),
+                  e.readTable<$PendingMosResponsesTable, PendingMosResponse>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$QoESenseDatabase,
+                    $PendingMosResponsesTable,
+                    PendingMosResponse
+                  >(db, table, e),
                 ),
               )
               .toList(),
@@ -934,7 +1195,14 @@ typedef $$PendingMosResponsesTableProcessedTableManager =
       $$PendingMosResponsesTableAnnotationComposer,
       $$PendingMosResponsesTableCreateCompanionBuilder,
       $$PendingMosResponsesTableUpdateCompanionBuilder,
-      (PendingMosResponse, BaseReferences<_$QoESenseDatabase, $PendingMosResponsesTable, PendingMosResponse>),
+      (
+        PendingMosResponse,
+        BaseReferences<
+          _$QoESenseDatabase,
+          $PendingMosResponsesTable,
+          PendingMosResponse
+        >,
+      ),
       PendingMosResponse,
       PrefetchHooks Function()
     >;
@@ -949,7 +1217,8 @@ typedef $$KeyValuesTableUpdateCompanionBuilder = KeyValuesCompanion Function({
   Value<int> rowid,
 });
 
-class $$KeyValuesTableFilterComposer extends Composer<_$QoESenseDatabase, $KeyValuesTable> {
+class $$KeyValuesTableFilterComposer
+    extends Composer<_$QoESenseDatabase, $KeyValuesTable> {
   $$KeyValuesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -957,13 +1226,19 @@ class $$KeyValuesTableFilterComposer extends Composer<_$QoESenseDatabase, $KeyVa
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get key => $composableBuilder(column: $table.key, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get value =>
-      $composableBuilder(column: $table.value, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
-class $$KeyValuesTableOrderingComposer extends Composer<_$QoESenseDatabase, $KeyValuesTable> {
+class $$KeyValuesTableOrderingComposer
+    extends Composer<_$QoESenseDatabase, $KeyValuesTable> {
   $$KeyValuesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -971,14 +1246,19 @@ class $$KeyValuesTableOrderingComposer extends Composer<_$QoESenseDatabase, $Key
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get key =>
-      $composableBuilder(column: $table.key, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get value =>
-      $composableBuilder(column: $table.value, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$KeyValuesTableAnnotationComposer extends Composer<_$QoESenseDatabase, $KeyValuesTable> {
+class $$KeyValuesTableAnnotationComposer
+    extends Composer<_$QoESenseDatabase, $KeyValuesTable> {
   $$KeyValuesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -986,9 +1266,11 @@ class $$KeyValuesTableAnnotationComposer extends Composer<_$QoESenseDatabase, $K
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get key => $composableBuilder(column: $table.key, builder: (column) => column);
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
 
-  GeneratedColumn<String> get value => $composableBuilder(column: $table.value, builder: (column) => column);
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
 }
 
 class $$KeyValuesTableTableManager
@@ -1002,7 +1284,10 @@ class $$KeyValuesTableTableManager
           $$KeyValuesTableAnnotationComposer,
           $$KeyValuesTableCreateCompanionBuilder,
           $$KeyValuesTableUpdateCompanionBuilder,
-          (KeyValue, BaseReferences<_$QoESenseDatabase, $KeyValuesTable, KeyValue>),
+          (
+            KeyValue,
+            BaseReferences<_$QoESenseDatabase, $KeyValuesTable, KeyValue>,
+          ),
           KeyValue,
           PrefetchHooks Function()
         > {
@@ -1011,9 +1296,12 @@ class $$KeyValuesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () => $$KeyValuesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () => $$KeyValuesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () => $$KeyValuesTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () =>
+              $$KeyValuesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$KeyValuesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$KeyValuesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> key = const Value.absent(),
             Value<String> value = const Value.absent(),
@@ -1028,7 +1316,11 @@ class $$KeyValuesTableTableManager
               .map(
                 (e) => (
                   e.readTable<$KeyValuesTable, KeyValue>(table),
-                  BaseReferences<_$QoESenseDatabase, $KeyValuesTable, KeyValue>(db, table, e),
+                  BaseReferences<_$QoESenseDatabase, $KeyValuesTable, KeyValue>(
+                    db,
+                    table,
+                    e,
+                  ),
                 ),
               )
               .toList(),
@@ -1059,5 +1351,6 @@ class $QoESenseDatabaseManager {
       $$BufferedSamplesTableTableManager(_db, _db.bufferedSamples);
   $$PendingMosResponsesTableTableManager get pendingMosResponses =>
       $$PendingMosResponsesTableTableManager(_db, _db.pendingMosResponses);
-  $$KeyValuesTableTableManager get keyValues => $$KeyValuesTableTableManager(_db, _db.keyValues);
+  $$KeyValuesTableTableManager get keyValues =>
+      $$KeyValuesTableTableManager(_db, _db.keyValues);
 }
