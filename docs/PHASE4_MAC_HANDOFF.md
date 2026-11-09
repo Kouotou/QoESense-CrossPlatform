@@ -90,7 +90,7 @@ Written 2026-11-09 on the Windows PC, at the end of Phase 3.
 ```bash
 cd ~/dev/QoESense-CrossPlatform
 git checkout -b phase4/ios            # all Mac work on this branch
-./tool/verify.sh                      # format, codegen, analyze, tests, Android APK, iOS build (no signing)
+./tool/verify.sh                      # format, codegen, analyze, tests, iOS build (no signing); APK only if an Android SDK exists
 open ios/Runner.xcworkspace           # signing team, capabilities, run on the iPhone
 flutter run                           # with the iPhone connected and unlocked
 ```

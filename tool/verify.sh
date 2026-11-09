@@ -16,7 +16,12 @@ step "analyze" flutter analyze
 step "tests" flutter test
 
 if [[ -z "${SKIP_BUILDS:-}" ]]; then
-  step "Android debug build" flutter build apk --debug
+  # The borrowed Mac has no Android SDK: skip the APK there (the Windows PC builds it).
+  if [[ -n "${ANDROID_HOME:-}" || -d "$HOME/Library/Android/sdk" || -d "$HOME/Android/Sdk" ]]; then
+    step "Android debug build" flutter build apk --debug
+  else
+    echo "(no Android SDK found - skipping the APK build)"
+  fi
   if [[ "$(uname)" == "Darwin" ]]; then
     step "iOS build, no codesign (compiles Swift)" flutter build ios --debug --no-codesign
   fi
