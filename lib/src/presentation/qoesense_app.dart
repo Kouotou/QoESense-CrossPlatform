@@ -7,6 +7,7 @@ import '../application/settings_keys.dart';
 import 'app_services.dart';
 import 'onboarding_screen.dart';
 import 'status_screen.dart';
+import 'survey_sheet.dart';
 
 /// Root: the onboarding flow until it's finished, then the status screen (reference
 /// MainActivity behaviour).
@@ -18,15 +19,47 @@ class QoESenseApp extends StatefulWidget {
   State<QoESenseApp> createState() => _QoESenseAppState();
 }
 
-class _QoESenseAppState extends State<QoESenseApp> {
+class _QoESenseAppState extends State<QoESenseApp> with WidgetsBindingObserver {
   bool? _onboarded;
+  final _navigator = GlobalKey<NavigatorState>();
+  StreamSubscription<void>? _surveyTaps;
+  bool _sheetOpen = false;
 
   AppServices get _s => widget.services;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _surveyTaps = _s.surveyInbox?.opened.listen((_) => unawaited(_showOpenedSurvey()));
     unawaited(_load());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_surveyTaps?.cancel());
+    super.dispose();
+  }
+
+  // iOS: a tapped survey notification can arrive before the UI is up, or while it's paused.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) unawaited(_showOpenedSurvey());
+  }
+
+  Future<void> _showOpenedSurvey() async {
+    final inbox = _s.surveyInbox;
+    final context = _navigator.currentContext;
+    if (inbox == null || context == null || _sheetOpen || _onboarded != true) return;
+    final prompt = await inbox.takeOpened();
+    if (prompt == null || !context.mounted) return;
+    _sheetOpen = true;
+    try {
+      await SurveySheet.show(context, prompt, inbox);
+    } finally {
+      _sheetOpen = false;
+    }
   }
 
   Future<void> _load() async {
@@ -38,6 +71,7 @@ class _QoESenseAppState extends State<QoESenseApp> {
       if (status.enabled && !status.running) await _s.control.setCollectionEnabled(true);
     }
     if (mounted) setState(() => _onboarded = done);
+    if (done) WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_showOpenedSurvey()));
   }
 
   Future<void> _consented(int ms) async {
@@ -57,6 +91,7 @@ class _QoESenseAppState extends State<QoESenseApp> {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
+    navigatorKey: _navigator,
     onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,

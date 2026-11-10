@@ -272,4 +272,78 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingPermissionsTitle => 'Autorisations';
+
+  @override
+  String get welcomeBodyIos =>
+      'Cette application fait partie d\'un projet de recherche de Master (MSc) étudiant la qualité d\'expérience des réseaux mobiles. Fonctionnant discrètement en arrière-plan, elle enregistre le type de réseau et la qualité de connexion que iOS met à disposition, la localisation approximative, et si un appel est en cours - uniquement pour indiquer *quand* et *dans quelles conditions* une mesure a été prise.\n\nElle ne lit jamais le contenu des messages, l\'historique de navigation, ou quoi que ce soit que vous tapez. Sur les écrans suivants, nous vous demanderons les autorisations dont l\'application a besoin, en expliquant précisément pourquoi chacune est nécessaire avant de la demander.';
+
+  @override
+  String get consentBodyIos =>
+      'À PROPOS DE CETTE ÉTUDE\n\nQoESense fait partie d\'un projet de recherche de Master (MSc) étudiant comment les conditions du signal réseau affectent l\'expérience réelle des applications, afin qu\'à terme la qualité d\'expérience puisse être prédite directement à partir des données réseau. La participation est entièrement volontaire : vous pouvez arrêter à tout moment en désactivant la collecte dans l\'application ou en la désinstallant, sans aucune conséquence.\n\nCE QUE NOUS COLLECTONS SUR UN IPHONE\n\n- Type de réseau : si votre iPhone est en 4G (LTE), en 5G ou sur un réseau plus ancien, tel que iOS l\'indique.\n- Informations de connexion : Wi-Fi ou données mobiles, et une estimation du débit et de la latence (le temps que prend une petite requête de test).\n- Localisation approximative, relevée en même temps que chaque mesure réseau, afin de cartographier la couverture le long de vos trajets habituels.\n- Si un appel téléphonique ou internet (par exemple WhatsApp ou FaceTime) est en cours. iOS indique seulement à l\'application qu\'un appel est actif - jamais avec qui, par quelle application, ni ce qui est dit.\n- Le modèle de votre appareil, la version d\'iOS, et le numéro de version de l\'application elle-même.\n- Vos évaluations occasionnelles de la qualité du réseau (de 1 à 5) et, si vous choisissez de répondre, ce que vous faisiez à ce moment-là (par exemple « Appel WhatsApp »).\n\nCE QU\'UN IPHONE NE NOUS PERMET PAS DE COLLECTER\n\niOS ne donne pas aux applications les valeurs de force et de qualité du signal (RSRP, RSRQ, SINR), l\'identifiant de l\'antenne relais, le statut d\'itinérance, ni l\'application que vous utilisez. Cette application ne les collecte donc pas sur un iPhone, et ne les estime jamais.\n\nCE QUE NOUS NE COLLECTONS JAMAIS\n\nLe contenu des messages, le contenu des appels, l\'historique de navigation, les photos, les contacts, les frappes au clavier, ou tout ce qui est saisi dans une application - cette application n\'a accès à rien de tout cela et ne le demande pas.\n\nCOMMENT VOS DONNÉES SONT IDENTIFIÉES\n\nOn ne vous demande jamais votre nom, votre numéro de téléphone ou votre e-mail. Chaque installation reçoit un identifiant anonyme aléatoire généré par l\'application, et toutes vos données sont liées uniquement à cet identifiant - jamais à vous personnellement. Nous n\'avons aucun moyen de retrouver à qui appartient un identifiant donné à partir des données seules. Votre identifiant anonyme est affiché sur l\'écran d\'état de l\'application si vous avez besoin de le consulter.\n\nOÙ VONT VOS DONNÉES ET COMMENT ELLES SONT PROTÉGÉES\n\nLes données sont envoyées uniquement via Wi-Fi (jamais en utilisant vos données mobiles, un partage de connexion ou le mode Données réduites), chiffrées pendant le transfert, et stockées sur l\'infrastructure Google Firebase/Cloud avec un accès restreint à l\'équipe de recherche. Les données brutes sont mises en attente localement sur votre iPhone et ne sont supprimées qu\'une fois l\'envoi confirmé avec succès.\n\nCOMMENT VOS DONNÉES SONT UTILISÉES\n\nVos données seront utilisées pour construire et évaluer plusieurs modèles d\'apprentissage profond (deep learning) permettant de prédire la qualité d\'expérience réseau, dans le cadre d\'un projet de recherche de Master. Des résultats agrégés ou anonymisés pourront être publiés dans des travaux académiques ; les données brutes individuelles ne seront jamais partagées publiquement ni avec des tiers.\n\nAUTORISATIONS DEMANDÉES PAR CETTE APPLICATION, ET POURQUOI\n\n- Localisation (« Lorsque l\'app est active », puis « Toujours ») : utilisée pour cartographier la couverture réseau le long de vos trajets, et seul moyen que iOS accorde à une application pour continuer à mesurer en arrière-plan. Pendant la collecte en arrière-plan, iOS affiche un indicateur de localisation dans la barre d\'état.\n- Notifications : utilisées uniquement pour les invites occasionnelles d\'évaluation de la qualité, auxquelles vous pouvez répondre directement depuis la notification.\n\nLA COLLECTE SUR UN IPHONE COMPORTE DES INTERRUPTIONS\n\niOS décide quand les applications peuvent fonctionner. La collecte peut s\'interrompre - par exemple si vous fermez l\'application depuis le sélecteur d\'apps, si vous coupez son accès à la localisation, ou quand iOS l\'arrête pour économiser la batterie ou la mémoire - et reprend lorsque vous rouvrez l\'application ou que iOS la relance. Les périodes manquantes restent des interruptions : rien n\'est complété ni estimé.\n\nVOS DROITS\n\nLa participation est volontaire. Vous pouvez arrêter la collecte de données à tout moment depuis l\'écran d\'état de l\'application, ou vous retirer complètement en supprimant l\'application - dans les deux cas, aucune donnée supplémentaire ne sera collectée depuis votre appareil. Pour demander la suppression des données déjà envoyées et liées à votre appareil, contactez bilalkouotou@gmail.com en indiquant votre identifiant anonyme visible sur l\'écran d\'état.\n\nQUESTIONS OU PRÉOCCUPATIONS\n\nCette étude est menée par ENGR. KOUOTOU AHMAD BILAL, de l\'UNIVERSITY OF BUEA, sous l\'approbation DU VICE-CHANCELIER. Contactez bilalkouotou@gmail.com pour toute question.\n\nEn appuyant sur « J\'accepte, continuer » ci-dessous, vous confirmez avoir lu ce document et acceptez volontairement de participer.';
+
+  @override
+  String get locationBodyIos =>
+      'La localisation approximative est enregistrée avec chaque mesure réseau, afin de cartographier la qualité du réseau le long de vos trajets habituels pour l\'étude.\n\niOS vous demandera d\'abord d\'autoriser la localisation « Lorsque l\'app est active » - veuillez choisir cette option.';
+
+  @override
+  String get backgroundBodyIos =>
+      'Pour continuer à mesurer pendant que vous utilisez d\'autres apps ou que l\'écran est éteint, l\'application a besoin de la localisation « Toujours ». iOS vous demandera s\'il faut passer à « Toujours autoriser » - veuillez accepter. Si la question n\'apparaît pas, vous pourrez la modifier plus tard dans Réglages > QoESense > Position.\n\nNous demandons aussi l\'autorisation d\'envoyer des notifications, utilisées uniquement pour l\'invite occasionnelle d\'évaluation de la qualité - jamais pour des publicités ou des alertes sans rapport.';
+
+  @override
+  String get iosFinishTitle => 'Garder la collecte active';
+
+  @override
+  String get iosFinishBody =>
+      'iOS ne permet à l\'application de mesurer en arrière-plan que si son accès à la localisation est « Toujours ». Pour répondre à une invite d\'évaluation, appuyez longuement sur la notification et choisissez de 1 à 5, ou touchez-la pour ouvrir l\'application.\n\nVeuillez ne pas fermer QoESense depuis le sélecteur d\'apps : iOS pourrait alors arrêter la collecte jusqu\'à ce que vous rouvriez l\'application. Les interruptions restent du temps manquant, jamais complété.';
+
+  @override
+  String get iosAlwaysLocationGranted => 'Localisation « Toujours » : accordée';
+
+  @override
+  String get iosAlwaysLocationNotGranted => 'Localisation « Toujours » : non accordée';
+
+  @override
+  String get iosNotificationsGranted => 'Notifications : autorisées';
+
+  @override
+  String get iosNotificationsNotGranted => 'Notifications : non autorisées';
+
+  @override
+  String get iosOpenSettings => 'Ouvrir Réglages';
+
+  @override
+  String get surveyTitle => 'Comment était votre expérience réseau à l\'instant ?';
+
+  @override
+  String get surveyCaption => '1 = très mauvaise, 5 = excellente';
+
+  @override
+  String get surveyContextQuestion => 'Que faisiez-vous ? (facultatif)';
+
+  @override
+  String get surveyContextWhatsappCall => 'Appel WhatsApp';
+
+  @override
+  String get surveyContextWhatsappChat => 'Messages ou statuts WhatsApp';
+
+  @override
+  String get surveyContextFacebook => 'Facebook';
+
+  @override
+  String get surveyContextInstagram => 'Instagram';
+
+  @override
+  String get surveyContextZoom => 'Zoom';
+
+  @override
+  String get surveyContextGoogleMeet => 'Google Meet';
+
+  @override
+  String get surveyContextSomethingElse => 'Autre chose';
+
+  @override
+  String get surveySubmit => 'Envoyer la note';
+
+  @override
+  String get surveyNotNow => 'Pas maintenant';
 }

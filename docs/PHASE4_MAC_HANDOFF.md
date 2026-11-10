@@ -148,11 +148,82 @@ Everything that needs a Mac must be finished, or written down, before returning 
 
 ## 7. Phase 4 results (Mac session: fill this in before leaving)
 
-- Date(s):
-- Branch / last commit:
-- iOS build compiles: yes / no
-- Run on device (model, iOS version):
-- Validated:
+- Date(s): 2026-11-09 and 2026-11-10.
+- Branch / last commit: `phase4/ios` (see `git log`).
+- Toolchain: Xcode 27.2 (iOS 27.2 SDK, iOS 26.4 simulator), Flutter 3.47.9 in `~/dev/flutter`
+  (the Homebrew Flutter on PATH is 3.41.9, too old). The first Flutter download was truncated;
+  it was resumed and checked against Google's MD5.
+- iOS build compiles: **yes**. It is the first compile ever of the Swift side. `flutter build ios
+  --debug --no-codesign` and 24 XCTests on the simulator pass, as does `flutter test`.
+- What was built: everything in [PHASE4_IOS.md](PHASE4_IOS.md):
+  - the iOS capture;
+  - the headless collector engine;
+  - background location keep-alive and relaunch;
+  - in-loop and BGTask uploads;
+  - the actionable-notification survey and in-app sheet;
+  - iOS onboarding;
+  - the capability matrix.
+- Run on device (model, iOS version): **yes**. iPhone15,3 (iPhone 14 Pro Max, a friend's phone,
+  test data only), iOS 26. Release build, signed with the Personal Team `5LDC75A843` (free
+  Apple ID: the install expires after 7 days).
+- Validated on the device, 2026-11-09:
+  - PHASE4_IOS §8 #1, onboarding: passed. When-In-Use, then Always, then notifications were
+    granted, and collection is on.
+  - #2, capability screen: passed. Radio, CQI, physical channel, app in use and survey overlay
+    show "Not possible"; network type, connection, throughput, call detection, location,
+    background location and notifications show "Available".
+  - Samples are buffered (3 within the first minutes). The test survey notification was posted.
+  - 2026-11-10, after Firebase iOS registration: a new release build installed over the old one
+    kept the buffer (926 samples). Status shows anonymous ID **`UD1DfRM9K9Wow7GaL8BrGfbSFiG2`**,
+    so **Firebase Auth sign-in works on iOS**, and "Upload now" is enabled. **This is the
+    friend's test phone: every row and rating under this UID is test data**, to exclude or
+    delete (§5 step 6). Uploads may still fail until billing is fixed; the rows then stay
+    buffered.
+  - **Unplugged run, 2026-11-09 22:34 → 2026-11-10 20:52** (container downloaded with
+    `devicectl device copy from`; analysis script in the session scratchpad):
+    - 922 samples, all `IOS_RAT` / `IOS`, all radio, CQI, physical channel and foreground-app
+      groups `NOT_SUPPORTED`. No radio value or roaming flag appears anywhere.
+    - **Cadence:** 779 gaps of 55–65 s at rest and 115 gaps of 14–17 s in calls. The few
+      70 s gaps are a tick whose location wait took ~10 s: `timestampMs` is when the capture
+      completed, while the ticks still start 60 s apart.
+    - **Background continuity:** from 08:17 to 20:52 (12.6 h of normal use) no gap exceeds
+      70 s. #4 passed, and longer than the 1 h asked.
+    - **Two restarts**, each marked by `throughputStatus = UNAVAILABLE` on its first row:
+      - 23:25 → 23:30 (5.7 min, right after the airplane-mode test);
+      - 23:48 → 08:17 (8.5 h overnight).
+      The tester confirmed both: they swiped the app away in the app switcher, and they
+      reopened it themselves each time (23:30 and 08:17). No restart came from iOS. A force-quit
+      stops collection until the app is reopened, as documented.
+      **#9 is inconclusive:** the phone presumably didn't move ~500 m overnight before being
+      reopened, so the significant-change relaunch after a force-quit wasn't exercised. Repeat
+      it: swipe the app away, then travel more than 1 km without opening it.
+    - **#5, calls:** CallKit calls switch to the 15 s cadence (median 15.0 s), e.g. 36 samples
+      over 15:18–15:27. Cellular calls coincide with `networkType` LTE → OTHER, which is the
+      carrier's circuit-switched fallback (no VoLTE).
+    - **#6, transitions:** Wi-Fi → none (airplane) → cellular → Wi-Fi are all recorded.
+      `UNKNOWN` appears 20:32–20:35 (no service). No NR was seen on this network.
+    - **#3, measurements:**
+      - location: 908 `OK` + 14 `STALE`, median accuracy 8.8 m;
+      - RTT: 281 values, median 656 ms, 1 timeout and 1 failed probe;
+      - throughput: non-zero (median 2.9 kB/s, max 904 kB/s), which settles the open question
+        in the capability matrix: `getifaddrs` counters do work on device.
+    - **#7, survey:** 2 in-app sheet answers were queued as `NOTIFICATION` + `SELF_REPORTED`
+      ("something else"; Google Meet `VIDEO_CONFERENCING`). They are pending until Firebase.
+      On 11-10 the daily cap (6) was reached by 10:18, and none of those prompts were answered.
+      No notification-action answer is recorded yet.
+    - **#12, storage:** hourly upload attempts ran (last 20:18), and the unconfigured backend
+      deleted nothing. All 922 rows were still buffered.
+    - **Finding for the owner:** the proposed `ratDowngrade` rule fires on every cellular call
+      (circuit-switched fallback), and `POST_SESSION` follows every short call, so the 6-a-day
+      cap fills by mid-morning. Proposal: ignore RAT changes while a call is active
+      (PHASE4_IOS §6).
 - Not done / known issues:
-- Things that will need a Mac again:
-- Firebase iOS registered: yes / no
+  - the Android build isn't confirmed after the Pigeon change (the Mac SDK lacks `android-37`);
+    run `tool\verify.ps1` on Windows;
+  - the iOS consent and permission texts are drafts waiting for the owner;
+  - the iOS anomaly rules are proposed, not approved.
+- Things that will need a Mac again: device validation, if it isn't finished in this session;
+  any Swift change; a TestFlight build.
+- Firebase iOS registered: **yes**, on 2026-11-10 from the Windows PC (app ID
+  `1:412391455735:ios:6aeb22d05ae939d991ccf2`). The values are in `QoESenseFirebaseOptions.ios`.
+  No `GoogleService-Info.plist` exists on this Mac or in the repo.

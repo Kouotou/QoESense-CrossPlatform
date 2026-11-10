@@ -256,6 +256,21 @@ enum class SessionTypeMessage(val raw: Int) {
   }
 }
 
+/** CLAuthorizationStatus, as the onboarding needs it. */
+enum class LocationAuthorizationMessage(val raw: Int) {
+  NOT_DETERMINED(0),
+  DENIED(1),
+  RESTRICTED(2),
+  WHEN_IN_USE(3),
+  ALWAYS(4);
+
+  companion object {
+    fun ofRaw(raw: Int): LocationAuthorizationMessage? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class CapabilityReportMessage (
   /** "ANDROID" or "IOS" - same values as the BigQuery `platform` column. */
@@ -557,8 +572,18 @@ data class SurveyAnswerMessage (
   val triggerType: String,
   val tapMs: Long,
   val promptedAtMs: Long? = null,
-  /** OVERLAY, NOTIFICATION or IN_APP. */
-  val presentationMode: String
+  /** OVERLAY, NOTIFICATION, NOTIFICATION_ACTION or IN_APP. */
+  val presentationMode: String,
+  /**
+   * iOS self-report (D-6): the Android package name of the app the participant chose, or
+   * null for "something else". Always null on Android, where the context is observed.
+   */
+  val contextAppPackage: String? = null,
+  /**
+   * iOS self-report: NONE, SOCIAL_MEDIA or VIDEO_CONFERENCING. Null when the question
+   * wasn't asked or was skipped (contextSource UNKNOWN).
+   */
+  val contextSessionType: String? = null
 )
  {
   companion object {
@@ -569,7 +594,9 @@ data class SurveyAnswerMessage (
       val tapMs = pigeonVar_list[3] as Long
       val promptedAtMs = pigeonVar_list[4] as Long?
       val presentationMode = pigeonVar_list[5] as String
-      return SurveyAnswerMessage(responseId, score, triggerType, tapMs, promptedAtMs, presentationMode)
+      val contextAppPackage = pigeonVar_list[6] as String?
+      val contextSessionType = pigeonVar_list[7] as String?
+      return SurveyAnswerMessage(responseId, score, triggerType, tapMs, promptedAtMs, presentationMode, contextAppPackage, contextSessionType)
     }
   }
   fun toList(): List<Any?> {
@@ -580,6 +607,8 @@ data class SurveyAnswerMessage (
       tapMs,
       promptedAtMs,
       presentationMode,
+      contextAppPackage,
+      contextSessionType,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -590,7 +619,7 @@ data class SurveyAnswerMessage (
       return true
     }
     val other = other as SurveyAnswerMessage
-    return TelemetryApiPigeonUtils.deepEquals(this.responseId, other.responseId) && TelemetryApiPigeonUtils.deepEquals(this.score, other.score) && TelemetryApiPigeonUtils.deepEquals(this.triggerType, other.triggerType) && TelemetryApiPigeonUtils.deepEquals(this.tapMs, other.tapMs) && TelemetryApiPigeonUtils.deepEquals(this.promptedAtMs, other.promptedAtMs) && TelemetryApiPigeonUtils.deepEquals(this.presentationMode, other.presentationMode)
+    return TelemetryApiPigeonUtils.deepEquals(this.responseId, other.responseId) && TelemetryApiPigeonUtils.deepEquals(this.score, other.score) && TelemetryApiPigeonUtils.deepEquals(this.triggerType, other.triggerType) && TelemetryApiPigeonUtils.deepEquals(this.tapMs, other.tapMs) && TelemetryApiPigeonUtils.deepEquals(this.promptedAtMs, other.promptedAtMs) && TelemetryApiPigeonUtils.deepEquals(this.presentationMode, other.presentationMode) && TelemetryApiPigeonUtils.deepEquals(this.contextAppPackage, other.contextAppPackage) && TelemetryApiPigeonUtils.deepEquals(this.contextSessionType, other.contextSessionType)
   }
 
   override fun hashCode(): Int {
@@ -601,10 +630,12 @@ data class SurveyAnswerMessage (
     result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.tapMs)
     result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.promptedAtMs)
     result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.presentationMode)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.contextAppPackage)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.contextSessionType)
     return result
   }
   override fun toString(): String {
-    return "SurveyAnswerMessage(responseId=$responseId, score=$score, triggerType=$triggerType, tapMs=$tapMs, promptedAtMs=$promptedAtMs, presentationMode=$presentationMode)"
+    return "SurveyAnswerMessage(responseId=$responseId, score=$score, triggerType=$triggerType, tapMs=$tapMs, promptedAtMs=$promptedAtMs, presentationMode=$presentationMode, contextAppPackage=$contextAppPackage, contextSessionType=$contextSessionType)"
   }
 }
 
@@ -652,6 +683,52 @@ data class CollectorStatusMessage (
     return "CollectorStatusMessage(collectionEnabled=$collectionEnabled, serviceRunning=$serviceRunning, lastUploadMs=$lastUploadMs)"
   }
 }
+
+/**
+ * A survey prompt the participant opened by tapping its notification.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class SurveyPromptMessage (
+  /** PERIODIC, POST_SESSION or ANOMALY. */
+  val triggerType: String,
+  val promptedAtMs: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): SurveyPromptMessage {
+      val triggerType = pigeonVar_list[0] as String
+      val promptedAtMs = pigeonVar_list[1] as Long
+      return SurveyPromptMessage(triggerType, promptedAtMs)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      triggerType,
+      promptedAtMs,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as SurveyPromptMessage
+    return TelemetryApiPigeonUtils.deepEquals(this.triggerType, other.triggerType) && TelemetryApiPigeonUtils.deepEquals(this.promptedAtMs, other.promptedAtMs)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.triggerType)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.promptedAtMs)
+    return result
+  }
+  override fun toString(): String {
+    return "SurveyPromptMessage(triggerType=$triggerType, promptedAtMs=$promptedAtMs)"
+  }
+}
 private open class TelemetryApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
@@ -671,23 +748,33 @@ private open class TelemetryApiPigeonCodec : StandardMessageCodec() {
         }
       }
       132.toByte() -> {
-        (readValue(buffer) as? List<Any?>)?.let {
-          CapabilityReportMessage.fromList(it)
+        (readValue(buffer) as Long?)?.let {
+          LocationAuthorizationMessage.ofRaw(it.toInt())
         }
       }
       133.toByte() -> {
         (readValue(buffer) as? List<Any?>)?.let {
-          CapturedSampleMessage.fromList(it)
+          CapabilityReportMessage.fromList(it)
         }
       }
       134.toByte() -> {
         (readValue(buffer) as? List<Any?>)?.let {
-          SurveyAnswerMessage.fromList(it)
+          CapturedSampleMessage.fromList(it)
         }
       }
       135.toByte() -> {
         (readValue(buffer) as? List<Any?>)?.let {
+          SurveyAnswerMessage.fromList(it)
+        }
+      }
+      136.toByte() -> {
+        (readValue(buffer) as? List<Any?>)?.let {
           CollectorStatusMessage.fromList(it)
+        }
+      }
+      137.toByte() -> {
+        (readValue(buffer) as? List<Any?>)?.let {
+          SurveyPromptMessage.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -707,20 +794,28 @@ private open class TelemetryApiPigeonCodec : StandardMessageCodec() {
         stream.write(131)
         writeValue(stream, value.raw.toLong())
       }
-      is CapabilityReportMessage -> {
+      is LocationAuthorizationMessage -> {
         stream.write(132)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw.toLong())
       }
-      is CapturedSampleMessage -> {
+      is CapabilityReportMessage -> {
         stream.write(133)
         writeValue(stream, value.toList())
       }
-      is SurveyAnswerMessage -> {
+      is CapturedSampleMessage -> {
         stream.write(134)
         writeValue(stream, value.toList())
       }
-      is CollectorStatusMessage -> {
+      is SurveyAnswerMessage -> {
         stream.write(135)
+        writeValue(stream, value.toList())
+      }
+      is CollectorStatusMessage -> {
+        stream.write(136)
+        writeValue(stream, value.toList())
+      }
+      is SurveyPromptMessage -> {
+        stream.write(137)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -990,13 +1085,399 @@ class CollectorEvents(private val binaryMessenger: BinaryMessenger, private val 
   /**
    * A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
    * While the CPU sleeps, Dart timers don't advance. This lets the collector take an
-   * overdue sample while the native wake lock is held.
+   * overdue sample while the native wake lock is held. iOS sends it on keep-alive location
+   * updates, at most every 30 s.
    */
   suspend fun wakeTick()
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     return suspendCancellableCoroutine { continuation ->
       val channelName = "dev.flutter.pigeon.qoesense.CollectorEvents.wakeTick$separatedMessageChannelSuffix"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(null) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            continuation.resumeWithException(FlutterError(it[0] as String, it[1] as String, it[2] as String?))
+          } else {
+            continuation.resume(Unit)
+          }
+        } else {
+          continuation.resumeWithException(TelemetryApiPigeonUtils.createConnectionError(channelName))
+        } 
+      }
+    }
+  }
+  /**
+   * iOS only: a BGProcessingTask or the "Upload now" button asks the collector engine to
+   * drain the buffer now (if the upload constraints are met). It reports back through
+   * IosCollectorApi.uploadRunFinished.
+   */
+  suspend fun uploadRequested()
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    return suspendCancellableCoroutine { continuation ->
+      val channelName = "dev.flutter.pigeon.qoesense.CollectorEvents.uploadRequested$separatedMessageChannelSuffix"
+      val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+      channel.send(null) {
+        if (it is List<*>) {
+          if (it.size > 1) {
+            continuation.resumeWithException(FlutterError(it[0] as String, it[1] as String, it[2] as String?))
+          } else {
+            continuation.resume(Unit)
+          }
+        } else {
+          continuation.resumeWithException(TelemetryApiPigeonUtils.createConnectionError(channelName))
+        } 
+      }
+    }
+  }
+}
+/** Generated interface from Pigeon that represents a handler of messages from Flutter. */
+interface IosCollectorApi {
+  /**
+   * One full capture, as AndroidCollectorApi.captureSample. Location waits at most
+   * [locationTimeoutMs]; a fix older than [staleAfterMs] is reported STALE.
+   */
+  suspend fun captureSample(locationTimeoutMs: Long, staleAfterMs: Long): CapturedSampleMessage
+  /**
+   * Persists the flag, starts/stops background location and the headless collector engine,
+   * and schedules/cancels the upload BGProcessingTask.
+   */
+  fun setCollectionEnabled(enabled: Boolean)
+  /** serviceRunning = the headless collector engine is alive. */
+  fun status(): CollectorStatusMessage
+  /** Posts the actionable survey notification. */
+  fun presentSurvey(triggerType: String)
+  fun pendingSurveyAnswers(): List<SurveyAnswerMessage>
+  fun acknowledgeSurveyAnswers(responseIds: List<String>)
+  /** An answer from the in-app sheet, added to the same durable native queue. */
+  fun submitSurveyAnswer(answer: SurveyAnswerMessage)
+  /** The prompt opened from a notification tap, if any. Reading it clears it. */
+  fun takeOpenedSurveyPrompt(): SurveyPromptMessage?
+  /**
+   * Unmetered usable network (not cellular, not a hotspot, not Low Data Mode) and Low Power
+   * Mode off: the iOS counterpart of WorkManager's unmetered + battery-not-low constraints.
+   */
+  fun uploadConstraintsMet(): Boolean
+  /** Called by the collector engine when an upload run ends. */
+  fun uploadRunFinished(success: Boolean, uploadedRows: Long)
+  /** Asks the collector engine to upload now (same constraints). */
+  fun requestUploadNow()
+  /** Opens this app's page in the Settings app. */
+  fun openAppSettings()
+  fun recordConsent(timestampMs: Long)
+  /** The When-In-Use prompt. Completes with the resulting status. */
+  suspend fun requestLocationWhenInUse(): LocationAuthorizationMessage
+  /** The Always upgrade prompt (shown by iOS at most once). Completes with the resulting status. */
+  suspend fun requestLocationAlways(): LocationAuthorizationMessage
+  /** The notification permission prompt. Completes with whether alerts are allowed. */
+  suspend fun requestNotifications(): Boolean
+
+  companion object {
+    /** The codec used by IosCollectorApi. */
+    val codec: MessageCodec<Any?> by lazy {
+      TelemetryApiPigeonCodec()
+    }
+    /** Sets up an instance of `IosCollectorApi` to handle messages through the `binaryMessenger`. */
+    @JvmOverloads
+    fun setUp(binaryMessenger: BinaryMessenger, api: IosCollectorApi?, messageChannelSuffix: String = "") {
+      val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.captureSample$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val locationTimeoutMsArg = args[0] as Long
+            val staleAfterMsArg = args[1] as Long
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.captureSample(locationTimeoutMsArg, staleAfterMsArg))
+              } catch (exception: Throwable) {
+                TelemetryApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.setCollectionEnabled$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val enabledArg = args[0] as Boolean
+            val wrapped: List<Any?> = try {
+              api.setCollectionEnabled(enabledArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.status$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.status())
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.presentSurvey$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val triggerTypeArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              api.presentSurvey(triggerTypeArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.pendingSurveyAnswers$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.pendingSurveyAnswers())
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.acknowledgeSurveyAnswers$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val responseIdsArg = args[0] as List<String>
+            val wrapped: List<Any?> = try {
+              api.acknowledgeSurveyAnswers(responseIdsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.submitSurveyAnswer$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val answerArg = args[0] as SurveyAnswerMessage
+            val wrapped: List<Any?> = try {
+              api.submitSurveyAnswer(answerArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.takeOpenedSurveyPrompt$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.takeOpenedSurveyPrompt())
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.uploadConstraintsMet$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.uploadConstraintsMet())
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.uploadRunFinished$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val successArg = args[0] as Boolean
+            val uploadedRowsArg = args[1] as Long
+            val wrapped: List<Any?> = try {
+              api.uploadRunFinished(successArg, uploadedRowsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.requestUploadNow$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.requestUploadNow()
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.openAppSettings$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.openAppSettings()
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.recordConsent$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val timestampMsArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              api.recordConsent(timestampMsArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.requestLocationWhenInUse$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.requestLocationWhenInUse())
+              } catch (exception: Throwable) {
+                TelemetryApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.requestLocationAlways$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.requestLocationAlways())
+              } catch (exception: Throwable) {
+                TelemetryApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.IosCollectorApi.requestNotifications$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.requestNotifications())
+              } catch (exception: Throwable) {
+                TelemetryApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+    }
+  }
+}
+/**
+ * Native -> Dart events for the UI engine (iOS).
+ *
+ * Generated class from Pigeon that represents Flutter messages that can be called from Kotlin.
+ */
+class SurveyUiEvents(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
+  companion object {
+    /** The codec used by SurveyUiEvents. */
+    val codec: MessageCodec<Any?> by lazy {
+      TelemetryApiPigeonCodec()
+    }
+  }
+  /**
+   * The participant tapped a survey notification: show the in-app sheet
+   * (IosCollectorApi.takeOpenedSurveyPrompt has the prompt).
+   */
+  suspend fun surveyPromptOpened()
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    return suspendCancellableCoroutine { continuation ->
+      val channelName = "dev.flutter.pigeon.qoesense.SurveyUiEvents.surveyPromptOpened$separatedMessageChannelSuffix"
       val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
       channel.send(null) {
         if (it is List<*>) {

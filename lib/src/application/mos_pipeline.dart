@@ -15,6 +15,7 @@ class SurveyAnswer {
     required this.tapMs,
     required this.presentationMode,
     this.promptedAtMs,
+    this.selfReport,
   });
   final String responseId;
   final int score;
@@ -22,6 +23,18 @@ class SurveyAnswer {
   final int tapMs;
   final int? promptedAtMs;
   final PresentationMode presentationMode;
+
+  /// The participant's answer to "what were you doing?" (iOS in-app sheet, D-6). Null when
+  /// the question wasn't asked (Android, notification actions) or was skipped.
+  final SelfReportedContext? selfReport;
+}
+
+/// A self-reported context: the Android package name of the chosen app (null for
+/// "something else") and its session category.
+class SelfReportedContext {
+  const SelfReportedContext({required this.appPackage, required this.sessionType});
+  final String? appPackage;
+  final AppSessionType sessionType;
 }
 
 /// Native survey answer queue: read, then acknowledge only after the answers are durable here.
@@ -84,20 +97,27 @@ class MosPipeline {
     final taps = await answers.pending();
     if (taps.isEmpty) return 0;
     for (final t in taps) {
+      final answered = t.selfReport;
       final context = await buffer.latestInWindow(t.tapMs - MosResponse.contextWindowMs, t.tapMs);
       // OBSERVED only when that sample actually saw the foreground app. Otherwise the context
-      // is UNKNOWN (no app, NONE) rather than a guess.
+      // is the participant's own answer (iOS, D-6) if there is one, else UNKNOWN (no app,
+      // NONE) rather than a guess.
       final observed =
           context != null && context.provenance.fieldStatus[SampleFieldGroup.foregroundApp]?.carriesValue == true;
+      final (String? contextApp, AppSessionType session, ContextSource source) = observed
+          ? (context.foregroundAppPackage, context.appSessionType, ContextSource.observed)
+          : answered != null
+          ? (answered.appPackage, answered.sessionType, ContextSource.selfReported)
+          : (null, AppSessionType.none, ContextSource.unknown);
       final response = MosResponse.forTap(
         responseId: t.responseId,
         score: t.score,
         tapMs: t.tapMs,
         triggerType: t.triggerType,
-        contextAppPackage: observed ? context.foregroundAppPackage : null,
-        contextSessionType: observed ? context.appSessionType : AppSessionType.none,
+        contextAppPackage: contextApp,
+        contextSessionType: session,
         platform: platform,
-        contextSource: observed ? ContextSource.observed : ContextSource.unknown,
+        contextSource: source,
         presentationMode: t.presentationMode,
         appId: app.appId,
         appVersion: app.appVersion,

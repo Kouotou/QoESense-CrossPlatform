@@ -24,6 +24,14 @@ abstract final class QoESenseFirebaseOptions {
     storageBucket: 'qoesense.firebasestorage.app',
   );
 
-  /// iOS app io.github.kouotou.qoesense, not registered yet (needs the Mac phase).
-  static const FirebaseOptions? ios = null;
+  /// iOS app io.github.kouotou.qoesense, registered in project `qoesense` on 2026-11-10.
+  /// Values come from that app's GoogleService-Info.plist, which is never committed.
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDuMNVNcfc0pFuHtovVL19fiOyEJeGyGBY',
+    appId: '1:412391455735:ios:6aeb22d05ae939d991ccf2',
+    messagingSenderId: '412391455735',
+    projectId: 'qoesense',
+    storageBucket: 'qoesense.firebasestorage.app',
+    iosBundleId: 'io.github.kouotou.qoesense',
+  );
 }

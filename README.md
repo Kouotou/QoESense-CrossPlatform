@@ -3,12 +3,13 @@
 This is the Flutter (Android + iOS) version of the QoESense passive QoE telemetry collector,
 an MSc research project.
 
-The native Android app in `../QoESense` is the **verified reference implementation** and keeps
-serving participants unchanged. This project reuses its research rules and its Firebase/GCP
-backend; it doesn't replace either.
+The native Android app in `../QoESense` is the **verified reference implementation**. This
+project reuses its research rules and its Firebase/GCP backend unchanged, and replaces the
+reference app on participants' phones through a side-by-side handover (D-1, ARCHITECTURE §9.1).
 
-**Status: Phase 1 (architecture and workspace).** The app shows a device capability report.
-It collects and uploads nothing yet.
+**Status (2026-11-09):** Android collects on the device (Phase 3, validated on a phone). iOS
+is code complete on branch `phase4/ios` (Phase 4: compiles, unit tests green, device validation
+pending). Uploads wait for Firebase billing.
 
 ## Documents
 
@@ -18,6 +19,9 @@ It collects and uploads nothing yet.
   lives, and its iOS parity
 - [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md): the frozen wire contract with the backend
 - [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md): what each dependency is for
+- [docs/PHASE3_ANDROID.md](docs/PHASE3_ANDROID.md): the Android collector and its device protocol
+- [docs/PHASE4_IOS.md](docs/PHASE4_IOS.md): the iOS collector, its differences from Android, and its device protocol
+- [docs/IOS_CAPABILITY_MATRIX.md](docs/IOS_CAPABILITY_MATRIX.md): what iOS can and can't measure, per field
 
 ## Layout
 
@@ -31,7 +35,7 @@ lib/l10n/              en + fr strings (generated code in lib/l10n/generated)
 pigeons/               channel definition (source of truth for the generated code)
 contracts/             BigQuery schemas exported from ../QoESense/functions/index.js + golden NDJSON
 android/               Kotlin: AndroidCapabilityReporter (+ Phase 3 adapters/service)
-ios/                   Swift:  IOSCapabilityReporter     (+ Phase 3 adapters/background host)
+ios/                   Swift:  IOSCapabilityReporter + Phase 4 collector host, capture, location, survey
 test/                  unit, widget, contract and architecture tests
 tool/verify.ps1|.sh    local equivalent of CI
 ```
@@ -43,7 +47,7 @@ Windows:
 cd C:\Users\Ahmad\AndroidStudioProjects\QoESense-CrossPlatform
 powershell -ExecutionPolicy Bypass -File tool\verify.ps1
 ```
-On a Mac: `./tool/verify.sh`. That script also compiles the Swift code.
+On a Mac: `./tool/verify.sh`. That script also compiles the Swift code and runs the XCTests.
 
 ## Rules that must not drift
 

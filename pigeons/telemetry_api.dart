@@ -2,9 +2,9 @@
 //   dart run pigeon --input pigeons/telemetry_api.dart
 // CI fails if the checked-in generated files differ from a fresh generation.
 //
-// Phase 1 exposes only the capability report. Capture calls (radio, location, throughput,
-// session) and the native -> Dart collector callbacks arrive in Phase 3 - see
-// docs/ARCHITECTURE.md section 3.
+// TelemetryHostApi (both platforms), AndroidCollectorApi (Phase 3, Kotlin) and
+// IosCollectorApi (Phase 4, Swift) - see docs/ARCHITECTURE.md section 3 and
+// docs/PHASE4_IOS.md. Each platform implements only its own collector API.
 import 'package:pigeon/pigeon.dart';
 
 @ConfigurePigeon(
@@ -83,8 +83,8 @@ abstract class TelemetryHostApi {
 }
 
 // ---------------------------------------------------------------------------------------
-// Android collector (Phase 3). Android-only: iOS gets its own API in the Mac phase. The
-// generated Swift protocol for this API is never implemented on iOS, which is fine.
+// Android collector (Phase 3). Android-only: the generated Swift protocol for this API is
+// never implemented on iOS, which is fine. The message classes are shared with iOS.
 // ---------------------------------------------------------------------------------------
 
 /// Mirrors the Dart FieldStatus / DATA_CONTRACT §5.
@@ -192,8 +192,16 @@ class SurveyAnswerMessage {
   int tapMs;
   int? promptedAtMs;
 
-  /// OVERLAY, NOTIFICATION or IN_APP.
+  /// OVERLAY, NOTIFICATION, NOTIFICATION_ACTION or IN_APP.
   String presentationMode;
+
+  /// iOS self-report (D-6): the Android package name of the app the participant chose, or
+  /// null for "something else". Always null on Android, where the context is observed.
+  String? contextAppPackage;
+
+  /// iOS self-report: NONE, SOCIAL_MEDIA or VIDEO_CONFERENCING. Null when the question
+  /// wasn't asked or was skipped (contextSource UNKNOWN).
+  String? contextSessionType;
 }
 
 class CollectorStatusMessage {
@@ -241,6 +249,92 @@ abstract class AndroidCollectorApi {
 abstract class CollectorEvents {
   /// A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
   /// While the CPU sleeps, Dart timers don't advance. This lets the collector take an
-  /// overdue sample while the native wake lock is held.
+  /// overdue sample while the native wake lock is held. iOS sends it on keep-alive location
+  /// updates, at most every 30 s.
   void wakeTick();
+
+  /// iOS only: a BGProcessingTask or the "Upload now" button asks the collector engine to
+  /// drain the buffer now (if the upload constraints are met). It reports back through
+  /// IosCollectorApi.uploadRunFinished.
+  void uploadRequested();
+}
+
+// ---------------------------------------------------------------------------------------
+// iOS collector (Phase 4). iOS-only: the generated Kotlin interface is never implemented on
+// Android. Captures reuse CapturedSampleMessage, with the iOS rules of DATA_CONTRACT §3/§5.
+// ---------------------------------------------------------------------------------------
+
+/// A survey prompt the participant opened by tapping its notification.
+class SurveyPromptMessage {
+  SurveyPromptMessage({required this.triggerType, required this.promptedAtMs});
+
+  /// PERIODIC, POST_SESSION or ANOMALY.
+  String triggerType;
+  int promptedAtMs;
+}
+
+/// CLAuthorizationStatus, as the onboarding needs it.
+enum LocationAuthorizationMessage { notDetermined, denied, restricted, whenInUse, always }
+
+@HostApi()
+abstract class IosCollectorApi {
+  /// One full capture, as AndroidCollectorApi.captureSample. Location waits at most
+  /// [locationTimeoutMs]; a fix older than [staleAfterMs] is reported STALE.
+  @async
+  CapturedSampleMessage captureSample(int locationTimeoutMs, int staleAfterMs);
+
+  /// Persists the flag, starts/stops background location and the headless collector engine,
+  /// and schedules/cancels the upload BGProcessingTask.
+  void setCollectionEnabled(bool enabled);
+
+  /// serviceRunning = the headless collector engine is alive.
+  CollectorStatusMessage status();
+
+  /// Posts the actionable survey notification.
+  void presentSurvey(String triggerType);
+
+  List<SurveyAnswerMessage> pendingSurveyAnswers();
+
+  void acknowledgeSurveyAnswers(List<String> responseIds);
+
+  /// An answer from the in-app sheet, added to the same durable native queue.
+  void submitSurveyAnswer(SurveyAnswerMessage answer);
+
+  /// The prompt opened from a notification tap, if any. Reading it clears it.
+  SurveyPromptMessage? takeOpenedSurveyPrompt();
+
+  /// Unmetered usable network (not cellular, not a hotspot, not Low Data Mode) and Low Power
+  /// Mode off: the iOS counterpart of WorkManager's unmetered + battery-not-low constraints.
+  bool uploadConstraintsMet();
+
+  /// Called by the collector engine when an upload run ends.
+  void uploadRunFinished(bool success, int uploadedRows);
+
+  /// Asks the collector engine to upload now (same constraints).
+  void requestUploadNow();
+
+  /// Opens this app's page in the Settings app.
+  void openAppSettings();
+
+  void recordConsent(int timestampMs);
+
+  /// The When-In-Use prompt. Completes with the resulting status.
+  @async
+  LocationAuthorizationMessage requestLocationWhenInUse();
+
+  /// The Always upgrade prompt (shown by iOS at most once). Completes with the resulting status.
+  @async
+  LocationAuthorizationMessage requestLocationAlways();
+
+  /// The notification permission prompt. Completes with whether alerts are allowed.
+  @async
+  bool requestNotifications();
+}
+
+/// Native -> Dart events for the UI engine (iOS).
+@FlutterApi()
+abstract class SurveyUiEvents {
+  /// The participant tapped a survey notification: show the in-app sheet
+  /// (IosCollectorApi.takeOpenedSurveyPrompt has the prompt).
+  void surveyPromptOpened();
 }

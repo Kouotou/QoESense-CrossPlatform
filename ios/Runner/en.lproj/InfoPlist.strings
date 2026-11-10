@@ -1,0 +1,3 @@
+/* Location purpose strings shown by iOS (docs/PHASE4_IOS.md §5). English. */
+"NSLocationWhenInUseUsageDescription" = "QoESense records your approximate location with each network measurement, to map network quality along your routes for the research study.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "To keep measuring network quality while you use other apps or the screen is off, QoESense needs location access \"Always\". It also lets iOS restart collection after the app was closed. Your location is recorded with each measurement for the study's coverage maps.";

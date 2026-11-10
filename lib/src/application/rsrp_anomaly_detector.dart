@@ -1,11 +1,23 @@
 import 'dart:math' as math;
 
-/// Why the RSRP stream warrants an immediate MOS prompt.
-enum AnomalyReason { signalDrop, signalSpike, prolongedStability }
+/// Why the telemetry warrants an immediate MOS prompt. Never uploaded (DATA_CONTRACT §6).
+enum AnomalyReason {
+  // Android, from RSRP (RsrpAnomalyDetector).
+  signalDrop,
+  signalSpike,
+  prolongedStability,
+
+  // iOS, from path and RTT (PathAnomalyDetector).
+  connectivityLoss,
+  pathChange,
+  ratDowngrade,
+  latencySpike,
+  probeFailures,
+}
 
 /// Port of the reference app's `TelemetryAnomalyDetector` (Android only - iOS has no RSRP;
-/// its RTT/throughput/path detector arrives in Phase 3). Pure and stateless: the caller owns
-/// the rolling window; [SurveyTriggerPolicy] rate-limits what this flags.
+/// it uses PathAnomalyDetector). Pure and stateless: the caller owns the rolling window;
+/// [SurveyTriggerPolicy] rate-limits what this flags.
 abstract final class RsrpAnomalyDetector {
   static const int recentWindowSize = 3;
   static const int baselineWindowSize = 10;

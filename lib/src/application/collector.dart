@@ -4,6 +4,7 @@ import '../data/local/telemetry_buffer.dart';
 import '../domain/enums.dart';
 import '../domain/telemetry_sample.dart';
 import 'captured_sample.dart';
+import 'path_anomaly_detector.dart';
 import 'rsrp_anomaly_detector.dart';
 import 'sampling_policy.dart';
 import 'survey_scheduler.dart';
@@ -36,6 +37,7 @@ class Collector {
     Stopwatch Function()? stopwatch,
     this.onError,
     this.onSample,
+    this.pathAnomalies,
   }) : _stopwatch = stopwatch ?? (() => Stopwatch()..start());
 
   final SampleSource source;
@@ -46,6 +48,9 @@ class Collector {
   final Stopwatch Function() _stopwatch;
   final void Function(Object error, StackTrace stack)? onError;
   final void Function(TelemetrySample sample)? onSample;
+
+  /// iOS anomaly rules (RTT and path). Null on Android, which uses the RSRP window only.
+  final PathAnomalyDetector? pathAnomalies;
 
   int sampleCount = 0;
   AppSessionType lastSessionType = AppSessionType.none;
@@ -95,7 +100,9 @@ class Collector {
           recentRsrp.removeAt(0);
         }
       }
-      final reason = RsrpAnomalyDetector.detect(recentRsrp);
+      // Fed every tick so its state stays in order; on Android it is null.
+      final pathReason = pathAnomalies?.observe(sample);
+      final reason = RsrpAnomalyDetector.detect(recentRsrp) ?? pathReason;
       if (reason != null) await surveys.maybeTriggerAnomaly(reason);
     } catch (e, st) {
       // One bad sample must not take down weeks of collection.

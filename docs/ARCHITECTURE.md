@@ -1,6 +1,8 @@
 # QoESense cross-platform architecture
 
-**Status:** Phase 1 (architecture and workspace). Nothing in this project collects real data yet.
+**Status (2026-11-09):** Phases 1–3 done; Android collects on the device. Phase 4 (iOS) is code
+complete, with device validation pending: see [PHASE4_IOS.md](PHASE4_IOS.md). Sections below
+that say "Phase 1/2" describe the original plan.
 
 **Reference implementation:** `../QoESense`, the native Android app. It stays unchanged and
 keeps running for participants throughout the migration.
@@ -19,7 +21,7 @@ keeps running for participants throughout the migration.
   and GCP stay as they are.
 - No BigQuery schema or cloud-resource changes in this phase.
 - No claim of iOS parity for fields that iOS doesn't expose (see [MIGRATION_MATRIX.md](MIGRATION_MATRIX.md)).
-- This project doesn't replace the reference Android app for existing participants. See D-1.
+- No in-place upgrade of the reference Android app: it is replaced side by side (D-1, §9.1).
 
 ## 2. Layers
 

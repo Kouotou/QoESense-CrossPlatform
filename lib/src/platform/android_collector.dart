@@ -54,52 +54,55 @@ AppSessionType mapSession(SessionTypeMessage s) => switch (s) {
   SessionTypeMessage.videoConferencing => AppSessionType.videoConferencing,
 };
 
-CapturedSample mapCapturedSample(CapturedSampleMessage m) => CapturedSample(
-  platform: ClientPlatform.android,
-  rsrp: m.rsrp,
-  rsrq: m.rsrq,
-  rssnr: m.rssnr,
-  timingAdvance: m.timingAdvance,
-  cellIdentityHash: m.cellIdentityHash,
-  trackingAreaCode: m.trackingAreaCode,
-  signalStrengthLevel: m.signalStrengthLevel,
-  radioStatus: mapStatus(m.radioStatus),
-  cellInfoAgeMs: m.cellInfoAgeMs,
-  cqi: m.cqi,
-  cqiStatus: mapStatus(m.cqiStatus),
-  cellBandwidthKhz: m.cellBandwidthKhz,
-  downlinkChannelNumber: m.downlinkChannelNumber,
-  uplinkChannelNumber: m.uplinkChannelNumber,
-  physicalChannelStatus: mapStatus(m.physicalChannelStatus),
-  networkType: m.networkType,
-  networkTypeStatus: mapStatus(m.networkTypeStatus),
-  connectionType: m.connectionType,
-  isRoaming: m.isRoaming,
-  connectivityStatus: mapStatus(m.connectivityStatus),
-  throughputBytesPerSecond: m.throughputBytesPerSecond,
-  throughputWindowMs: m.throughputWindowMs,
-  throughputStatus: mapStatus(m.throughputStatus),
-  foregroundAppPackage: m.foregroundAppPackage,
-  appSessionType: mapSession(m.appSessionType),
-  foregroundAppStatus: mapStatus(m.foregroundAppStatus),
-  latitude: m.latitude,
-  longitude: m.longitude,
-  locationAccuracyMeters: m.locationAccuracyMeters,
-  locationAgeMs: m.locationAgeMs,
-  locationStatus: mapStatus(m.locationStatus),
-  capabilitySet: {
-    for (final g in SampleFieldGroup.values)
-      if (m.capabilitySet.contains(g.wireName)) g,
-  },
-  app: AppInfo(
-    deviceModel: m.deviceModel,
-    osMajorVersion: m.osSdkInt,
-    osVersion: m.osVersion,
-    appId: m.appId,
-    appVersion: m.appVersion,
-    appBuild: m.appBuild,
-  ),
-);
+/// Shared by both platforms: the iOS capture uses the same message (osSdkInt then holds the
+/// iOS major version, D-5).
+CapturedSample mapCapturedSample(CapturedSampleMessage m, {ClientPlatform platform = ClientPlatform.android}) =>
+    CapturedSample(
+      platform: platform,
+      rsrp: m.rsrp,
+      rsrq: m.rsrq,
+      rssnr: m.rssnr,
+      timingAdvance: m.timingAdvance,
+      cellIdentityHash: m.cellIdentityHash,
+      trackingAreaCode: m.trackingAreaCode,
+      signalStrengthLevel: m.signalStrengthLevel,
+      radioStatus: mapStatus(m.radioStatus),
+      cellInfoAgeMs: m.cellInfoAgeMs,
+      cqi: m.cqi,
+      cqiStatus: mapStatus(m.cqiStatus),
+      cellBandwidthKhz: m.cellBandwidthKhz,
+      downlinkChannelNumber: m.downlinkChannelNumber,
+      uplinkChannelNumber: m.uplinkChannelNumber,
+      physicalChannelStatus: mapStatus(m.physicalChannelStatus),
+      networkType: m.networkType,
+      networkTypeStatus: mapStatus(m.networkTypeStatus),
+      connectionType: m.connectionType,
+      isRoaming: m.isRoaming,
+      connectivityStatus: mapStatus(m.connectivityStatus),
+      throughputBytesPerSecond: m.throughputBytesPerSecond,
+      throughputWindowMs: m.throughputWindowMs,
+      throughputStatus: mapStatus(m.throughputStatus),
+      foregroundAppPackage: m.foregroundAppPackage,
+      appSessionType: mapSession(m.appSessionType),
+      foregroundAppStatus: mapStatus(m.foregroundAppStatus),
+      latitude: m.latitude,
+      longitude: m.longitude,
+      locationAccuracyMeters: m.locationAccuracyMeters,
+      locationAgeMs: m.locationAgeMs,
+      locationStatus: mapStatus(m.locationStatus),
+      capabilitySet: {
+        for (final g in SampleFieldGroup.values)
+          if (m.capabilitySet.contains(g.wireName)) g,
+      },
+      app: AppInfo(
+        deviceModel: m.deviceModel,
+        osMajorVersion: m.osSdkInt,
+        osVersion: m.osVersion,
+        appId: m.appId,
+        appVersion: m.appVersion,
+        appBuild: m.appBuild,
+      ),
+    );
 
 SurveyAnswer mapSurveyAnswer(SurveyAnswerMessage m) => SurveyAnswer(
   responseId: m.responseId,
@@ -114,4 +117,26 @@ SurveyAnswer mapSurveyAnswer(SurveyAnswerMessage m) => SurveyAnswer(
     (p) => p.wireName == m.presentationMode,
     orElse: () => throw FormatException('unknown presentationMode ${m.presentationMode}'),
   ),
+  selfReport: switch (m.contextSessionType) {
+    null => null,
+    final type => SelfReportedContext(
+      appPackage: m.contextAppPackage,
+      sessionType: AppSessionType.values.firstWhere(
+        (s) => s.wireName == type,
+        orElse: () => throw FormatException('unknown contextSessionType $type'),
+      ),
+    ),
+  },
+);
+
+/// The reverse of [mapSurveyAnswer], for answers Dart hands to the native queue (iOS sheet).
+SurveyAnswerMessage surveyAnswerMessage(SurveyAnswer a) => SurveyAnswerMessage(
+  responseId: a.responseId,
+  score: a.score,
+  triggerType: a.triggerType.wireName,
+  tapMs: a.tapMs,
+  promptedAtMs: a.promptedAtMs,
+  presentationMode: a.presentationMode.wireName,
+  contextAppPackage: a.selfReport?.appPackage,
+  contextSessionType: a.selfReport?.sessionType.wireName,
 );

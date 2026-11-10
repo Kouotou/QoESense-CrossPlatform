@@ -1,0 +1,3 @@
+/* Textes d'usage de la localisation affichés par iOS (docs/PHASE4_IOS.md §5). Français. */
+"NSLocationWhenInUseUsageDescription" = "QoESense enregistre votre position approximative avec chaque mesure du réseau, pour cartographier la qualité du réseau le long de vos trajets dans le cadre de l'étude.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Pour continuer à mesurer la qualité du réseau pendant que vous utilisez d'autres apps ou que l'écran est éteint, QoESense a besoin de la localisation « Toujours ». Cela permet aussi à iOS de relancer la collecte après la fermeture de l'app. Votre position est enregistrée avec chaque mesure pour les cartes de couverture de l'étude.";

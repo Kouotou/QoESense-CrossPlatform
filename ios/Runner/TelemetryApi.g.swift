@@ -221,6 +221,15 @@ enum SessionTypeMessage: Int, CaseIterable {
   case videoConferencing = 2
 }
 
+/// CLAuthorizationStatus, as the onboarding needs it.
+enum LocationAuthorizationMessage: Int, CaseIterable {
+  case notDetermined = 0
+  case denied = 1
+  case restricted = 2
+  case whenInUse = 3
+  case always = 4
+}
+
 /// Generated class from Pigeon that represents data sent in messages.
 struct CapabilityReportMessage: Hashable, CustomStringConvertible {
   /// "ANDROID" or "IOS" - same values as the BigQuery `platform` column.
@@ -565,8 +574,14 @@ struct SurveyAnswerMessage: Hashable, CustomStringConvertible {
   var triggerType: String
   var tapMs: Int64
   var promptedAtMs: Int64? = nil
-  /// OVERLAY, NOTIFICATION or IN_APP.
+  /// OVERLAY, NOTIFICATION, NOTIFICATION_ACTION or IN_APP.
   var presentationMode: String
+  /// iOS self-report (D-6): the Android package name of the app the participant chose, or
+  /// null for "something else". Always null on Android, where the context is observed.
+  var contextAppPackage: String? = nil
+  /// iOS self-report: NONE, SOCIAL_MEDIA or VIDEO_CONFERENCING. Null when the question
+  /// wasn't asked or was skipped (contextSource UNKNOWN).
+  var contextSessionType: String? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -577,6 +592,8 @@ struct SurveyAnswerMessage: Hashable, CustomStringConvertible {
     let tapMs = pigeonVar_list[3] as! Int64
     let promptedAtMs: Int64? = nilOrValue(pigeonVar_list[4])
     let presentationMode = pigeonVar_list[5] as! String
+    let contextAppPackage: String? = nilOrValue(pigeonVar_list[6])
+    let contextSessionType: String? = nilOrValue(pigeonVar_list[7])
 
     return SurveyAnswerMessage(
       responseId: responseId,
@@ -584,7 +601,9 @@ struct SurveyAnswerMessage: Hashable, CustomStringConvertible {
       triggerType: triggerType,
       tapMs: tapMs,
       promptedAtMs: promptedAtMs,
-      presentationMode: presentationMode
+      presentationMode: presentationMode,
+      contextAppPackage: contextAppPackage,
+      contextSessionType: contextSessionType
     )
   }
   func toList() -> [Any?] {
@@ -595,13 +614,15 @@ struct SurveyAnswerMessage: Hashable, CustomStringConvertible {
       tapMs,
       promptedAtMs,
       presentationMode,
+      contextAppPackage,
+      contextSessionType,
     ]
   }
   static func == (lhs: SurveyAnswerMessage, rhs: SurveyAnswerMessage) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return TelemetryApiPigeonInternal.deepEquals(lhs.responseId, rhs.responseId) && TelemetryApiPigeonInternal.deepEquals(lhs.score, rhs.score) && TelemetryApiPigeonInternal.deepEquals(lhs.triggerType, rhs.triggerType) && TelemetryApiPigeonInternal.deepEquals(lhs.tapMs, rhs.tapMs) && TelemetryApiPigeonInternal.deepEquals(lhs.promptedAtMs, rhs.promptedAtMs) && TelemetryApiPigeonInternal.deepEquals(lhs.presentationMode, rhs.presentationMode)
+    return TelemetryApiPigeonInternal.deepEquals(lhs.responseId, rhs.responseId) && TelemetryApiPigeonInternal.deepEquals(lhs.score, rhs.score) && TelemetryApiPigeonInternal.deepEquals(lhs.triggerType, rhs.triggerType) && TelemetryApiPigeonInternal.deepEquals(lhs.tapMs, rhs.tapMs) && TelemetryApiPigeonInternal.deepEquals(lhs.promptedAtMs, rhs.promptedAtMs) && TelemetryApiPigeonInternal.deepEquals(lhs.presentationMode, rhs.presentationMode) && TelemetryApiPigeonInternal.deepEquals(lhs.contextAppPackage, rhs.contextAppPackage) && TelemetryApiPigeonInternal.deepEquals(lhs.contextSessionType, rhs.contextSessionType)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -612,10 +633,12 @@ struct SurveyAnswerMessage: Hashable, CustomStringConvertible {
     TelemetryApiPigeonInternal.deepHash(value: tapMs, hasher: &hasher)
     TelemetryApiPigeonInternal.deepHash(value: promptedAtMs, hasher: &hasher)
     TelemetryApiPigeonInternal.deepHash(value: presentationMode, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: contextAppPackage, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: contextSessionType, hasher: &hasher)
   }
 
   public var description: String {
-    return "SurveyAnswerMessage(responseId: \(String(describing: responseId)), score: \(String(describing: score)), triggerType: \(String(describing: triggerType)), tapMs: \(String(describing: tapMs)), promptedAtMs: \(String(describing: promptedAtMs)), presentationMode: \(String(describing: presentationMode)))"
+    return "SurveyAnswerMessage(responseId: \(String(describing: responseId)), score: \(String(describing: score)), triggerType: \(String(describing: triggerType)), tapMs: \(String(describing: tapMs)), promptedAtMs: \(String(describing: promptedAtMs)), presentationMode: \(String(describing: presentationMode)), contextAppPackage: \(String(describing: contextAppPackage)), contextSessionType: \(String(describing: contextSessionType)))"
   }
 }
 
@@ -664,6 +687,49 @@ struct CollectorStatusMessage: Hashable, CustomStringConvertible {
   }
 }
 
+/// A survey prompt the participant opened by tapping its notification.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct SurveyPromptMessage: Hashable, CustomStringConvertible {
+  /// PERIODIC, POST_SESSION or ANOMALY.
+  var triggerType: String
+  var promptedAtMs: Int64
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> SurveyPromptMessage? {
+    let triggerType = pigeonVar_list[0] as! String
+    let promptedAtMs = pigeonVar_list[1] as! Int64
+
+    return SurveyPromptMessage(
+      triggerType: triggerType,
+      promptedAtMs: promptedAtMs
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      triggerType,
+      promptedAtMs,
+    ]
+  }
+  static func == (lhs: SurveyPromptMessage, rhs: SurveyPromptMessage) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return TelemetryApiPigeonInternal.deepEquals(lhs.triggerType, rhs.triggerType) && TelemetryApiPigeonInternal.deepEquals(lhs.promptedAtMs, rhs.promptedAtMs)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("SurveyPromptMessage")
+    TelemetryApiPigeonInternal.deepHash(value: triggerType, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: promptedAtMs, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "SurveyPromptMessage(triggerType: \(String(describing: triggerType)), promptedAtMs: \(String(describing: promptedAtMs)))"
+  }
+}
+
 private class TelemetryApiPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
@@ -686,13 +752,21 @@ private class TelemetryApiPigeonCodecReader: FlutterStandardReader {
       }
       return nil
     case 132:
-      return CapabilityReportMessage.fromList(self.readValue() as! [Any?])
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return LocationAuthorizationMessage(rawValue: enumResultAsInt)
+      }
+      return nil
     case 133:
-      return CapturedSampleMessage.fromList(self.readValue() as! [Any?])
+      return CapabilityReportMessage.fromList(self.readValue() as! [Any?])
     case 134:
-      return SurveyAnswerMessage.fromList(self.readValue() as! [Any?])
+      return CapturedSampleMessage.fromList(self.readValue() as! [Any?])
     case 135:
+      return SurveyAnswerMessage.fromList(self.readValue() as! [Any?])
+    case 136:
       return CollectorStatusMessage.fromList(self.readValue() as! [Any?])
+    case 137:
+      return SurveyPromptMessage.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -710,17 +784,23 @@ private class TelemetryApiPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? SessionTypeMessage {
       super.writeByte(131)
       super.writeValue(value.rawValue)
-    } else if let value = value as? CapabilityReportMessage {
+    } else if let value = value as? LocationAuthorizationMessage {
       super.writeByte(132)
-      super.writeValue(value.toList())
-    } else if let value = value as? CapturedSampleMessage {
+      super.writeValue(value.rawValue)
+    } else if let value = value as? CapabilityReportMessage {
       super.writeByte(133)
       super.writeValue(value.toList())
-    } else if let value = value as? SurveyAnswerMessage {
+    } else if let value = value as? CapturedSampleMessage {
       super.writeByte(134)
       super.writeValue(value.toList())
-    } else if let value = value as? CollectorStatusMessage {
+    } else if let value = value as? SurveyAnswerMessage {
       super.writeByte(135)
+      super.writeValue(value.toList())
+    } else if let value = value as? CollectorStatusMessage {
+      super.writeByte(136)
+      super.writeValue(value.toList())
+    } else if let value = value as? SurveyPromptMessage {
+      super.writeByte(137)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -966,8 +1046,13 @@ class AndroidCollectorApiSetup {
 protocol CollectorEventsProtocol {
   /// A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
   /// While the CPU sleeps, Dart timers don't advance. This lets the collector take an
-  /// overdue sample while the native wake lock is held.
+  /// overdue sample while the native wake lock is held. iOS sends it on keep-alive location
+  /// updates, at most every 30 s.
   @MainActor func wakeTick() async throws
+  /// iOS only: a BGProcessingTask or the "Upload now" button asks the collector engine to
+  /// drain the buffer now (if the upload constraints are met). It reports back through
+  /// IosCollectorApi.uploadRunFinished.
+  @MainActor func uploadRequested() async throws
 }
 class CollectorEvents: CollectorEventsProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
@@ -981,10 +1066,368 @@ class CollectorEvents: CollectorEventsProtocol {
   }
   /// A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
   /// While the CPU sleeps, Dart timers don't advance. This lets the collector take an
-  /// overdue sample while the native wake lock is held.
+  /// overdue sample while the native wake lock is held. iOS sends it on keep-alive location
+  /// updates, at most every 30 s.
   @MainActor func wakeTick() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       let channelName: String = "dev.flutter.pigeon.qoesense.CollectorEvents.wakeTick\(messageChannelSuffix)"
+      let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+      channel.sendMessage(nil) { response in
+        guard let listResponse = response as? [Any?] else {
+          continuation.resume(throwing: createConnectionError(withChannelName: channelName))
+          return
+        }
+        if listResponse.count > 1 {
+          let code: String = listResponse[0] as! String
+          let message: String? = nilOrValue(listResponse[1])
+          let details: String? = nilOrValue(listResponse[2])
+          continuation.resume(throwing: PigeonError(code: code, message: message, details: details))
+        } else {
+          continuation.resume()
+        }
+      }
+    }
+  }
+  /// iOS only: a BGProcessingTask or the "Upload now" button asks the collector engine to
+  /// drain the buffer now (if the upload constraints are met). It reports back through
+  /// IosCollectorApi.uploadRunFinished.
+  @MainActor func uploadRequested() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      let channelName: String = "dev.flutter.pigeon.qoesense.CollectorEvents.uploadRequested\(messageChannelSuffix)"
+      let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+      channel.sendMessage(nil) { response in
+        guard let listResponse = response as? [Any?] else {
+          continuation.resume(throwing: createConnectionError(withChannelName: channelName))
+          return
+        }
+        if listResponse.count > 1 {
+          let code: String = listResponse[0] as! String
+          let message: String? = nilOrValue(listResponse[1])
+          let details: String? = nilOrValue(listResponse[2])
+          continuation.resume(throwing: PigeonError(code: code, message: message, details: details))
+        } else {
+          continuation.resume()
+        }
+      }
+    }
+  }
+}
+/// Generated protocol from Pigeon that represents a handler of messages from Flutter.
+protocol IosCollectorApi {
+  /// One full capture, as AndroidCollectorApi.captureSample. Location waits at most
+  /// [locationTimeoutMs]; a fix older than [staleAfterMs] is reported STALE.
+  func captureSample(locationTimeoutMs: Int64, staleAfterMs: Int64) async throws -> CapturedSampleMessage
+  /// Persists the flag, starts/stops background location and the headless collector engine,
+  /// and schedules/cancels the upload BGProcessingTask.
+  func setCollectionEnabled(enabled: Bool) throws
+  /// serviceRunning = the headless collector engine is alive.
+  func status() throws -> CollectorStatusMessage
+  /// Posts the actionable survey notification.
+  func presentSurvey(triggerType: String) throws
+  func pendingSurveyAnswers() throws -> [SurveyAnswerMessage]
+  func acknowledgeSurveyAnswers(responseIds: [String]) throws
+  /// An answer from the in-app sheet, added to the same durable native queue.
+  func submitSurveyAnswer(answer: SurveyAnswerMessage) throws
+  /// The prompt opened from a notification tap, if any. Reading it clears it.
+  func takeOpenedSurveyPrompt() throws -> SurveyPromptMessage?
+  /// Unmetered usable network (not cellular, not a hotspot, not Low Data Mode) and Low Power
+  /// Mode off: the iOS counterpart of WorkManager's unmetered + battery-not-low constraints.
+  func uploadConstraintsMet() throws -> Bool
+  /// Called by the collector engine when an upload run ends.
+  func uploadRunFinished(success: Bool, uploadedRows: Int64) throws
+  /// Asks the collector engine to upload now (same constraints).
+  func requestUploadNow() throws
+  /// Opens this app's page in the Settings app.
+  func openAppSettings() throws
+  func recordConsent(timestampMs: Int64) throws
+  /// The When-In-Use prompt. Completes with the resulting status.
+  func requestLocationWhenInUse() async throws -> LocationAuthorizationMessage
+  /// The Always upgrade prompt (shown by iOS at most once). Completes with the resulting status.
+  func requestLocationAlways() async throws -> LocationAuthorizationMessage
+  /// The notification permission prompt. Completes with whether alerts are allowed.
+  func requestNotifications() async throws -> Bool
+}
+
+/// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
+class IosCollectorApiSetup {
+  static var codec: FlutterStandardMessageCodec { TelemetryApiPigeonCodec.shared }
+  /// Sets up an instance of `IosCollectorApi` to handle messages through the `binaryMessenger`.
+  static func setUp(binaryMessenger: FlutterBinaryMessenger, api: IosCollectorApi?, messageChannelSuffix: String = "") {
+    let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
+    /// One full capture, as AndroidCollectorApi.captureSample. Location waits at most
+    /// [locationTimeoutMs]; a fix older than [staleAfterMs] is reported STALE.
+    let captureSampleChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.captureSample\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      captureSampleChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let locationTimeoutMsArg = args[0] as! Int64
+        let staleAfterMsArg = args[1] as! Int64
+        Task { @MainActor in
+          do {
+            let result = try await api.captureSample(locationTimeoutMs: locationTimeoutMsArg, staleAfterMs: staleAfterMsArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      captureSampleChannel.setMessageHandler(nil)
+    }
+    /// Persists the flag, starts/stops background location and the headless collector engine,
+    /// and schedules/cancels the upload BGProcessingTask.
+    let setCollectionEnabledChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.setCollectionEnabled\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      setCollectionEnabledChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let enabledArg = args[0] as! Bool
+        do {
+          try api.setCollectionEnabled(enabled: enabledArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      setCollectionEnabledChannel.setMessageHandler(nil)
+    }
+    /// serviceRunning = the headless collector engine is alive.
+    let statusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.status\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      statusChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.status()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      statusChannel.setMessageHandler(nil)
+    }
+    /// Posts the actionable survey notification.
+    let presentSurveyChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.presentSurvey\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      presentSurveyChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let triggerTypeArg = args[0] as! String
+        do {
+          try api.presentSurvey(triggerType: triggerTypeArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      presentSurveyChannel.setMessageHandler(nil)
+    }
+    let pendingSurveyAnswersChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.pendingSurveyAnswers\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      pendingSurveyAnswersChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.pendingSurveyAnswers()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      pendingSurveyAnswersChannel.setMessageHandler(nil)
+    }
+    let acknowledgeSurveyAnswersChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.acknowledgeSurveyAnswers\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      acknowledgeSurveyAnswersChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let responseIdsArg = args[0] as! [String]
+        do {
+          try api.acknowledgeSurveyAnswers(responseIds: responseIdsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      acknowledgeSurveyAnswersChannel.setMessageHandler(nil)
+    }
+    /// An answer from the in-app sheet, added to the same durable native queue.
+    let submitSurveyAnswerChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.submitSurveyAnswer\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      submitSurveyAnswerChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let answerArg = args[0] as! SurveyAnswerMessage
+        do {
+          try api.submitSurveyAnswer(answer: answerArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      submitSurveyAnswerChannel.setMessageHandler(nil)
+    }
+    /// The prompt opened from a notification tap, if any. Reading it clears it.
+    let takeOpenedSurveyPromptChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.takeOpenedSurveyPrompt\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      takeOpenedSurveyPromptChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.takeOpenedSurveyPrompt()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      takeOpenedSurveyPromptChannel.setMessageHandler(nil)
+    }
+    /// Unmetered usable network (not cellular, not a hotspot, not Low Data Mode) and Low Power
+    /// Mode off: the iOS counterpart of WorkManager's unmetered + battery-not-low constraints.
+    let uploadConstraintsMetChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.uploadConstraintsMet\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      uploadConstraintsMetChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.uploadConstraintsMet()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      uploadConstraintsMetChannel.setMessageHandler(nil)
+    }
+    /// Called by the collector engine when an upload run ends.
+    let uploadRunFinishedChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.uploadRunFinished\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      uploadRunFinishedChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let successArg = args[0] as! Bool
+        let uploadedRowsArg = args[1] as! Int64
+        do {
+          try api.uploadRunFinished(success: successArg, uploadedRows: uploadedRowsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      uploadRunFinishedChannel.setMessageHandler(nil)
+    }
+    /// Asks the collector engine to upload now (same constraints).
+    let requestUploadNowChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.requestUploadNow\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestUploadNowChannel.setMessageHandler { _, reply in
+        do {
+          try api.requestUploadNow()
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      requestUploadNowChannel.setMessageHandler(nil)
+    }
+    /// Opens this app's page in the Settings app.
+    let openAppSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.openAppSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      openAppSettingsChannel.setMessageHandler { _, reply in
+        do {
+          try api.openAppSettings()
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      openAppSettingsChannel.setMessageHandler(nil)
+    }
+    let recordConsentChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.recordConsent\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      recordConsentChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let timestampMsArg = args[0] as! Int64
+        do {
+          try api.recordConsent(timestampMs: timestampMsArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      recordConsentChannel.setMessageHandler(nil)
+    }
+    /// The When-In-Use prompt. Completes with the resulting status.
+    let requestLocationWhenInUseChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.requestLocationWhenInUse\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestLocationWhenInUseChannel.setMessageHandler { _, reply in
+        Task { @MainActor in
+          do {
+            let result = try await api.requestLocationWhenInUse()
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      requestLocationWhenInUseChannel.setMessageHandler(nil)
+    }
+    /// The Always upgrade prompt (shown by iOS at most once). Completes with the resulting status.
+    let requestLocationAlwaysChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.requestLocationAlways\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestLocationAlwaysChannel.setMessageHandler { _, reply in
+        Task { @MainActor in
+          do {
+            let result = try await api.requestLocationAlways()
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      requestLocationAlwaysChannel.setMessageHandler(nil)
+    }
+    /// The notification permission prompt. Completes with whether alerts are allowed.
+    let requestNotificationsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.IosCollectorApi.requestNotifications\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestNotificationsChannel.setMessageHandler { _, reply in
+        Task { @MainActor in
+          do {
+            let result = try await api.requestNotifications()
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      requestNotificationsChannel.setMessageHandler(nil)
+    }
+  }
+}
+
+/// Native -> Dart events for the UI engine (iOS).
+///
+/// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
+protocol SurveyUiEventsProtocol {
+  /// The participant tapped a survey notification: show the in-app sheet
+  /// (IosCollectorApi.takeOpenedSurveyPrompt has the prompt).
+  @MainActor func surveyPromptOpened() async throws
+}
+class SurveyUiEvents: SurveyUiEventsProtocol {
+  private let binaryMessenger: FlutterBinaryMessenger
+  private let messageChannelSuffix: String
+  init(binaryMessenger: FlutterBinaryMessenger, messageChannelSuffix: String = "") {
+    self.binaryMessenger = binaryMessenger
+    self.messageChannelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
+  }
+  var codec: TelemetryApiPigeonCodec {
+    return TelemetryApiPigeonCodec.shared
+  }
+  /// The participant tapped a survey notification: show the in-app sheet
+  /// (IosCollectorApi.takeOpenedSurveyPrompt has the prompt).
+  @MainActor func surveyPromptOpened() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      let channelName: String = "dev.flutter.pigeon.qoesense.SurveyUiEvents.surveyPromptOpened\(messageChannelSuffix)"
       let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
       channel.sendMessage(nil) { response in
         guard let listResponse = response as? [Any?] else {

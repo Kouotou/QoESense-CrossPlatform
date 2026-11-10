@@ -140,6 +140,15 @@ enum SessionTypeMessage {
   videoConferencing;
 }
 
+/// CLAuthorizationStatus, as the onboarding needs it.
+enum LocationAuthorizationMessage {
+  notDetermined,
+  denied,
+  restricted,
+  whenInUse,
+  always;
+}
+
 class CapabilityReportMessage {
   CapabilityReportMessage({
     required this.platform,
@@ -502,6 +511,8 @@ class SurveyAnswerMessage {
     required this.tapMs,
     this.promptedAtMs,
     required this.presentationMode,
+    this.contextAppPackage,
+    this.contextSessionType,
   });
 
   String responseId;
@@ -515,8 +526,16 @@ class SurveyAnswerMessage {
 
   int? promptedAtMs;
 
-  /// OVERLAY, NOTIFICATION or IN_APP.
+  /// OVERLAY, NOTIFICATION, NOTIFICATION_ACTION or IN_APP.
   String presentationMode;
+
+  /// iOS self-report (D-6): the Android package name of the app the participant chose, or
+  /// null for "something else". Always null on Android, where the context is observed.
+  String? contextAppPackage;
+
+  /// iOS self-report: NONE, SOCIAL_MEDIA or VIDEO_CONFERENCING. Null when the question
+  /// wasn't asked or was skipped (contextSource UNKNOWN).
+  String? contextSessionType;
 
   List<Object?> _toList() {
     return <Object?>[
@@ -526,6 +545,8 @@ class SurveyAnswerMessage {
       tapMs,
       promptedAtMs,
       presentationMode,
+      contextAppPackage,
+      contextSessionType,
     ];
   }
 
@@ -541,6 +562,8 @@ class SurveyAnswerMessage {
       tapMs: result[3]! as int,
       promptedAtMs: result[4] as int?,
       presentationMode: result[5]! as String,
+      contextAppPackage: result[6] as String?,
+      contextSessionType: result[7] as String?,
     );
   }
 
@@ -553,7 +576,7 @@ class SurveyAnswerMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(responseId, other.responseId) && _deepEquals(score, other.score) && _deepEquals(triggerType, other.triggerType) && _deepEquals(tapMs, other.tapMs) && _deepEquals(promptedAtMs, other.promptedAtMs) && _deepEquals(presentationMode, other.presentationMode);
+    return _deepEquals(responseId, other.responseId) && _deepEquals(score, other.score) && _deepEquals(triggerType, other.triggerType) && _deepEquals(tapMs, other.tapMs) && _deepEquals(promptedAtMs, other.promptedAtMs) && _deepEquals(presentationMode, other.presentationMode) && _deepEquals(contextAppPackage, other.contextAppPackage) && _deepEquals(contextSessionType, other.contextSessionType);
   }
 
   @override
@@ -562,7 +585,7 @@ class SurveyAnswerMessage {
 
   @override
   String toString() {
-    return 'SurveyAnswerMessage(responseId: $responseId, score: $score, triggerType: $triggerType, tapMs: $tapMs, promptedAtMs: $promptedAtMs, presentationMode: $presentationMode)';
+    return 'SurveyAnswerMessage(responseId: $responseId, score: $score, triggerType: $triggerType, tapMs: $tapMs, promptedAtMs: $promptedAtMs, presentationMode: $presentationMode, contextAppPackage: $contextAppPackage, contextSessionType: $contextSessionType)';
   }
 }
 
@@ -621,6 +644,58 @@ class CollectorStatusMessage {
   }
 }
 
+/// A survey prompt the participant opened by tapping its notification.
+class SurveyPromptMessage {
+  SurveyPromptMessage({
+    required this.triggerType,
+    required this.promptedAtMs,
+  });
+
+  /// PERIODIC, POST_SESSION or ANOMALY.
+  String triggerType;
+
+  int promptedAtMs;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      triggerType,
+      promptedAtMs,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static SurveyPromptMessage decode(Object result) {
+    result as List<Object?>;
+    return SurveyPromptMessage(
+      triggerType: result[0]! as String,
+      promptedAtMs: result[1]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! SurveyPromptMessage || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(triggerType, other.triggerType) && _deepEquals(promptedAtMs, other.promptedAtMs);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'SurveyPromptMessage(triggerType: $triggerType, promptedAtMs: $promptedAtMs)';
+  }
+}
+
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -638,17 +713,23 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is SessionTypeMessage) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    }    else if (value is CapabilityReportMessage) {
+    }    else if (value is LocationAuthorizationMessage) {
       buffer.putUint8(132);
-      writeValue(buffer, value.encode());
-    }    else if (value is CapturedSampleMessage) {
+      writeValue(buffer, value.index);
+    }    else if (value is CapabilityReportMessage) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    }    else if (value is SurveyAnswerMessage) {
+    }    else if (value is CapturedSampleMessage) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    }    else if (value is CollectorStatusMessage) {
+    }    else if (value is SurveyAnswerMessage) {
       buffer.putUint8(135);
+      writeValue(buffer, value.encode());
+    }    else if (value is CollectorStatusMessage) {
+      buffer.putUint8(136);
+      writeValue(buffer, value.encode());
+    }    else if (value is SurveyPromptMessage) {
+      buffer.putUint8(137);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -668,13 +749,18 @@ class _PigeonCodec extends StandardMessageCodec {
         final value = readValue(buffer) as int?;
         return value == null ? null : SessionTypeMessage.values[value];
       case 132:
-        return CapabilityReportMessage.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : LocationAuthorizationMessage.values[value];
       case 133:
-        return CapturedSampleMessage.decode(readValue(buffer)!);
+        return CapabilityReportMessage.decode(readValue(buffer)!);
       case 134:
-        return SurveyAnswerMessage.decode(readValue(buffer)!);
+        return CapturedSampleMessage.decode(readValue(buffer)!);
       case 135:
+        return SurveyAnswerMessage.decode(readValue(buffer)!);
+      case 136:
         return CollectorStatusMessage.decode(readValue(buffer)!);
+      case 137:
+        return SurveyPromptMessage.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -934,8 +1020,14 @@ abstract class CollectorEvents {
 
   /// A Doze-tolerant wake-up (AlarmManager.setAndAllowWhileIdle, ~10 min, decision C).
   /// While the CPU sleeps, Dart timers don't advance. This lets the collector take an
-  /// overdue sample while the native wake lock is held.
+  /// overdue sample while the native wake lock is held. iOS sends it on keep-alive location
+  /// updates, at most every 30 s.
   void wakeTick();
+
+  /// iOS only: a BGProcessingTask or the "Upload now" button asks the collector engine to
+  /// drain the buffer now (if the upload constraints are met). It reports back through
+  /// IosCollectorApi.uploadRunFinished.
+  void uploadRequested();
 
   static void setUp(CollectorEvents? api, {
     BinaryMessenger? binaryMessenger, 
@@ -953,6 +1045,391 @@ abstract class CollectorEvents {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           try {
             api.wakeTick();
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.qoesense.CollectorEvents.uploadRequested$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          try {
+            api.uploadRequested();
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+  }
+}
+
+class IosCollectorApi {
+  /// Constructor for [IosCollectorApi]. The [binaryMessenger] named argument is
+  /// available for dependency injection. If it is left null, the default
+  /// BinaryMessenger will be used which routes to the host platform.
+  IosCollectorApi({
+      BinaryMessenger? binaryMessenger, 
+      String messageChannelSuffix = '', 
+      })
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+
+  final BinaryMessenger? pigeonVar_binaryMessenger;
+  static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
+
+  final String pigeonVar_messageChannelSuffix;
+
+
+  /// One full capture, as AndroidCollectorApi.captureSample. Location waits at most
+  /// [locationTimeoutMs]; a fix older than [staleAfterMs] is reported STALE.
+  Future<CapturedSampleMessage> captureSample(int locationTimeoutMs, int staleAfterMs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.captureSample$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[locationTimeoutMs, staleAfterMs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as CapturedSampleMessage;
+  }
+
+  /// Persists the flag, starts/stops background location and the headless collector engine,
+  /// and schedules/cancels the upload BGProcessingTask.
+  Future<void> setCollectionEnabled(bool enabled) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.setCollectionEnabled$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[enabled]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// serviceRunning = the headless collector engine is alive.
+  Future<CollectorStatusMessage> status() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.status$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as CollectorStatusMessage;
+  }
+
+  /// Posts the actionable survey notification.
+  Future<void> presentSurvey(String triggerType) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.presentSurvey$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[triggerType]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<List<SurveyAnswerMessage>> pendingSurveyAnswers() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.pendingSurveyAnswers$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return (pigeonVar_replyValue! as List<Object?>).cast<SurveyAnswerMessage>();
+  }
+
+  Future<void> acknowledgeSurveyAnswers(List<String> responseIds) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.acknowledgeSurveyAnswers$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[responseIds]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// An answer from the in-app sheet, added to the same durable native queue.
+  Future<void> submitSurveyAnswer(SurveyAnswerMessage answer) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.submitSurveyAnswer$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[answer]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// The prompt opened from a notification tap, if any. Reading it clears it.
+  Future<SurveyPromptMessage?> takeOpenedSurveyPrompt() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.takeOpenedSurveyPrompt$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+    return pigeonVar_replyValue as SurveyPromptMessage?;
+  }
+
+  /// Unmetered usable network (not cellular, not a hotspot, not Low Data Mode) and Low Power
+  /// Mode off: the iOS counterpart of WorkManager's unmetered + battery-not-low constraints.
+  Future<bool> uploadConstraintsMet() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.uploadConstraintsMet$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  /// Called by the collector engine when an upload run ends.
+  Future<void> uploadRunFinished(bool success, int uploadedRows) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.uploadRunFinished$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[success, uploadedRows]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Asks the collector engine to upload now (same constraints).
+  Future<void> requestUploadNow() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.requestUploadNow$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Opens this app's page in the Settings app.
+  Future<void> openAppSettings() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.openAppSettings$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<void> recordConsent(int timestampMs) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.recordConsent$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[timestampMs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// The When-In-Use prompt. Completes with the resulting status.
+  Future<LocationAuthorizationMessage> requestLocationWhenInUse() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.requestLocationWhenInUse$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as LocationAuthorizationMessage;
+  }
+
+  /// The Always upgrade prompt (shown by iOS at most once). Completes with the resulting status.
+  Future<LocationAuthorizationMessage> requestLocationAlways() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.requestLocationAlways$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as LocationAuthorizationMessage;
+  }
+
+  /// The notification permission prompt. Completes with whether alerts are allowed.
+  Future<bool> requestNotifications() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.requestNotifications$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+}
+
+/// Native -> Dart events for the UI engine (iOS).
+abstract class SurveyUiEvents {
+  static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
+
+  /// The participant tapped a survey notification: show the in-app sheet
+  /// (IosCollectorApi.takeOpenedSurveyPrompt has the prompt).
+  void surveyPromptOpened();
+
+  static void setUp(SurveyUiEvents? api, {
+    BinaryMessenger? binaryMessenger, 
+    String messageChannelSuffix = '',
+  }) 
+{
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.qoesense.SurveyUiEvents.surveyPromptOpened$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          try {
+            api.surveyPromptOpened();
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);

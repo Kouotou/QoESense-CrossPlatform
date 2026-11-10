@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qoesense/src/application/collector.dart';
+import 'package:qoesense/src/application/path_anomaly_detector.dart';
 import 'package:qoesense/src/application/rsrp_anomaly_detector.dart';
 import 'package:qoesense/src/application/sampling_policy.dart';
 import 'package:qoesense/src/application/stores.dart';
@@ -176,5 +177,61 @@ void main() {
     expect(presenter.shown, hasLength(6));
     now = now.add(const Duration(days: 1));
     expect(await surveys.maybeTriggerAnomaly(AnomalyReason.signalDrop), isTrue);
+  });
+
+  group('iOS', () {
+    Collector iosCollector(ScriptedSource source, RttProbe probe) => Collector(
+      source: source,
+      rtt: probe,
+      buffer: buffer,
+      surveys: SurveyScheduler(store: kv, presenter: presenter, clock: () => now),
+      clock: () => now,
+      pathAnomalies: PathAnomalyDetector(),
+    );
+
+    test('every iOS tick buffers a contract-valid IOS_RAT row with no radio values', () async {
+      final c = iosCollector(ScriptedSource([iosCaptured]), CountingRtt());
+      await c.tick();
+      final s = (await buffer.oldest(1)).single.sample;
+      expect(contractViolations(s), isEmpty);
+      expect(s.telemetryCapabilityTier, TelemetryCapabilityTier.iosRat);
+      expect(c.recentRsrp, isEmpty);
+    });
+
+    test('a CallKit call gives the 15 s cadence, and its end can trigger POST_SESSION', () async {
+      await kv.write('survey.lastPromptMs', '${now.subtract(const Duration(hours: 1)).millisecondsSinceEpoch}');
+      final c = iosCollector(
+        ScriptedSource([() => iosCaptured(session: AppSessionType.videoConferencing), iosCaptured]),
+        CountingRtt(),
+      );
+      final inCall = await c.tick();
+      expect(inCall, inInclusiveRange(SamplingPolicy.elevatedIntervalMs - 1000, SamplingPolicy.elevatedIntervalMs));
+      await c.tick();
+      expect(presenter.shown, [MosTriggerType.postSession]);
+    });
+
+    test('a path change raises ANOMALY through the shared, rate-limited scheduler', () async {
+      await kv.write('survey.lastPromptMs', '${now.subtract(const Duration(hours: 1)).millisecondsSinceEpoch}');
+      final c = iosCollector(
+        ScriptedSource([
+          () => iosCaptured(connectionType: 'WIFI'),
+          iosCaptured,
+          () => iosCaptured(connectionType: 'WIFI'),
+        ]),
+        CountingRtt(),
+      );
+      await c.tick();
+      await c.tick(); // Wi-Fi -> cellular
+      await c.tick(); // cellular -> Wi-Fi, but inside the 10-minute cooldown
+      expect(presenter.shown, [MosTriggerType.anomaly]);
+    });
+
+    test('without the path detector (Android), the same path change triggers nothing', () async {
+      await kv.write('survey.lastPromptMs', '${now.subtract(const Duration(hours: 1)).millisecondsSinceEpoch}');
+      final c = collector(ScriptedSource([() => iosCaptured(connectionType: 'WIFI'), iosCaptured]));
+      await c.tick();
+      await c.tick();
+      expect(presenter.shown, isEmpty);
+    });
   });
 }

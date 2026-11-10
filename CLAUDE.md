@@ -23,6 +23,15 @@ changing any model, serializer or channel.
 - A new Swift file must also be added to `ios/Runner.xcodeproj/project.pbxproj`, because the
   project doesn't use synchronized folders.
 
+## Commands (Mac, Phase 4)
+
+- Flutter 3.47.9 is at `~/dev/flutter/bin`. Homebrew's `/opt/homebrew/bin/flutter` (3.41.9) is
+  too old for the Dart 3.13 SDK constraint, so prefix: `export PATH="$HOME/dev/flutter/bin:$PATH"`.
+- `SKIP_ANDROID=1 ./tool/verify.sh`: everything, including the iOS build and XCTest. This Mac's
+  Android SDK only has `android-37.0`, which Gradle doesn't resolve; the APK is built on Windows.
+- iOS plugins come through Swift Package Manager (no Podfile). The iOS design is in
+  `docs/PHASE4_IOS.md`.
+
 ## Non-negotiables
 
 - Sampling is **60 s at rest / 15 s in a video call**. Older prompts and the handbook say

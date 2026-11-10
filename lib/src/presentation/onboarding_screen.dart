@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../domain/capabilities.dart';
+import '../domain/enums.dart';
 import 'app_services.dart';
 
 /// The reference app's onboarding flow, in its order, with its text:
@@ -9,6 +10,11 @@ import 'app_services.dart';
 /// usage access, battery and overlay. Collection starts automatically at the end, as in the
 /// reference. Consent is stored locally first (authoritative), and best-effort on the
 /// server via [onConsented].
+///
+/// On iOS the same five steps carry iOS texts (draft, pending owner approval): location
+/// When-In-Use, then Always + notifications, and a last step that replaces Android's usage
+/// access / battery / overlay screen (none of which exist on iOS) with how to keep
+/// collection running.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, required this.services, required this.onConsented, required this.onFinished});
 
@@ -59,14 +65,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
 
   void _next() => setState(() => _step++);
 
+  bool get _ios => _s.platform == ClientPlatform.ios;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final (title, body, actions) = switch (_step) {
-      0 => (l10n.welcomeTitle, l10n.welcomeBody, [FilledButton(onPressed: _next, child: Text(l10n.welcomeButton))]),
+      0 => (
+        l10n.welcomeTitle,
+        _ios ? l10n.welcomeBodyIos : l10n.welcomeBody,
+        [FilledButton(onPressed: _next, child: Text(l10n.welcomeButton))],
+      ),
       1 => (
         l10n.consentTitle,
-        l10n.consentBody,
+        _ios ? l10n.consentBodyIos : l10n.consentBody,
         [
           FilledButton(
             key: const ValueKey('consent'),
@@ -80,7 +92,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
       ),
       2 => (
         l10n.locationTitle,
-        l10n.locationBody,
+        _ios ? l10n.locationBodyIos : l10n.locationBody,
         [
           FilledButton(
             onPressed: () async {
@@ -95,7 +107,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
       ),
       3 => (
         l10n.backgroundTitle,
-        _caps?.isAvailable(FieldGroup.location) == false
+        _ios
+            ? l10n.backgroundBodyIos
+            : _caps?.isAvailable(FieldGroup.location) == false
             ? '${l10n.backgroundBody}\n\n${l10n.backgroundHintNoForeground}'
             : l10n.backgroundBody,
         [
@@ -108,6 +122,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
             child: Text(l10n.backgroundButtonGrant),
           ),
           TextButton(onPressed: _next, child: Text(l10n.actionSkipForNow)),
+        ],
+      ),
+      _ when _ios => (
+        l10n.iosFinishTitle,
+        l10n.iosFinishBody,
+        [
+          _accessRow(
+            _caps?.isAvailable(FieldGroup.backgroundLocation) == true,
+            l10n.iosAlwaysLocationGranted,
+            l10n.iosAlwaysLocationNotGranted,
+            l10n.iosOpenSettings,
+            SettingsTarget.appDetails,
+          ),
+          _accessRow(
+            _caps?.isAvailable(FieldGroup.notifications) == true,
+            l10n.iosNotificationsGranted,
+            l10n.iosNotificationsNotGranted,
+            l10n.iosOpenSettings,
+            SettingsTarget.appDetails,
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const ValueKey('finish'),
+            onPressed: widget.onFinished,
+            child: Text(l10n.usageButtonFinish),
+          ),
         ],
       ),
       _ => (

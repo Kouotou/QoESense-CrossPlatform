@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qoesense/src/application/captured_sample.dart';
 import 'package:qoesense/src/application/mos_pipeline.dart';
+import 'package:qoesense/src/application/self_report.dart';
 import 'package:qoesense/src/application/stores.dart';
 import 'package:qoesense/src/data/local/telemetry_buffer.dart';
 import 'package:qoesense/src/domain/enums.dart';
@@ -138,5 +139,90 @@ void main() {
     expect(MosPipeline.backoffMs(1), 60000);
     expect(MosPipeline.backoffMs(2), 120000);
     expect(MosPipeline.backoffMs(20), MosPipeline.maxBackoffMs);
+  });
+
+  group('iOS (D-6 self-report)', () {
+    MosPipeline iosPipeline() => MosPipeline(
+      answers: answers,
+      buffer: buffer,
+      pending: pending,
+      identity: identity,
+      sink: sink,
+      app: testIosApp,
+      platform: ClientPlatform.ios,
+      clock: () => now,
+    );
+
+    SurveyAnswer iosAnswer(
+      String id, {
+      SelfReportedContext? self,
+      PresentationMode mode = PresentationMode.notification,
+    }) => SurveyAnswer(
+      responseId: id,
+      score: 4,
+      triggerType: MosTriggerType.postSession,
+      tapMs: tap,
+      promptedAtMs: tap - 50000,
+      presentationMode: mode,
+      selfReport: self,
+    );
+
+    test('the in-app answer becomes SELF_REPORTED with the Android package name', () async {
+      answers.queue.add(iosAnswer('r1', self: SelfReportOption.whatsappCall.context));
+      await iosPipeline().run();
+      final body = sink.written['r1']!;
+      expect(body['contextSource'], 'SELF_REPORTED');
+      expect(body['contextAppPackage'], 'com.whatsapp');
+      expect(body['contextSessionType'], 'VIDEO_CONFERENCING');
+      expect(body['platform'], 'IOS');
+      expect(body['presentationMode'], 'NOTIFICATION');
+      expect(body['promptedAtMs'], tap - 50000);
+    });
+
+    test('"something else" is a self-report with no app and session NONE', () async {
+      answers.queue.add(iosAnswer('r1', self: SelfReportOption.somethingElse.context));
+      await iosPipeline().run();
+      expect(sink.written['r1']!['contextSource'], 'SELF_REPORTED');
+      expect(sink.written['r1']!['contextAppPackage'], isNull);
+      expect(sink.written['r1']!['contextSessionType'], 'NONE');
+    });
+
+    test('a notification-action tap, or a skipped question, stays UNKNOWN even beside an iOS sample', () async {
+      await buffer.append(
+        assembleSample(
+          c: iosCaptured(session: AppSessionType.videoConferencing),
+          rtt: const RttResult.notAttempted(),
+          rttMethod: null,
+          timestampMs: tap - 60000,
+          captureDurationMs: 100,
+          utcOffsetMinutes: 60,
+        ),
+      );
+      answers.queue.add(iosAnswer('r1', mode: PresentationMode.notificationAction));
+      answers.queue.add(iosAnswer('r2'));
+      await iosPipeline().run();
+      for (final id in ['r1', 'r2']) {
+        expect(sink.written[id]!['contextSource'], 'UNKNOWN', reason: id);
+        expect(sink.written[id]!['contextAppPackage'], isNull);
+        expect(sink.written[id]!['contextSessionType'], 'NONE');
+      }
+      expect(sink.written['r1']!['presentationMode'], 'NOTIFICATION_ACTION');
+    });
+
+    test('every self-report option maps onto the Android monitored package lists', () {
+      const android = {
+        'com.whatsapp',
+        'com.whatsapp.w4b',
+        'com.facebook.katana',
+        'com.instagram.android',
+        'us.zoom.videomeetings',
+        'com.google.android.apps.meetings',
+        'com.google.android.apps.classroom',
+      };
+      for (final o in SelfReportOption.values) {
+        if (o.androidPackage != null) expect(android, contains(o.androidPackage), reason: o.name);
+        expect(o.androidPackage == null, o.sessionType == AppSessionType.none, reason: o.name);
+      }
+    });
   });
 }

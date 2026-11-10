@@ -8,6 +8,8 @@ or **not at all**.
 - **Shared**: Dart, in `lib/`. **Kt**: native Kotlin. **Sw**: native Swift.
 - ✅ equivalent. 🟡 approved substitute. ❌ impossible on iOS; the field is null.
 - **P1** means done in Phase 1; anything else is the phase that will do it.
+- The iOS column as built in Phase 4 (2026-11-09) is described in [PHASE4_IOS.md](PHASE4_IOS.md),
+  with per-field evidence in [IOS_CAPABILITY_MATRIX.md](IOS_CAPABILITY_MATRIX.md).
 
 ## Telemetry capture
 
@@ -48,7 +50,7 @@ or **not at all**.
 | Delete only after a confirmed upload | **Shared** `UploadDrain` | **Shared** | ✅ | **P1** |
 | Drain 20 × 2,000, then retention (45 d) | **Shared** `UploadDrain` | **Shared** | ✅ | **P1** |
 | Gzipped NDJSON, exact field set and order | **Shared** `BatchSerializer` | **Shared** | ✅ | **P1** |
-| Wi-Fi only, battery not low, hourly | Kt WorkManager constraints | Sw BGTask + Dart `NWPathMonitor`-backed check | 🟡 iOS decides when tasks run | 4 |
+| Wi-Fi only, battery not low, hourly | Kt WorkManager constraints | **Shared** `UploadGate` in the collector engine (non-expensive, non-constrained path, Low Power Mode off) + Sw `BGProcessingTask` fallback | 🟡 runs only while iOS keeps the app alive or wakes it | 4 |
 | Storage path `telemetry/{uid}/{local date}/{uuid}.json.gz` | **Shared** | **Shared** | ✅ | **P1** (path builder) |
 
 ## Identity, consent, MOS
@@ -61,7 +63,7 @@ or **not at all**.
 | MOS 1–5 scale | **Shared** model validation | **Shared** | ✅ | **P1** (model) |
 | Triggers: PERIODIC 2 h / POST_SESSION 15 min / ANOMALY 10 min, shared cooldown | **Shared** `SurveyTriggerPolicy` | **Shared** | ✅ | **P1** |
 | 6 per local day; baseline on first run | **Shared** | **Shared** | ✅ | **P1** |
-| RSRP anomaly detector | **Shared** `RsrpAnomalyDetector` | not used (no RSRP) | ❌ → 🟡 RTT/throughput/path detector | **P1** (RSRP) / 3 (iOS detector) |
+| RSRP anomaly detector | **Shared** `RsrpAnomalyDetector` | not used (no RSRP) | ❌ → 🟡 **Shared** `PathAnomalyDetector`: path, RAT and RTT rules, proposed (PHASE4_IOS §6) | **P1** (RSRP) / 4 (iOS detector) |
 | Survey shown over other apps | Kt overlay activity | none | ❌ → 🟡 actionable 1–5 notification | 3 |
 | Notification fallback | Kt | Sw `UNNotificationCategory` | ✅ | 3 |
 | Auto-dismiss after 8 s | Kt overlay | n/a (notifications persist) | 🟡 | 3 |

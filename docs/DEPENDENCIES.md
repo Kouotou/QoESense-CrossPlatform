@@ -34,6 +34,15 @@ is committed. Nothing here is a new backend or cloud provider.
 | `permission_handler` ^13.0 | Runtime permissions (location, phone, background location, notifications). Usage access, overlay and battery stay native intents. Needs compileSdk 37. |
 | Android: `androidx.core:core-ktx` 1.19.0, `androidx.work:work-runtime-ktx` 2.11.2, `play-services-location` 21.4.0 | The same versions as the reference app |
 
+## Phase 4 (iOS), in use now
+
+| Package / framework | Why |
+|---|---|
+| iOS frameworks: CoreLocation, CoreTelephony, CallKit (`CXCallObserver`), Network (`NWPathMonitor`), BackgroundTasks, UserNotifications | The iOS collector (docs/PHASE4_IOS.md). System frameworks only; no new pods or packages |
+
+On iOS, permission prompts are native (`IosCollectorApi`), not `permission_handler`, which is
+still compiled in but asks for nothing there, so it needs no Podfile macros.
+
 ## Planned (not added yet: each comes with the phase that uses it)
 
 | Package | Phase | Purpose | Replaces in the reference app |

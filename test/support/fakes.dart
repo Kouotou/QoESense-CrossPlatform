@@ -147,3 +147,58 @@ class FakeBatchDestination implements BatchDestination {
     return true;
   }
 }
+
+const testIosApp = AppInfo(
+  deviceModel: 'iPhone15,3',
+  osMajorVersion: 26,
+  osVersion: '26.4',
+  appId: 'io.github.kouotou.qoesense',
+  appVersion: '2.0.0',
+  appBuild: 1,
+);
+
+/// A plausible iOS capture: no radio values (NOT_SUPPORTED), RAT + path + throughput +
+/// location only. Override fields to simulate path and call changes.
+CapturedSample iosCaptured({
+  String? networkType = 'LTE',
+  String? connectionType = 'CELLULAR',
+  FieldStatus connectivityStatus = FieldStatus.ok,
+  AppSessionType session = AppSessionType.none,
+}) => CapturedSample(
+  platform: ClientPlatform.ios,
+  radioStatus: FieldStatus.notSupported,
+  cqiStatus: FieldStatus.notSupported,
+  physicalChannelStatus: FieldStatus.notSupported,
+  networkType: networkType,
+  networkTypeStatus: FieldStatus.ok,
+  connectionType: connectivityStatus.carriesValue ? connectionType : null,
+  connectivityStatus: connectivityStatus,
+  throughputBytesPerSecond: 2048,
+  throughputWindowMs: 60000,
+  throughputStatus: FieldStatus.ok,
+  appSessionType: session,
+  foregroundAppStatus: FieldStatus.notSupported,
+  latitude: 4.05,
+  longitude: 9.77,
+  locationAccuracyMeters: 65,
+  locationAgeMs: 1500,
+  locationStatus: FieldStatus.ok,
+  capabilitySet: {
+    SampleFieldGroup.networkType,
+    SampleFieldGroup.connectivity,
+    SampleFieldGroup.throughput,
+    SampleFieldGroup.location,
+  },
+  app: testIosApp,
+);
+
+/// An RTT probe whose results are scripted (repeats the last one).
+class ScriptedRtt implements RttProbe {
+  ScriptedRtt(this.results);
+  final List<RttResult> results;
+  int _i = 0;
+  @override
+  String get method => 'TEST';
+  @override
+  Future<RttResult> measure() async => results[_i < results.length ? _i++ : results.length - 1];
+}
