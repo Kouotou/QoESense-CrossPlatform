@@ -128,23 +128,27 @@ flutter run                           # with the iPhone connected and unlocked
 
 Everything that needs a Mac must be finished, or written down, before returning it.
 
-- [ ] `./tool/verify.sh` passes, **including the iOS build**.
-- [ ] The app was built, installed and run on the iPhone, and validation §3.8 is done or its
-      results are recorded.
-- [ ] `lib/firebase_options.dart` has the iOS values. The plist isn't in the repo.
-- [ ] §7 below is filled in: what was done, what wasn't, and what will need a Mac again.
-- [ ] Everything is committed and pushed: `git push -u origin phase4/ios`. Then check the
-      branch on github.com.
+- [x] `./tool/verify.sh` passes, **including the iOS build**: `SKIP_ANDROID=1 ./tool/verify.sh`,
+      "All checks passed" on 2026-11-10, with the Firebase iOS options in place.
+- [x] The app was built, installed and run on the iPhone, and validation §3.8 is done or its
+      results are recorded (§7; the open items are listed there).
+- [x] `lib/firebase_options.dart` has the iOS values. The plist isn't in the repo.
+- [x] §7 below is filled in: what was done, what wasn't, and what will need a Mac again.
+- [x] Everything is committed and pushed: `git push -u origin phase4/ios`. The branch was
+      checked on GitHub (API: `phase4/ios` → the latest commit).
 - [ ] Optional, for later iOS testing without the Mac: create the app in App Store Connect
       and upload one TestFlight build (Xcode → Product → Archive → Distribute). That needs
       a privacy policy URL and an export-compliance answer. Ask the owner first.
-- [ ] **Cleanup on the friend's Mac:**
+      **Not done:** this session signs with a free Personal Team, and TestFlight needs a paid
+      Apple Developer Program membership.
+- [ ] **Cleanup on the friend's Mac** (the owner does this last; the steps are in
+      `docs/PHASE4_MAC_SESSION_SUMMARY.md` §9):
   - `claude` → `/logout`;
   - remove the GitHub token from Keychain Access (search "github.com") and **revoke it** on github.com;
   - Xcode → Settings → Accounts → remove the Apple ID;
   - delete `~/dev/QoESense-CrossPlatform`, only after the push is confirmed on GitHub.
 - [ ] On the iPhone: either leave the app installed for longer testing, with the friend's
-      agreement, or delete it.
+      agreement, or delete it. The free-team install stops opening around 2026-11-16 (7 days).
 
 ## 7. Phase 4 results (Mac session: fill this in before leaving)
 
@@ -219,11 +223,29 @@ Everything that needs a Mac must be finished, or written down, before returning 
       (PHASE4_IOS §6).
 - Not done / known issues:
   - the Android build isn't confirmed after the Pigeon change (the Mac SDK lacks `android-37`);
-    run `tool\verify.ps1` on Windows;
+    run `tool\verify.ps1` on Windows before merging `phase4/ios`;
   - the iOS consent and permission texts are drafts waiting for the owner;
-  - the iOS anomaly rules are proposed, not approved.
-- Things that will need a Mac again: device validation, if it isn't finished in this session;
-  any Swift change; a TestFlight build.
+  - the iOS anomaly rules are proposed, not approved. The device run showed `ratDowngrade`
+    firing on every cellular call; the proposed fix is to ignore RAT changes during a call;
+  - device checks not done:
+    - #7, an answer through the notification buttons (only in-app sheet answers so far);
+    - #9, relaunch after a force-quit with a move of more than 1 km;
+    - #10, a reboot;
+    - #11, permission revoked;
+    - #13, battery;
+  - the first real upload: it depends on Firebase billing, which wasn't observed. Check that
+    `Last upload` changes, or that rows appear in BigQuery under the test UID;
+  - an unfinished simulator smoke test (`integration_test/`) was dropped, not committed.
+- Things that will need a Mac again:
+  - **any Swift / Xcode change** (ios/Runner), and checking that it compiles;
+  - **reinstalling on an iPhone.** The free Personal Team install expires after 7 days
+    (around 2026-11-16), and each new build needs a Mac to sign and install it;
+  - **reading the phone's on-device buffer** (`xcrun devicectl device copy from …`). Once
+    uploads work, BigQuery shows the data without a Mac;
+  - the device checks above that need a new build or a data download (#9, #10 and #13 can
+    run on the installed app, but their analysis needs the container or uploads);
+  - a TestFlight or App Store build, which also needs the paid Developer Program.
+  With TestFlight, later iOS testing would no longer need a Mac.
 - Firebase iOS registered: **yes**, on 2026-11-10 from the Windows PC (app ID
   `1:412391455735:ios:6aeb22d05ae939d991ccf2`). The values are in `QoESenseFirebaseOptions.ios`.
   No `GoogleService-Info.plist` exists on this Mac or in the repo.

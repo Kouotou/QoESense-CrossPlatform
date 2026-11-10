@@ -1,8 +1,10 @@
 # Phase 4: iOS
 
-**Status (2026-11-09):** code complete on branch `phase4/ios`. It compiles with Xcode 27.2,
-and the Dart and XCTest suites pass. **Not yet validated on an iPhone.** The device protocol
-(§8) still has to run, and three items wait for the owner (§9).
+**Status (2026-11-10):** code complete on branch `phase4/ios`. It compiles with Xcode 27.2,
+and the Dart and XCTest suites pass. It ran on an iPhone 14 Pro Max (iOS 26) for 22 h: §8
+checks #1–#6 and #12 passed, and #7 passed in part. The results and open checks are in
+PHASE4_MAC_HANDOFF.md §7. Firebase iOS is registered and anonymous sign-in works. Two
+items wait for the owner (§9).
 
 This document covers how iOS collects, what it can't collect, and how it differs from
 Android. The capability research, one row per field, with the API, permission, iOS version,

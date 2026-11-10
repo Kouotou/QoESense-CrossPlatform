@@ -2,6 +2,8 @@
 
 > **On the Mac (Phase 4, iOS)? Read `docs/PHASE4_MAC_HANDOFF.md` first.** It has the decisions,
 > the state and the before-you-leave checklist that this session can't otherwise know.
+> **Back on Windows after the Mac session? Read `docs/PHASE4_MAC_SESSION_SUMMARY.md`:** what
+> was built and tested on the Mac, what is open, and what needs a Mac again.
 
 This is the Flutter port of `../QoESense`, the native Android **reference app**. Never modify
 the reference from here. Read `docs/ARCHITECTURE.md` and `docs/DATA_CONTRACT.md` before

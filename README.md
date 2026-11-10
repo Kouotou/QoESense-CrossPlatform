@@ -8,8 +8,8 @@ project reuses its research rules and its Firebase/GCP backend unchanged, and re
 reference app on participants' phones through a side-by-side handover (D-1, ARCHITECTURE §9.1).
 
 **Status (2026-11-09):** Android collects on the device (Phase 3, validated on a phone). iOS
-is code complete on branch `phase4/ios` (Phase 4: compiles, unit tests green, device validation
-pending). Uploads wait for Firebase billing.
+is code complete on branch `phase4/ios` (Phase 4: compiles, unit tests green, 22 h on an iPhone;
+see docs/PHASE4_MAC_SESSION_SUMMARY.md). Uploads wait for Firebase billing.
 
 ## Documents
 
@@ -22,6 +22,7 @@ pending). Uploads wait for Firebase billing.
 - [docs/PHASE3_ANDROID.md](docs/PHASE3_ANDROID.md): the Android collector and its device protocol
 - [docs/PHASE4_IOS.md](docs/PHASE4_IOS.md): the iOS collector, its differences from Android, and its device protocol
 - [docs/IOS_CAPABILITY_MATRIX.md](docs/IOS_CAPABILITY_MATRIX.md): what iOS can and can't measure, per field
+- [docs/PHASE4_MAC_SESSION_SUMMARY.md](docs/PHASE4_MAC_SESSION_SUMMARY.md): what happened on the Mac, what is open, what needs a Mac again
 
 ## Layout
 
