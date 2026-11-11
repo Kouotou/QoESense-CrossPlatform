@@ -1,7 +1,7 @@
 # Phase 4 Mac session: summary
 
 **Written:** 2026-11-10, at the end of the work on the borrowed Mac (Apple M1 Pro, Xcode 27.2).
-**Branch:** `phase4/ios` on `Kouotou/QoESense-CrossPlatform`, pushed. It is **not merged** into `main`.
+**Branch:** `phase4/ios` on `Kouotou/QoESense-CrossPlatform`, **merged into `main` on 2026-11-11** (see §11).
 **Read this first when you're back on Windows.** The detail is in:
 - [PHASE4_IOS.md](PHASE4_IOS.md): the iOS design, its differences from Android, and the device protocol;
 - [IOS_CAPABILITY_MATRIX.md](IOS_CAPABILITY_MATRIX.md): what iOS can measure, field by field;
@@ -235,3 +235,22 @@ They only reach the iPhone after a Mac rebuild.
 - **"Untrusted Developer"** on a free team: Settings → General → VPN & Device Management →
   Trust.
 - **devicectl error 4016** means the phone is locked; keep it unlocked while copying.
+
+## 11. Resolved on Windows (2026-11-11)
+
+- **Verification:** `tool\verify.ps1` passes: 151 tests, analyze clean, codegen in sync, and
+  the **Android APK builds** with the Phase 4 Pigeon changes.
+- **Android re-test** (Infinix X669): after installing the Phase 4 build, samples continue at
+  60 s, with fresh radio readings (age 6–267 ms) and working location and RTT. A test survey
+  went overlay → native queue → SQLite → **Firestore**: it's present in `mosResponses`,
+  score 5, PERIODIC, ANDROID, OVERLAY, contextSource UNKNOWN. Both queues were empty
+  afterwards.
+- **Owner decisions:**
+  - the iOS consent, welcome and permission texts (EN + FR) are **approved**;
+  - the in-call RAT fix is **approved and implemented**: `PathAnomalyDetector` ignores RAT
+    changes during a call and for 60 s after it (CSFB), with 2 new tests;
+  - `phase4/ios` was **merged into `main`**.
+- **Still open:**
+  - iPhone checks 7–11 and 13 (§7);
+  - the iPhone build expires around 2026-11-16 (a new install needs a Mac);
+  - Firebase billing, before uploads to Storage and BigQuery work. Firestore writes already work.

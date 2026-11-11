@@ -14,11 +14,18 @@ void main() {
     FieldStatus connectivity = FieldStatus.ok,
     String? rat = 'LTE',
     RttResult rtt = const RttResult.notAttempted(),
+    bool inCall = false,
+    int atMs = 1,
   }) => assembleSample(
-    c: iosCaptured(connectionType: connection, connectivityStatus: connectivity, networkType: rat),
+    c: iosCaptured(
+      connectionType: connection,
+      connectivityStatus: connectivity,
+      networkType: rat,
+      session: inCall ? AppSessionType.videoConferencing : AppSessionType.none,
+    ),
     rtt: rtt,
     rttMethod: 'TEST',
-    timestampMs: 1,
+    timestampMs: atMs,
     captureDurationMs: 1,
     utcOffsetMinutes: 60,
   );
@@ -26,6 +33,37 @@ void main() {
   List<AnomalyReason?> feed(PathAnomalyDetector d, List<TelemetrySample> samples) => [
     for (final s in samples) d.observe(s),
   ];
+
+  test('a call falling back from LTE to 3G (CSFB) is not a RAT downgrade, nor is the climb back', () {
+    final d = PathAnomalyDetector();
+    const s = 1000;
+    expect(
+      feed(d, [
+        sample(atMs: 0),
+        sample(rat: 'OTHER', inCall: true, atMs: 15 * s), // CSFB during the call
+        sample(rat: 'OTHER', inCall: true, atMs: 30 * s),
+        sample(rat: 'OTHER', atMs: 45 * s), // call ended, still on 3G for a moment
+        sample(atMs: 105 * s), // back on LTE
+        sample(atMs: 165 * s),
+      ]),
+      everyElement(isNull),
+    );
+  });
+
+  test('a real downgrade after the post-call grace period is still flagged', () {
+    final d = PathAnomalyDetector();
+    const s = 1000;
+    expect(
+      feed(d, [
+        sample(atMs: 0),
+        sample(rat: 'OTHER', inCall: true, atMs: 15 * s),
+        sample(atMs: 30 * s), // call ended
+        sample(atMs: 120 * s), // grace over: LTE remembered again
+        sample(rat: 'OTHER', atMs: 180 * s),
+      ]),
+      [null, null, null, null, AnomalyReason.ratDowngrade],
+    );
+  });
 
   test('a steady path flags nothing', () {
     final d = PathAnomalyDetector();

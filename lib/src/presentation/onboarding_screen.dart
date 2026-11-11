@@ -11,7 +11,7 @@ import 'app_services.dart';
 /// reference. Consent is stored locally first (authoritative), and best-effort on the
 /// server via [onConsented].
 ///
-/// On iOS the same five steps carry iOS texts (draft, pending owner approval): location
+/// On iOS the same five steps carry iOS texts (approved by the owner, 2026-11-11): location
 /// When-In-Use, then Always + notifications, and a last step that replaces Android's usage
 /// access / battery / overlay screen (none of which exist on iOS) with how to keep
 /// collection running.

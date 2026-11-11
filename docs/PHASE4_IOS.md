@@ -157,8 +157,8 @@ permission_handler. That avoids permission_handler's Podfile macros. It also han
 Always upgrade, which iOS shows at most once and which doesn't report back when the answer
 is "Keep Only While Using".
 
-The iOS consent, welcome and permission texts (EN + FR) are **drafts**. They are marked as
-drafts in `app_en.arb` and need the owner's approval before any iOS participant (§9).
+The iOS consent, welcome and permission texts (EN + FR) were **approved by the owner on
+2026-11-11**.
 
 ## 6. Proposed iOS rules (owner to confirm)
 
