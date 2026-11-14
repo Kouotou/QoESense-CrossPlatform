@@ -89,6 +89,9 @@ class IosCollectorControl implements CollectorControl {
   Future<void> openSettings(SettingsTarget target) => _api.openAppSettings();
 
   @override
+  Future<AutoStartBrand?> autoStartBrand() async => null;
+
+  @override
   Future<void> uploadNow() => _api.requestUploadNow();
 
   @override

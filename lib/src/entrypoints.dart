@@ -5,20 +5,25 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 
+import '../l10n/generated/app_localizations.dart';
 import 'application/captured_sample.dart';
 import 'application/collector.dart';
 import 'application/mos_pipeline.dart';
 import 'application/path_anomaly_detector.dart';
 import 'application/settings_keys.dart';
+import 'application/stores.dart';
 import 'application/survey_scheduler.dart';
 import 'application/upload_drain.dart';
 import 'application/upload_gate.dart';
+import 'application/upload_reminder.dart';
 import 'data/backend/backend_ports.dart';
+import 'data/backend/batch_document.dart';
 import 'data/backend/firebase_backend.dart';
 import 'data/local/database.dart';
 import 'data/local/drift_stores.dart';
 import 'data/local/telemetry_buffer.dart';
 import 'data/network/http_rtt_probe.dart';
+import 'data/upload/batch_serializer.dart';
 import 'domain/enums.dart';
 import 'domain/ids.dart';
 import 'domain/telemetry_sample.dart';
@@ -46,6 +51,8 @@ class _CollectorPlatform {
       presenter = AndroidSurveyPresenter(api),
       answers = AndroidSurveyAnswerQueue(api),
       disable = (() => api.setCollectionEnabled(false)),
+      showReminder = api.showUploadReminder,
+      lastUploadMs = (() async => (await api.status()).lastUploadMs),
       ios = null;
 
   _CollectorPlatform.ios(IosCollectorApi api)
@@ -54,6 +61,8 @@ class _CollectorPlatform {
       presenter = IosSurveyPresenter(api),
       answers = IosSurveyAnswerQueue(api),
       disable = (() => api.setCollectionEnabled(false)),
+      showReminder = api.showUploadReminder,
+      lastUploadMs = (() async => (await api.status()).lastUploadMs),
       ios = api;
 
   final ClientPlatform platform;
@@ -61,6 +70,12 @@ class _CollectorPlatform {
   final SurveyPresenter presenter;
   final SurveyAnswerQueue answers;
   final Future<void> Function() disable;
+
+  /// Posts the 3-day upload reminder (title, body) as a local notification.
+  final Future<void> Function(String, String) showReminder;
+
+  /// The native last-successful-upload time (both platforms keep one).
+  final Future<int?> Function() lastUploadMs;
 
   /// iOS uploads from the collector engine (docs/PHASE4_IOS.md §3).
   final IosCollectorApi? ios;
@@ -115,13 +130,28 @@ Future<void> runCollector() async {
   );
 
   final iosApi = p.ios;
-  final uploads = iosApi == null ? null : _IosUploads(iosApi, UploadGate(store: kv), buffer, backend);
+  final uploads = iosApi == null ? null : _IosUploads(iosApi, UploadGate(store: kv), buffer, backend, kv);
+  final reminder = UploadReminder(
+    store: kv,
+    bufferedRows: buffer.count,
+    nativeLastUploadMs: p.lastUploadMs,
+    show: () {
+      final t = reminderTexts();
+      return p.showReminder(t.title, t.body);
+    },
+  );
   CollectorEvents.setUp(_CollectorEvents(collector, uploads));
   _log('collector started on ${p.platform.wireName} (backend configured: ${backend.isConfigured})');
   await collector.run(
     afterTick: () {
       unawaited(mos?.run().catchError((Object e, StackTrace st) => _log('MOS pipeline failed', e, st)));
       if (uploads != null) unawaited(uploads.run());
+      unawaited(
+        reminder.check().catchError((Object e, StackTrace st) {
+          _log('upload reminder failed', e, st);
+          return false;
+        }),
+      );
     },
   );
 }
@@ -141,14 +171,15 @@ class _CollectorEvents implements CollectorEvents {
   }
 }
 
-/// iOS: the hourly drain runs inside the collector engine, gated like Android's WorkManager
+/// iOS: the 3-hourly drain runs inside the collector engine, gated like Android's WorkManager
 /// job (unmetered network, Low Power Mode off), and reports back so a pending BGTask can end.
 class _IosUploads {
-  _IosUploads(this._api, this._gate, this._buffer, this._backend);
+  _IosUploads(this._api, this._gate, this._buffer, this._backend, this._kv);
   final IosCollectorApi _api;
   final UploadGate _gate;
   final TelemetryBuffer _buffer;
   final Backend _backend;
+  final KeyValueStore _kv;
 
   Future<void> run({bool force = false}) async {
     try {
@@ -156,7 +187,7 @@ class _IosUploads {
         force: force,
         allowed: _api.uploadConstraintsMet,
         body: () async {
-          final r = await drainBuffer(_buffer, _backend);
+          final r = await drainBuffer(_buffer, _backend, _kv);
           await _api.uploadRunFinished(r.success, r.uploaded);
         },
       );
@@ -169,21 +200,34 @@ class _IosUploads {
   }
 }
 
-/// One upload run: drain, then retention (UploadDrain). Shared by both platforms.
-Future<({bool success, int uploaded})> drainBuffer(TelemetryBuffer buffer, Backend backend) async {
+/// One upload run: drain, then retention (UploadDrain). Shared by both platforms. Batches
+/// use [uploadContractVersion] (v2 on the free Firestore path). A successful run is
+/// recorded for the 3-day upload reminder.
+Future<({bool success, int uploaded})> drainBuffer(TelemetryBuffer buffer, Backend backend, KeyValueStore kv) async {
   final result = await UploadDrain(
     buffer: buffer,
     identity: backend.identity,
     destination: backend.batches,
+    serializer: BatchSerializer(version: uploadContractVersion),
     newBatchId: newUuidV4,
   ).run();
+  if (result.outcome == DrainOutcome.success || result.uploadedRows > 0) {
+    await kv.write(SettingsKeys.uploadLastSuccessMs, '${DateTime.now().millisecondsSinceEpoch}');
+  }
   if (result.purgedRows > 0) _log('retention purged ${result.purgedRows} never-uploaded samples');
   _log('upload run: ${result.outcome.name}, ${result.uploadedRows} rows');
   return (success: result.outcome == DrainOutcome.success, uploaded: result.uploadedRows);
 }
 
+/// The reminder text in the phone's language (French or English), from the app's arb files.
+({String title, String body}) reminderTexts([Locale? locale]) {
+  final code = (locale ?? PlatformDispatcher.instance.locale).languageCode;
+  final l = lookupAppLocalizations(Locale(code == 'fr' ? 'fr' : 'en'));
+  return (title: l.uploadReminderTitle, body: l.uploadReminderBody);
+}
+
 /// Body of the `uploadMain` entrypoint, run in a headless engine by the native Android
-/// UploadWorker (WorkManager: hourly, Wi-Fi, battery not low). It always reports back
+/// UploadWorker (WorkManager: every 3 h, Wi-Fi, battery not low). It always reports back
 /// through uploadRunFinished so the worker can finish. iOS uploads from the collector engine.
 Future<void> runUpload() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -194,13 +238,13 @@ Future<void> runUpload() async {
   try {
     final db = QoESenseDatabase.open();
     final buffer = DriftTelemetryBuffer(db);
+    final kv = DriftKeyValueStore(db);
     final backend = await openBackend();
-    final drained = await drainBuffer(buffer, backend);
+    final drained = await drainBuffer(buffer, backend, kv);
     success = drained.success;
     uploaded = drained.uploaded;
 
     // Ratings that couldn't be sent from the collector get another chance on Wi-Fi.
-    final kv = DriftKeyValueStore(db);
     final app = appInfoFromMap({
       for (final k in const ['deviceModel', 'osMajorVersion', 'osVersion', 'appId', 'appVersion', 'appBuild'])
         k: await kv.read('${SettingsKeys.appInfoPrefix}$k'),

@@ -142,3 +142,33 @@ established:
 - [ ] iOS acceptance (R5)
 - [ ] Owner decisions: P4 rules (R8), location precision (S8), billing (R7)
 - [ ] Store prerequisites R1–R4
+
+## 10. Report alignment changes (2026-11-14, after the matrix above)
+
+The owner compared the app with the MSc report and approved: v2 uploads, Option A (3-hour
+uploads + `--delete-exported`), a 3-day upload reminder, brand-specific auto-start onboarding,
+an Android cell-change counter, Facebook Lite / Instagram Lite / TikTok Lite / Messenger
+(with Messenger calls on the in-call cadence), and the survey question "How was your
+experience in the last few minutes?". No 3G/2G detail: the study stays LTE.
+
+**Automated:**
+- `tool\verify.ps1`, full: format, regeneration, analyze, **169 Dart tests**, APK and the new
+  **Kotlin unit tests (10)**. The script now runs those with the JBR.
+- `QoESense/functions` `npm test`: **19/19**, including the `--delete-exported` and CSV rebuild
+  tests.
+
+**Infinix X669, physical device (debug build installed over the running app):**
+
+| Check | Result | Evidence |
+|---|---|---|
+| Upload job switches to 3 h on update | PASS | WorkManager DB: `telemetry_upload` interval 3.0 h, generation 1 (UPDATE kept its history) |
+| Auto-start screen for the brand | PASS | Brand detected as Transsion (INFINIX); `com.transsion.phonemaster/…AutoStartActivity` opens "Gestion de démarrage automatique", QoESense listed. The French text now uses that exact label. The onboarding card itself was tested by a widget test, not on the phone (onboarding is complete there). |
+| Upload reminder | **Defect found and fixed** | The first build showed the reminder right after the update (FR text, own channel), wrongly: the phone had uploaded at 20:50, but the new `upload.lastSuccessMs` key didn't exist yet, so the policy fell back to the consent date. Fix: the reminder also uses the native last-upload time (both platforms keep one). After the fix (stale reminder record removed): no reminder, none recorded. |
+| Cell-change counter | PASS, **fixed on the way** | Null after each restart, then 0/1/2. Every 1 matches a change of the serving-cell hash (sectors 114945 ↔ 114946 of one site, the phone is at their edge). The phone's own log showed the same cell sometimes reported with its cell ID unavailable, which would have faked a change: the key is now PCI + channel, over the set of registered cells (dual-SIM). |
+| v2 upload end to end | PASS | "Upload now" → `Worker result SUCCESS`. The exporter, run read-only on a **copy** of the export folder, found 4 new batches: the post-update rows are `schemaVersion` 2 / `ANDROID`, with `cellChangesSinceLastSample` present. `samples.csv` was rebuilt to 50 columns, and all 3,626 rows have the same width. |
+| Survey wording | Not seen on the phone | Changed in the strings (EN/FR) and covered by widget tests. Check at the next real prompt. |
+| Messenger / Lite apps | Not run on the phone | They aren't installed on the test phone. Kotlin unit tests cover the package lists and the call-capable set. |
+
+**Not run (no approval to delete production data):** `--delete-exported` against Firestore.
+It's covered by unit tests with a fake Firestore (chunking, checkpoint boundary, exclusions,
+idempotency, read counts).

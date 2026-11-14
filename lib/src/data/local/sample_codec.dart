@@ -92,6 +92,7 @@ abstract final class SampleCodec {
         locationAgeMs: opt<int>('locationAgeMs'),
         throughputWindowMs: opt<int>('throughputWindowMs'),
         rttMethod: opt<String>('rttMethod'),
+        cellChangesSinceLastSample: opt<int>('cellChangesSinceLastSample'),
       ),
     );
   }

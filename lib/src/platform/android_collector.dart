@@ -68,6 +68,7 @@ CapturedSample mapCapturedSample(CapturedSampleMessage m, {ClientPlatform platfo
       signalStrengthLevel: m.signalStrengthLevel,
       radioStatus: mapStatus(m.radioStatus),
       cellInfoAgeMs: m.cellInfoAgeMs,
+      cellChangesSinceLastSample: m.cellChangesSinceLastSample,
       cqi: m.cqi,
       cqiStatus: mapStatus(m.cqiStatus),
       cellBandwidthKhz: m.cellBandwidthKhz,

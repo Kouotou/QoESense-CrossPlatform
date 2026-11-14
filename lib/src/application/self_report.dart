@@ -11,6 +11,10 @@ enum SelfReportOption {
   whatsappChat('com.whatsapp', AppSessionType.socialMedia),
   facebook('com.facebook.katana', AppSessionType.socialMedia),
   instagram('com.instagram.android', AppSessionType.socialMedia),
+  // Messenger (report alignment, 2026-11-14). On Android its calls count as video
+  // conferencing, like WhatsApp calls. The Lite apps added on Android don't exist on iOS.
+  messengerCall('com.facebook.orca', AppSessionType.videoConferencing),
+  messengerChat('com.facebook.orca', AppSessionType.socialMedia),
   zoom('us.zoom.videomeetings', AppSessionType.videoConferencing),
   googleMeet('com.google.android.apps.meetings', AppSessionType.videoConferencing),
 

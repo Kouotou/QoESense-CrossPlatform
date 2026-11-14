@@ -16,6 +16,7 @@ import io.github.kouotou.qoesense.capture.ConnectivitySampler
 import io.github.kouotou.qoesense.capture.LocationSampler
 import io.github.kouotou.qoesense.capture.ThroughputSampler
 import io.github.kouotou.qoesense.survey.SurveyPresenter
+import io.github.kouotou.qoesense.upload.UploadReminderNotifier
 import io.github.kouotou.qoesense.upload.UploadScheduler
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -77,6 +78,7 @@ class AndroidCollectorHost(
             signalStrengthLevel = radio.signalStrengthLevel?.toLong(),
             radioStatus = radio.radioStatus,
             cellInfoAgeMs = radio.cellInfoAgeMs,
+            cellChangesSinceLastSample = radio.cellChangesSinceLastSample?.toLong(),
             cqi = radio.cqi?.toLong(),
             cqiStatus = radio.cqiStatus,
             cellBandwidthKhz = radio.cellBandwidthKhz?.toLong(),
@@ -146,12 +148,17 @@ class AndroidCollectorHost(
             // Same as the reference onboarding: the direct exemption request.
             @Suppress("BatteryLife")
             "batteryOptimization" -> Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pkg)
+            "autoStart" -> return AutoStart.open(appContext)
             else -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkg)
         }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         appContext.startActivity(intent)
     }
 
+    override fun autoStartBrand(): String = AutoStart.currentBrand().wire
+
     override fun requestUploadNow() = UploadScheduler.runOnce(appContext)
+
+    override fun showUploadReminder(title: String, body: String) = UploadReminderNotifier.show(appContext, title, body)
 
     override fun recordConsent(timestampMs: Long) {
         prefs.consentMs = timestampMs

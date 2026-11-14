@@ -17,6 +17,7 @@ class CapturedSample {
     this.signalStrengthLevel,
     required this.radioStatus,
     this.cellInfoAgeMs,
+    this.cellChangesSinceLastSample,
     this.cqi,
     required this.cqiStatus,
     this.cellBandwidthKhz,
@@ -48,6 +49,7 @@ class CapturedSample {
   final String? cellIdentityHash;
   final FieldStatus radioStatus;
   final int? cellInfoAgeMs;
+  final int? cellChangesSinceLastSample;
   final int? cqi;
   final FieldStatus cqiStatus;
   final int? cellBandwidthKhz, downlinkChannelNumber, uplinkChannelNumber;
@@ -199,6 +201,7 @@ TelemetrySample assembleSample({
       locationAgeMs: c.locationAgeMs,
       throughputWindowMs: c.throughputWindowMs,
       rttMethod: rtt.status.carriesValue ? rttMethod : null,
+      cellChangesSinceLastSample: c.cellChangesSinceLastSample,
     ),
   );
 }

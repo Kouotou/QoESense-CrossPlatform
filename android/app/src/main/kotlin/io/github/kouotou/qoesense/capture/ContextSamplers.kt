@@ -156,7 +156,7 @@ class AppUsageMonitor(private val context: Context) {
         val pkg = trackForeground() ?: return Session(null, SessionTypeMessage.NONE, MeasurementStatus.UNAVAILABLE)
         val type = when {
             pkg in MonitoredApps.VIDEO_CONFERENCING_PACKAGES -> SessionTypeMessage.VIDEO_CONFERENCING
-            pkg in MonitoredApps.WHATSAPP_PACKAGES && isAudioCallActive() -> SessionTypeMessage.VIDEO_CONFERENCING
+            pkg in MonitoredApps.CALL_CAPABLE_PACKAGES && isAudioCallActive() -> SessionTypeMessage.VIDEO_CONFERENCING
             pkg in MonitoredApps.SOCIAL_MEDIA_PACKAGES -> SessionTypeMessage.SOCIAL_MEDIA
             else -> SessionTypeMessage.NONE
         }
@@ -193,13 +193,30 @@ class AppUsageMonitor(private val context: Context) {
 }
 
 /**
- * Port of the reference MonitoredApps, plus **WhatsApp Business** (com.whatsapp.w4b). The
- * reference only knew com.whatsapp, so a WhatsApp Business call (found on the test phone,
- * 2026-11-09) never got the 15 s cadence. Business gets exactly the same treatment.
+ * Port of the reference MonitoredApps, plus:
+ * - **WhatsApp Business** (com.whatsapp.w4b, 2026-11-09). The reference only knew
+ *   com.whatsapp, so a WhatsApp Business call never got the 15 s cadence.
+ * - (report alignment, 2026-11-14) **Messenger** (com.facebook.orca), with its calls handled
+ *   like WhatsApp calls, and the Lite apps common on low-end phones: **Facebook Lite**
+ *   (com.facebook.lite), **Instagram Lite** (com.instagram.lite) and **TikTok Lite**
+ *   (com.zhiliaoapp.musically.go, and com.ss.android.ugc.trill.go in some regions).
  */
 object MonitoredApps {
     val WHATSAPP_PACKAGES = setOf("com.whatsapp", "com.whatsapp.w4b")
-    val SOCIAL_MEDIA_PACKAGES = WHATSAPP_PACKAGES + setOf("com.facebook.katana", "com.instagram.android")
+    const val MESSENGER_PACKAGE = "com.facebook.orca"
+
+    /** Apps whose voice/video calls switch to the in-call cadence (MODE_IN_COMMUNICATION). */
+    val CALL_CAPABLE_PACKAGES = WHATSAPP_PACKAGES + MESSENGER_PACKAGE
+
+    val SOCIAL_MEDIA_PACKAGES = WHATSAPP_PACKAGES + setOf(
+        "com.facebook.katana",
+        "com.facebook.lite",
+        MESSENGER_PACKAGE,
+        "com.instagram.android",
+        "com.instagram.lite",
+        "com.zhiliaoapp.musically.go",
+        "com.ss.android.ugc.trill.go",
+    )
     val VIDEO_CONFERENCING_PACKAGES = setOf(
         "us.zoom.videomeetings",
         "com.google.android.apps.meetings",

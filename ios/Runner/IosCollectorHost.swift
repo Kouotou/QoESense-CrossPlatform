@@ -12,7 +12,7 @@ import UserNotifications
 ///   collects, so foreground, background and relaunched starts all behave the same;
 /// - continuous background location keeps the process alive, and significant-change
 ///   monitoring relaunches it after termination;
-/// - uploads run inside the collector engine: hourly from the Dart loop on an unmetered
+/// - uploads run inside the collector engine: every 3 h from the Dart loop on an unmetered
 ///   network, and when the `upload` BGProcessingTask fires.
 ///
 /// Everything here runs on the main thread: Pigeon sync handlers, Core Location and
@@ -21,7 +21,8 @@ final class IosCollectorHost: NSObject, IosCollectorApi {
   static let shared = IosCollectorHost()
 
   static let uploadTaskId = "io.github.kouotou.qoesense.upload"
-  static let uploadInterval: TimeInterval = 60 * 60
+  /// 3 h, matching UploadGate.interval in Dart (free-tier scale decision, 2026-11-14).
+  static let uploadInterval: TimeInterval = 3 * 60 * 60
 
   private let defaults = UserDefaults.standard
   private enum Keys {
@@ -235,6 +236,21 @@ final class IosCollectorHost: NSObject, IosCollectorApi {
 
   func recordConsent(timestampMs: Int64) throws {
     defaults.set(NSNumber(value: timestampMs), forKey: Keys.consentMs)
+  }
+
+  /// The "no upload for 3 days" reminder (report alignment, 2026-11-14). Dart decides when
+  /// (UploadReminderPolicy) and passes the localized texts. A fixed identifier, so a newer
+  /// reminder replaces an older one instead of stacking. No category: a tap just opens the app.
+  /// WRITTEN ON WINDOWS, NOT YET COMPILED: the Mac session must build and check it.
+  func showUploadReminder(title: String, body: String) throws {
+    let content = UNMutableNotificationContent()
+    content.title = title
+    content.body = body
+    content.sound = .default
+    let request = UNNotificationRequest(identifier: "upload-reminder", content: content, trigger: nil)
+    UNUserNotificationCenter.current().add(request) { error in
+      if let error { NSLog("QoESense: upload reminder not shown: \(error.localizedDescription)") }
+    }
   }
 
   func requestLocationWhenInUse() async throws -> LocationAuthorizationMessage {

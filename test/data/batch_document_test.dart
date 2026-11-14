@@ -3,12 +3,23 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qoesense/src/data/backend/batch_document.dart';
 import 'package:qoesense/src/data/upload/batch_serializer.dart';
+import 'package:qoesense/src/domain/enums.dart';
 
 import '../support/fixtures.dart';
 
 void main() {
   test('the free-tier target is active while billing is disabled', () {
     expect(activeUploadTarget, UploadTarget.firestore);
+  });
+
+  test('free-tier uploads are contract v2; the Storage path would stay v1 until v2 is deployed', () {
+    expect(uploadContractVersion, ContractVersion.v2);
+    expect(BatchSerializer.defaultVersion, ContractVersion.v1, reason: 'the Storage/BigQuery path is unchanged');
+    final line = BatchSerializer(version: uploadContractVersion).lineFields(androidFull, 'uid-1');
+    expect(line['schemaVersion'], 2);
+    expect(line['platform'], 'ANDROID');
+    expect(line['radioStatus'], isNotNull);
+    expect(line['cellChangesSinceLastSample'], 2);
   });
 
   test('a drain object path maps onto devices/{uid}/telemetryBatches/{batchId} with the same bytes', () {

@@ -312,7 +312,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get iosOpenSettings => 'Ouvrir Réglages';
 
   @override
-  String get surveyTitle => 'Comment était votre expérience réseau à l\'instant ?';
+  String get surveyTitle => 'Comment s\'est passée votre expérience au cours des dernières minutes ?';
 
   @override
   String get surveyCaption => '1 = très mauvaise, 5 = excellente';
@@ -346,4 +346,51 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get surveyNotNow => 'Pas maintenant';
+
+  @override
+  String get surveyContextMessengerCall => 'Appel Messenger';
+
+  @override
+  String get surveyContextMessengerChat => 'Messages Messenger';
+
+  @override
+  String get uploadReminderTitle => 'Des données QoESense attendent d\'être envoyées';
+
+  @override
+  String get uploadReminderBody =>
+      'Rien n\'a été envoyé depuis 3 jours. Veuillez connecter ce téléphone au Wi-Fi pendant un moment afin que les données de l\'étude puissent être envoyées. Elles restent en sécurité sur le téléphone d\'ici là.';
+
+  @override
+  String get autoStartTitle => 'Démarrage automatique (important sur ce téléphone)';
+
+  @override
+  String get autoStartTranssion =>
+      'Les téléphones Infinix, Tecno et itel empêchent les applications de redémarrer d\'elles-mêmes. Ouvrez Phone Master → Gestion de démarrage automatique (ou « Lancement des applications ») et activez QoESense. Sans cela, la collecte s\'arrête après un redémarrage ou une mise à jour de l\'application.';
+
+  @override
+  String get autoStartXiaomi =>
+      'Les téléphones Xiaomi, Redmi et POCO empêchent les applications de redémarrer d\'elles-mêmes. Dans Sécurité → Démarrage automatique, activez QoESense. Dans le réglage d\'économie de batterie de l\'application, choisissez « Aucune restriction ».';
+
+  @override
+  String get autoStartOppo =>
+      'Les téléphones OPPO, realme et OnePlus empêchent les applications de redémarrer d\'elles-mêmes. Dans l\'écran Lancement automatique (ou Gestionnaire de démarrage), activez QoESense.';
+
+  @override
+  String get autoStartVivo =>
+      'Les téléphones vivo empêchent les applications de redémarrer d\'elles-mêmes. Dans l\'écran Démarrage automatique (ou Consommation en arrière-plan), autorisez QoESense.';
+
+  @override
+  String get autoStartHuawei =>
+      'Les téléphones Huawei et Honor empêchent les applications de redémarrer d\'elles-mêmes. Dans Lancement des applications, réglez QoESense sur « Gérer manuellement » et activez Lancement automatique, Lancement secondaire et Exécution en arrière-plan.';
+
+  @override
+  String get autoStartSamsung =>
+      'Les téléphones Samsung peuvent mettre les applications en veille. Dans Batterie → Limites d\'utilisation en arrière-plan, vérifiez que QoESense n\'est PAS dans « Applications en veille » ou « Applications en veille prolongée ».';
+
+  @override
+  String get autoStartOther =>
+      'Certains téléphones empêchent les applications de redémarrer d\'elles-mêmes. Si ce téléphone a un réglage « Démarrage automatique » ou « Lancement des applications », autorisez-y QoESense.';
+
+  @override
+  String get autoStartButton => 'Ouvrir les réglages de démarrage automatique';
 }

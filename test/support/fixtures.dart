@@ -92,6 +92,7 @@ final androidFull = () {
       locationAgeMs: 1200,
       throughputWindowMs: 60000,
       rttMethod: _rtt,
+      cellChangesSinceLastSample: 2,
     ),
   );
 }();

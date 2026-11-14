@@ -653,7 +653,7 @@ abstract class AppLocalizations {
   /// No description provided for @surveyTitle.
   ///
   /// In en, this message translates to:
-  /// **'How was your network experience just now?'**
+  /// **'How was your experience in the last few minutes?'**
   String get surveyTitle;
 
   /// No description provided for @surveyCaption.
@@ -721,6 +721,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not now'**
   String get surveyNotNow;
+
+  /// No description provided for @surveyContextMessengerCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Messenger call'**
+  String get surveyContextMessengerCall;
+
+  /// No description provided for @surveyContextMessengerChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Messenger messages'**
+  String get surveyContextMessengerChat;
+
+  /// No description provided for @uploadReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'QoESense data is waiting to be sent'**
+  String get uploadReminderTitle;
+
+  /// No description provided for @uploadReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has been uploaded for 3 days. Please connect this phone to Wi-Fi for a while so the study data can be sent. It stays safely on the phone until then.'**
+  String get uploadReminderBody;
+
+  /// No description provided for @autoStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-start (important on this phone)'**
+  String get autoStartTitle;
+
+  /// No description provided for @autoStartTranssion.
+  ///
+  /// In en, this message translates to:
+  /// **'Infinix, Tecno and itel phones stop apps from restarting on their own. Open Phone Master → Auto-start management (or \"App launch\") and turn QoESense ON. Without this, collection stops after a reboot or an app update.'**
+  String get autoStartTranssion;
+
+  /// No description provided for @autoStartXiaomi.
+  ///
+  /// In en, this message translates to:
+  /// **'Xiaomi, Redmi and POCO phones stop apps from restarting on their own. In Security → Autostart, turn QoESense ON. In the app\'s battery saver setting, choose \"No restrictions\".'**
+  String get autoStartXiaomi;
+
+  /// No description provided for @autoStartOppo.
+  ///
+  /// In en, this message translates to:
+  /// **'OPPO, realme and OnePlus phones stop apps from restarting on their own. In the Auto launch (or Startup manager) screen, turn QoESense ON.'**
+  String get autoStartOppo;
+
+  /// No description provided for @autoStartVivo.
+  ///
+  /// In en, this message translates to:
+  /// **'vivo phones stop apps from restarting on their own. In the Autostart (or Background power consumption) screen, allow QoESense.'**
+  String get autoStartVivo;
+
+  /// No description provided for @autoStartHuawei.
+  ///
+  /// In en, this message translates to:
+  /// **'Huawei and Honor phones stop apps from restarting on their own. In App launch, set QoESense to \"Manage manually\" and turn on Auto-launch, Secondary launch and Run in background.'**
+  String get autoStartHuawei;
+
+  /// No description provided for @autoStartSamsung.
+  ///
+  /// In en, this message translates to:
+  /// **'Samsung phones can put apps to sleep. In Battery → Background usage limits, make sure QoESense is NOT in \"Sleeping apps\" or \"Deep sleeping apps\".'**
+  String get autoStartSamsung;
+
+  /// No description provided for @autoStartOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Some phones stop apps from restarting on their own. If this phone has an \"Auto-start\" or \"App launch\" setting, allow QoESense there.'**
+  String get autoStartOther;
+
+  /// No description provided for @autoStartButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Open auto-start settings'**
+  String get autoStartButton;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

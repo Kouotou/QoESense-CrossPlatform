@@ -55,6 +55,9 @@ class AndroidCollectorControl implements CollectorControl {
   Future<void> openSettings(SettingsTarget target) => _api.openSystemSettings(target.name);
 
   @override
+  Future<AutoStartBrand?> autoStartBrand() async => AutoStartBrand.fromWire(await _api.autoStartBrand());
+
+  @override
   Future<void> uploadNow() => _api.requestUploadNow();
 
   @override

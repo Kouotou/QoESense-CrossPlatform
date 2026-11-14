@@ -116,6 +116,7 @@ Each v2 key is appended after `deviceId`. A v2 line is a v1 line plus this block
 | `locationAgeMs` | INT | ms | Age of the location fix (a fused or Core Location cached fix) |
 | `throughputWindowMs` | INT | ms | The interval the throughput average covers |
 | `rttMethod` | STRING | `DART_HTTPS_GET_GENERATE_204` | RTT implementation. Null rows from the reference app mean Android `HttpURLConnection`, the same URL and the same timeout. |
+| `cellChangesSinceLastSample` | INT | count, ≥ 0 | **Added 2026-11-14 (report alignment), Android only.** Serving-cell changes (handovers and idle reselections) between the previous capture and this one, from a CellInfo listener plus each capture's own reading. A cell is identified by PCI + channel (the cell ID is sometimes reported as unavailable for the same cell), and dual-SIM phones are keyed on the set of registered cells. **Null** on the first capture after the collector (re)starts, without location permission, and **always on iOS** (no public API; enforced by the contract rules). Below Android 10 only the captures feed it, so it can undercount. |
 
 ## 5. Field status: telling missing data apart
 
@@ -198,7 +199,8 @@ a sample to be dropped.**
 
 - **`samples`:** the 20 columns in §4, of which `platform` is already committed on `main`.
   - `capabilitySet` is `REPEATED`. Every other new column is `NULLABLE`.
-  - Full schema: `contracts/proposed/bigquery_samples_schema_v2.json` (49 columns).
+  - Full schema: `contracts/proposed/bigquery_samples_schema_v2.json` (50 columns: the 49
+    of the first v2 proposal plus `cellChangesSinceLastSample`, appended 2026-11-14).
 - **`mos_responses`:** 8 columns, listed in §10.
   - Full schema: `contracts/proposed/bigquery_mos_responses_schema_v2.json` (18 columns).
 

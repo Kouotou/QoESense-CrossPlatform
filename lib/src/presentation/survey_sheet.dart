@@ -64,6 +64,8 @@ class _SurveySheetState extends State<SurveySheet> {
     SelfReportOption.whatsappChat => l10n.surveyContextWhatsappChat,
     SelfReportOption.facebook => l10n.surveyContextFacebook,
     SelfReportOption.instagram => l10n.surveyContextInstagram,
+    SelfReportOption.messengerCall => l10n.surveyContextMessengerCall,
+    SelfReportOption.messengerChat => l10n.surveyContextMessengerChat,
     SelfReportOption.zoom => l10n.surveyContextZoom,
     SelfReportOption.googleMeet => l10n.surveyContextGoogleMeet,
     SelfReportOption.somethingElse => l10n.surveyContextSomethingElse,

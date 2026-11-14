@@ -23,6 +23,11 @@ Step 'regenerate l10n' { & $flutter gen-l10n }
 Step 'regenerate drift database code' { & $dart run build_runner build }
 Step 'analyze' { & $flutter analyze }
 Step 'unit + widget + contract tests' { & $flutter test }
-if (-not $SkipAndroid) { Step 'Android debug build (compiles Kotlin)' { & $flutter build apk --debug } }
+if (-not $SkipAndroid) {
+  Step 'Android debug build (compiles Kotlin)' { & $flutter build apk --debug }
+  # JVM tests of the pure Kotlin pieces (android/app/src/test). Gradle 9 needs Java 17+, so this
+  # uses Android Studio's JBR whatever JAVA_HOME says (Flutter's APK build picks its own JDK).
+  Step 'Kotlin unit tests' { $env:JAVA_HOME = 'C:/Program Files/Android/Android Studio/jbr'; & ./android/gradlew.bat -p android :app:testDebugUnitTest -q }
+}
 
 Write-Host "`nAll checks passed. Swift is only compiled by CI (macos job) or on a Mac." -ForegroundColor Green

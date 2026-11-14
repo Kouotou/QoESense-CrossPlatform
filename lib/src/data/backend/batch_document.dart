@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import '../../domain/enums.dart';
+
 /// Where telemetry batches go (docs/FREE_TIER_MIGRATION.md).
 enum UploadTarget {
   /// Cloud Storage `telemetry/{uid}/{day}/{batchId}.json.gz` → loadTelemetryBatch → BigQuery.
@@ -16,6 +18,18 @@ enum UploadTarget {
 /// (owner decision, 2026-11-14). Switching back to cloudStorage, once billing works, is this
 /// one line plus a rebuild. The batch bytes are identical either way.
 const UploadTarget activeUploadTarget = UploadTarget.firestore;
+
+/// The contract version of uploaded batches (report alignment, 2026-11-14).
+///
+/// - firestore: **v2**. The PC exporter reads v2, so the stale/timeout statuses, platform,
+///   capabilitySet, provenance and timing fields reach the analysis files.
+/// - cloudStorage: **v1**, because the deployed loadTelemetryBatch loads with
+///   ignoreUnknownValues=false: a v2 field would fail the whole batch until the v2 BigQuery
+///   schema and functions are deployed (docs/PHASE5_BACKEND.md).
+ContractVersion get uploadContractVersion => switch (activeUploadTarget) {
+  UploadTarget.firestore => ContractVersion.v2,
+  UploadTarget.cloudStorage => ContractVersion.v1,
+};
 
 /// Firestore's hard document limit is 1 MiB. A 2,000-row batch measured ~60 KB on a real
 /// phone, so this leaves more than 10× headroom, and the rules enforce the same bound.

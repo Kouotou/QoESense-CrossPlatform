@@ -30,6 +30,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
   int _step = 0;
   PlatformCapabilities? _caps;
   bool _batteryOk = false;
+  AutoStartBrand? _brand;
 
   AppServices get _s => widget.services;
 
@@ -55,10 +56,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
   Future<void> _refresh() async {
     final caps = await _s.capabilities.load();
     final battery = await _s.permissions.isBatteryOptimizationIgnored();
+    final brand = _ios ? null : await _s.control.autoStartBrand().catchError((Object _) => AutoStartBrand.other);
     if (mounted) {
       setState(() {
         _caps = caps;
         _batteryOk = battery;
+        _brand = brand;
       });
     }
   }
@@ -175,6 +178,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
             l10n.overlayButton,
             SettingsTarget.overlay,
           ),
+          if (_brand != null) _autoStartCard(l10n, _brand!),
           const SizedBox(height: 16),
           FilledButton(
             key: const ValueKey('finish'),
@@ -200,6 +204,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
     );
   }
 
+  /// Android can't report whether auto-start is allowed, so this is an instruction with a
+  /// button, not a checklist row.
+  Widget _autoStartCard(AppLocalizations l10n, AutoStartBrand brand) => Card(
+    key: const ValueKey('autoStart'),
+    margin: const EdgeInsets.only(top: 12),
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.autoStartTitle, style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          Text(autoStartInstructions(l10n, brand)),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => _s.control.openSettings(SettingsTarget.autoStart),
+              child: Text(l10n.autoStartButton),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
   Widget _accessRow(bool granted, String yes, String no, String button, SettingsTarget target) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 4),
     child: Row(
@@ -212,3 +241,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
     ),
   );
 }
+
+/// The brand-specific auto-start instruction text.
+String autoStartInstructions(AppLocalizations l10n, AutoStartBrand brand) => switch (brand) {
+  AutoStartBrand.transsion => l10n.autoStartTranssion,
+  AutoStartBrand.xiaomi => l10n.autoStartXiaomi,
+  AutoStartBrand.oppo => l10n.autoStartOppo,
+  AutoStartBrand.vivo => l10n.autoStartVivo,
+  AutoStartBrand.huawei => l10n.autoStartHuawei,
+  AutoStartBrand.samsung => l10n.autoStartSamsung,
+  AutoStartBrand.other => l10n.autoStartOther,
+};
