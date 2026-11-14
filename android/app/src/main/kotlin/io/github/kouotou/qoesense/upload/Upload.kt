@@ -71,6 +71,21 @@ object UploadScheduler {
 class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
+        // One drain at a time per process. The hourly job and an "Upload now" one-off ran
+        // concurrently on the test phone (2026-11-14). Two drains reading the same oldest rows
+        // could upload them twice (the exporter dedups, but it wastes the free quota).
+        if (!RUNNING.compareAndSet(false, true)) {
+            Log.i(TAG, "another upload run is in progress - deferring to it")
+            return Result.success()
+        }
+        try {
+            return drainOnce()
+        } finally {
+            RUNNING.set(false)
+        }
+    }
+
+    private suspend fun drainOnce(): Result {
         val done = CompletableDeferred<Boolean>()
         val engine = withContext(Dispatchers.Main) {
             val loader = FlutterInjector.instance().flutterLoader()
@@ -100,5 +115,6 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
 
     private companion object {
         const val TAG = "QoESenseUploadWorker"
+        val RUNNING = java.util.concurrent.atomic.AtomicBoolean(false)
     }
 }

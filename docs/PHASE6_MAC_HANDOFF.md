@@ -72,6 +72,7 @@ for each: PASS / FAIL / NOT RUN, with evidence.
 | 11 | Free-tier upload (B) |
 | 12 | Logs: no location, UID or credentials printed (Console.app filter on the app) |
 | 13 | Battery: rough % per hour over a long unplugged run, if time allows |
+| 14 | **Backup/identity (found on Android in Phase 6):** the app's data must not go to iCloud/device backups. Mark the SQLite database (and its `-wal`/`-shm` files) with `isExcludedFromBackup`, and check how the Firebase Auth session is stored in the Keychain: restoring a backup onto another iPhone must **not** give it the same anonymous UID. Fix it if it's small; otherwise record it as a defect. |
 
 Copy the buffer off the phone at the end (`devicectl … copy from`, then
 `python3 -I tool/analyze_buffer.py <dir>`), and include its summary.
