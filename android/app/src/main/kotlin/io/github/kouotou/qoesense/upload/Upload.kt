@@ -46,9 +46,14 @@ object UploadScheduler {
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
     }
 
+    /**
+     * "Upload now": REPLACE, not KEEP. With KEEP, a one-off left waiting in WorkManager's retry
+     * backoff (e.g. after earlier failed attempts) silently swallowed every later tap. That was
+     * found on the test phone on 2026-11-14.
+     */
     fun runOnce(context: Context) {
         val request = OneTimeWorkRequestBuilder<UploadWorker>().setConstraints(constraints).build()
-        WorkManager.getInstance(context).enqueueUniqueWork(ONE_OFF_NAME, ExistingWorkPolicy.KEEP, request)
+        WorkManager.getInstance(context).enqueueUniqueWork(ONE_OFF_NAME, ExistingWorkPolicy.REPLACE, request)
     }
 
     fun cancel(context: Context) {

@@ -75,7 +75,18 @@ BigQuery tables (6,798 samples, 10 ratings) and all 79 Firestore documents. The 
 files can't be downloaded without billing (HTTP 403). They are the raw form of the 6,798
 rows, and they are still stored.
 
-**On-device check:** ⏳ the Android test phone wasn't connected (§5).
+**On-device check** (Infinix X669, Android 12, 2026-11-14): ✅ **passed.**
+- Before: 3,493 buffered samples, on Wi-Fi.
+- After "Upload now": the UploadWorker reported `SUCCESS`, and **2 `telemetryBatches` documents
+  (65,637 bytes, ~19 bytes per sample)** appeared in Firestore.
+- The phone buffer went to **0** (rows are deleted only after the write is confirmed), and
+  "Last upload" was recorded.
+- `export_firestore.js` exported **3,508 rows** (7 Nov → 14 Nov, every sample since the new
+  app was installed, plus those taken during the test), with 0 duplicates, 28 v1 columns and
+  3,489 rows with a fresh RSRP.
+- **Bug found and fixed on the way:** "Upload now" used `ExistingWorkPolicy.KEEP`. A one-off
+  job left in WorkManager's retry backoff by earlier failed Cloud Storage attempts swallowed
+  every new tap. It now uses `REPLACE`.
 
 ## 4. Running the export (researcher's PC)
 
@@ -92,14 +103,10 @@ The two `--exclude` IDs are the **test devices**: the friend's iPhone and the An
 
 ## 5. Still to do
 
-1. **Android on-device check:**
-   - connect the phone and install the build;
-   - press "Upload now" on Wi-Fi;
-   - expect `telemetryBatches` documents in Firestore, the phone's buffer to shrink and
-     "Last upload" to update, and `export_firestore.js` to report the samples.
+1. ~~Android on-device check~~: ✅ passed, 2026-11-14 (§3).
 2. **iOS:** rebuild and reinstall at the next Mac visit. There are no Swift changes; the
    upload path is shared Dart.
 3. **The reference (original) Android app** can't use this path, because its uploads need
    Cloud Storage. Its participants should switch to the new app; their old buffers stay
    blocked until billing returns.
-4. Merge `free-tier/firestore-uploads` into `main` once step 1 passes.
+4. ~~Merge `free-tier/firestore-uploads` into `main`~~: ✅ merged on 2026-11-14.
