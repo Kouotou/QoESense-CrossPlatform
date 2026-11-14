@@ -1,7 +1,7 @@
 import 'stores.dart';
 
 /// When the iOS collector engine drains the buffer (docs/PHASE4_IOS.md §3). Android's
-/// WorkManager job runs hourly under an unmetered-network constraint; iOS has no such
+/// WorkManager job runs every 3 hours under an unmetered-network constraint; iOS has no such
 /// scheduler for a running app, so the collector loop asks this gate after every tick:
 /// at most one run per [interval], only when [allowed] says the constraints are met, and
 /// never two runs at once (two concurrent drains would upload the same rows twice).
@@ -10,7 +10,9 @@ import 'stores.dart';
 class UploadGate {
   UploadGate({required this.store, this.clock = DateTime.now});
 
-  static const Duration interval = Duration(hours: 1);
+  /// Every 3 hours (free-tier scale decision, 2026-11-14): fewer, larger batch documents keep
+  /// many participants under Firestore's free daily write quota. Same as Android.
+  static const Duration interval = Duration(hours: 3);
   static const String lastAttemptKey = 'upload.lastAttemptMs';
 
   final KeyValueStore store;

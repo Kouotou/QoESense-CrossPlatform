@@ -15,6 +15,39 @@ source of truth. **Decisions recorded here override older prompts and docs.**
 | The Android "Upload now" uses REPLACE (the old KEEP policy got stuck) | Android Kotlin | none |
 | Android device validation passed (cadence, fresh radio, reboot, survey → Firestore, free-tier upload: 3,493 samples → 2 batches → buffer 0 → 3,508 rows exported) | `docs/PHASE3_ANDROID.md`, `docs/FREE_TIER_MIGRATION.md` | none |
 
+## 1b. iOS changes required: report alignment (2026-11-14, after this brief was first written)
+
+The owner compared the app with the MSc report and approved a set of changes. They were
+implemented and tested on Windows (Dart + Android, device-checked on the Infinix). The iOS
+side is mostly shared Dart, but **one Swift method was written on Windows and has never been
+compiled**. Do these as part of task A, before the acceptance tests.
+
+| # | Change | Where | What the Mac must do |
+|---|---|---|---|
+| R1 | **Upload reminder** after 3 days without a successful upload (buffer not empty, at most once a day). Dart decides (`UploadReminderPolicy`) and passes EN/FR texts; native code posts a local notification. Existing installs use the native last-upload time, so they aren't reminded wrongly after the update (a bug found on Android). | `lib/src/application/upload_reminder.dart`; pigeon `IosCollectorApi.showUploadReminder`; **Swift `IosCollectorHost.showUploadReminder` (NOT YET COMPILED)** | Build; fix compile errors only. On the iPhone: it hasn't uploaded since the free-tier change, so the reminder should appear within ~15 min of the first collector tick after the reinstall, **before** "Upload now" (in the iPhone's language, FR or EN). After a successful upload it must not come back. Record the evidence. |
+| R2 | **Survey wording:** "How was your experience in the last few minutes?" / « Comment s'est passée votre expérience au cours des dernières minutes ? » | `ios/Runner/IosSurvey.swift` (`SurveyStrings`), `lib/l10n/*.arb` (sheet) | Check the notification and the in-app sheet show the new text. |
+| R3 | **Uploads every 3 h** instead of hourly (free-tier scale, "Option A") | Dart `UploadGate.interval`; Swift `IosCollectorHost.uploadInterval` (BGTask) | Nothing to change. "Upload now" still forces a run. |
+| R4 | **Free-path uploads are contract v2** (statuses incl. STALE/TIMEOUT, `platform`, `capabilitySet`, provenance) | Dart `uploadContractVersion` | Nothing to change. When the owner says "iPhone uploaded", the Windows session checks that the exported iPhone rows have `schemaVersion` 2 and `platform` IOS. |
+| R5 | **Self-report:** new options "Messenger call" (video conferencing) and "Messenger messages" (social media) | `lib/src/application/self_report.dart`, `survey_sheet.dart`, arb | Check both appear in the sheet (EN/FR). |
+| R6 | New v2 field **`cellChangesSinceLastSample`** (Android only) | pigeon `CapturedSampleMessage`, regenerated `TelemetryApi.g.swift` | **iOS leaves it nil** (the generated initializer defaults it). The contract rules reject a non-null value on iOS, so don't set it. Just check the generated file compiles with `IosCapture.swift`. |
+| R7 | `TelemetryApi.g.swift` was regenerated (it also adds `autoStartBrand` / `showUploadReminder` to the Android API) | `ios/Runner/TelemetryApi.g.swift` | Don't hand-edit. If pigeon output differs on the Mac, regenerate with `dart run pigeon --input pigeons/telemetry_api.dart`. |
+
+**Not applicable to iOS** (Android-only by design, nothing to do):
+- Facebook Lite, Instagram Lite, TikTok Lite and Messenger foreground detection, and the Messenger call cadence;
+- the brand-specific auto-start onboarding;
+- the cell-change counter;
+- WorkManager's UPDATE policy.
+
+No 3G/2G detail was added: the study stays LTE.
+
+Add these rows to the test matrix in §3 C and to `PHASE6_IOS_RESULTS.md`:
+
+| # | Check |
+|---|---|
+| 15 | R1: the Swift reminder compiles; it shows on the iPhone after the reinstall (no upload for more than 3 days); it isn't repeated within a day; it doesn't come back after a successful upload |
+| 16 | R2 + R5: the new survey wording (notification + sheet); the Messenger options in the sheet |
+| 17 | R4: the iPhone's uploaded rows are v2 (checked from Windows after "iPhone uploaded") |
+
 **Test devices.** Their data is **test data** and is excluded from analyses:
 - iPhone 14 Pro Max (friend's): UID `UD1DfRM9K9Wow7GaL8BrGfbSFiG2`;
 - Android Infinix X669: UID `0y5ZtaFlJbMVBMyigwzN6TrKEHq1`.
@@ -80,7 +113,7 @@ Copy the buffer off the phone at the end (`devicectl … copy from`, then
 ### D. Record and hand back
 
 1. Write **`docs/PHASE6_IOS_RESULTS.md`**:
-   - the test matrix (#1–13) with PASS/FAIL/NOT RUN and evidence;
+   - the test matrix (#1–17) with PASS/FAIL/NOT RUN and evidence;
    - the defects found and fixed;
    - the open defects;
    - the iOS limitations;

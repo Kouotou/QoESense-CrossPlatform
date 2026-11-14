@@ -20,7 +20,11 @@ billing (no payment card). Neon and Supabase were considered and rejected:
 - MOS ratings and consent (they were always in Firestore);
 - the batch format, buffering, retries, the 20 × 2,000 drain, "delete only after a confirmed
   write" and the 45-day retention;
-- the data contract (uploads stay v1);
+- the data contract's content. **Since 2026-11-14 the free path uploads contract v2**
+  (`uploadContractVersion` in `batch_document.dart`): the exporter reads v2, so the
+  STALE/TIMEOUT statuses, `platform`, `capabilitySet`, the provenance fields and
+  `cellChangesSinceLastSample` reach the analysis files. The Cloud Storage path would still
+  send v1, because the deployed loader rejects unknown fields;
 - the security rules: the current production rules already allow these writes, and this is
   proven on the emulator.
 
@@ -28,19 +32,31 @@ billing (no payment card). Neon and Supabase were considered and rejected:
 `lib/src/data/backend/batch_document.dart`, rebuild, then follow PHASE5_BACKEND §6 (P1 onwards).
 The batch bytes are identical either way.
 
-## 2. Free limits vs this study
+## 2. Free limits vs this study (Option A, owner decision 2026-11-14)
 
-Firestore on Spark: 1 GiB stored, 20,000 writes/day, 50,000 reads/day.
+Firestore on Spark: 1 GiB stored, 20,000 writes/day, 20,000 deletes/day, 50,000 reads/day.
 
-| | Measured / estimated | Free limit |
-|---|---|---|
-| Size of a sample | **30–37 bytes** gzipped (measured on 2,244 real samples from the test phone) | |
-| Storage, 3 months | ~5 MB per participant, so 100 participants ≈ 0.5 GB | 1 GiB |
-| Writes per participant per day | ~24 batches + ≤ 6 ratings + consent | 20,000/day in total (≈ 600 participants) |
-| Export reads | Each batch is read once (checkpoint per device) | 50,000/day |
+**Option A** stretches these to a large study without billing:
+- uploads run **every 3 hours** instead of hourly (Android WorkManager period, iOS
+  `UploadGate.interval` and BGTask), so a participant writes at most 8 batch documents a day;
+- the exporter's **`--delete-exported`** removes batch documents once they are safely in the
+  export files, so Firestore storage only holds what hasn't been exported yet.
+
+| | Per participant per day | Free limit | Participants it allows |
+|---|---|---|---|
+| Size of a sample | ~19–37 bytes gzipped (measured on the test phone) | | |
+| Writes | ≤ 8 batches + ≤ 6 ratings (+ consent once). Typically ~5 batches (Wi-Fi isn't on all day) + ~2–3 answered ratings ≈ 8 | 20,000/day | **~2,500 typical**; ~1,300 in the worst case (Wi-Fi all day and every prompt answered) |
+| Stored data | ~1,440 samples ≈ 45 KB | 1 GiB | storage fills in ≈ 1 GiB / (participants × 45 KB) days: **export with `--delete-exported` at least weekly** at 2,000+ participants (≈ every 9 days is the limit at 2,500) |
+| Export reads | each batch read once, plus 1 read per device for the delete sweep | 50,000/day | run the export **daily or every 2 days** at 2,000+ participants, so one run stays under 50,000 reads |
+| Deletes | one per exported batch (≤ 8) | 20,000/day | same as writes |
 
 **If a daily limit is ever hit:** writes are refused until the next day. The phones keep the
-data and retry, and nothing is charged, because there's no card.
+data and retry, and nothing is charged, because there's no card. An export or delete pass cut
+short by its quota simply continues on the next run (incremental checkpoint, idempotent
+delete sweep).
+
+Above ~2,000 participants, re-enabling billing (and switching back to Cloud Storage +
+BigQuery) is the comfortable path; the batch bytes are identical.
 
 ## 3. Evidence
 
@@ -93,6 +109,8 @@ rows, and they are still stored.
 ```powershell
 cd C:\Users\Ahmad\AndroidStudioProjects\QoESense\functions
 node tools\export_firestore.js --exclude UD1DfRM9K9Wow7GaL8BrGfbSFiG2,0y5ZtaFlJbMVBMyigwzN6TrKEHq1
+# Option A, once the study runs at scale (deletes exported batch documents afterwards):
+node tools\export_firestore.js --exclude UD1DfRM9K9Wow7GaL8BrGfbSFiG2,0y5ZtaFlJbMVBMyigwzN6TrKEHq1 --delete-exported
 # Files: C:\Users\<you>\QoESense-exports\samples.csv, mos_responses.csv (+ .ndjson)
 # Optional, free BigQuery copy:
 bq load --location=africa-south1 --source_format=NEWLINE_DELIMITED_JSON --replace qoesense_free_export.samples C:\Users\Ahmad\QoESense-exports\samples.ndjson <schema.json>
@@ -101,11 +119,26 @@ bq load --location=africa-south1 --source_format=NEWLINE_DELIMITED_JSON --replac
 It needs the Google login already set up on this PC (`gcloud auth application-default login`).
 The two `--exclude` IDs are the **test devices**: the friend's iPhone and the Android test phone.
 
+**`--delete-exported` (off by default).** It runs only after the export files and
+`checkpoint.json` are written and flushed to disk. It then deletes each device's batch
+documents up to its checkpoint: first those exported in this run (no extra reads), then a
+sweep for leftovers of an interrupted earlier pass (normally 1 read per device). Rating
+documents are never deleted, and excluded devices are never touched.
+
+> **After `--delete-exported`, the export folder is the only copy of those rows.** Back up
+> `C:\Users\Ahmad\QoESense-exports` after every run: copy it to an external drive and to a
+> private cloud folder (e.g. Google Drive or OneDrive). The free BigQuery sandbox is **not** a
+> backup, because its tables expire after 60 days.
+
+**New columns.** When the column list grows (e.g. `cellChangesSinceLastSample`, 2026-11-14),
+the exporter rebuilds `samples.csv` from `samples.ndjson` with the new header before appending,
+so the CSV never mixes two layouts.
+
 ## 5. Still to do
 
 1. ~~Android on-device check~~: ✅ passed, 2026-11-14 (§3).
-2. **iOS:** rebuild and reinstall at the next Mac visit. There are no Swift changes; the
-   upload path is shared Dart.
+2. **iOS:** rebuild and reinstall at the next Mac visit (docs/PHASE6_MAC_HANDOFF.md §1b
+   lists everything the iOS build must pick up, including the 3 h upload interval).
 3. **The reference (original) Android app** can't use this path, because its uploads need
    Cloud Storage. Its participants should switch to the new app; their old buffers stay
    blocked until billing returns.

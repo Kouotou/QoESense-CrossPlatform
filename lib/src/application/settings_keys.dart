@@ -8,4 +8,11 @@ abstract final class SettingsKeys {
 
   /// Prefix for the stored AppInfo fields (see appInfoToMap).
   static const appInfoPrefix = 'app.';
+
+  /// End of the last successful upload run (epoch ms), written by drainBuffer on both
+  /// platforms. Read by the 3-day upload reminder (UploadReminder).
+  static const uploadLastSuccessMs = 'upload.lastSuccessMs';
+
+  /// When the last upload reminder was shown (epoch ms).
+  static const uploadLastReminderMs = 'upload.lastReminderMs';
 }

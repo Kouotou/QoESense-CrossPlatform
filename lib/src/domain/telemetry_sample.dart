@@ -183,6 +183,7 @@ class SampleProvenance {
     this.locationAgeMs,
     this.throughputWindowMs,
     this.rttMethod,
+    this.cellChangesSinceLastSample,
   });
 
   /// One status per [SampleFieldGroup]. All nine are required in v2.
@@ -222,6 +223,12 @@ class SampleProvenance {
   /// Identifies the RTT implementation, since timings aren't comparable across
   /// implementations. Null when RTT wasn't measured.
   final String? rttMethod;
+
+  /// Android only: serving-cell changes (handovers / reselections) between the previous
+  /// capture and this one, from the CellInfo listener. A mobility signal for the QoE model.
+  /// Null on the first capture after the collector starts, without location permission,
+  /// and always on iOS (no public API).
+  final int? cellChangesSinceLastSample;
 
   /// The new app's RTT probe: Dart HttpClient, new connection per probe, HTTPS GET
   /// https://www.gstatic.com/generate_204, 4 s timeout. Reference (v1) rows used Android

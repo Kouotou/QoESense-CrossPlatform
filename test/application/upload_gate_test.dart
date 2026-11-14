@@ -22,17 +22,18 @@ void main() {
     allowed = true;
   });
 
-  test('runs at most once an hour', () async {
+  test('runs at most once every 3 hours (same as the Android job)', () async {
+    expect(UploadGate.interval, const Duration(hours: 3));
     final g = gate();
     expect(await attempt(g), isTrue);
-    now = now.add(const Duration(minutes: 59));
+    now = now.add(const Duration(hours: 2, minutes: 59));
     expect(await attempt(g), isFalse);
     now = now.add(const Duration(minutes: 1));
     expect(await attempt(g), isTrue);
     expect(runs, 2);
   });
 
-  test('waits for the constraints without spending the hour', () async {
+  test('waits for the constraints without spending the interval', () async {
     final g = gate();
     allowed = false; // on cellular
     expect(await attempt(g), isFalse);
@@ -41,7 +42,7 @@ void main() {
     expect(await attempt(g), isTrue);
   });
 
-  test('a forced run (BGTask, Upload now) skips the hour but not the constraints', () async {
+  test('a forced run (BGTask, Upload now) skips the interval but not the constraints', () async {
     final g = gate();
     await attempt(g);
     expect(await attempt(g, force: true), isTrue);
@@ -67,7 +68,7 @@ void main() {
         .maybeRun(allowed: () async => true, body: () async => throw StateError('crash'))
         .catchError((_) => false);
     expect(await kv.read(UploadGate.lastAttemptKey), '${now.millisecondsSinceEpoch}');
-    expect(await attempt(gate()), isFalse, reason: 'a fresh gate (new engine) still waits the hour');
+    expect(await attempt(gate()), isFalse, reason: 'a fresh gate (new engine) still waits the interval');
   });
 
   test('a clock set backwards never blocks uploads', () async {

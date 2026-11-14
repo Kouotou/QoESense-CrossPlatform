@@ -48,6 +48,9 @@ class _Control implements CollectorControl {
 
   @override
   Future<void> openSettings(SettingsTarget t) async => log.add('settings:${t.name}');
+  AutoStartBrand? brand = AutoStartBrand.transsion;
+  @override
+  Future<AutoStartBrand?> autoStartBrand() async => brand;
   @override
   Future<void> uploadNow() async => log.add('uploadNow');
   @override
@@ -108,6 +111,21 @@ void main() {
     expect(log, ['consent', 'perm:foreground', 'perm:background', 'collection:true']);
     expect(kv.values[SettingsKeys.onboardingComplete], 'true');
     expect(find.text('Collection'), findsOneWidget); // status screen
+  });
+
+  testWidgets('the last onboarding step shows the brand auto-start instructions and opens its screen', (tester) async {
+    await tester.pumpWidget(QoESenseApp(services: services()));
+    await tester.pumpAndSettle();
+    await tapText(tester, 'Get started');
+    await tapText(tester, 'I agree, continue');
+    await tapText(tester, 'Grant permissions');
+    await tapText(tester, 'Grant access');
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('autoStart')), 200);
+    expect(find.textContaining('Infinix, Tecno and itel'), findsOneWidget);
+    await tester.ensureVisible(find.text('Open auto-start settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Open auto-start settings'));
+    expect(log, contains('settings:autoStart'));
   });
 
   testWidgets('without consent there is no way to start collection from onboarding', (tester) async {

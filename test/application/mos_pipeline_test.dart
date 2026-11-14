@@ -215,6 +215,7 @@ void main() {
         'com.whatsapp.w4b',
         'com.facebook.katana',
         'com.instagram.android',
+        'com.facebook.orca',
         'us.zoom.videomeetings',
         'com.google.android.apps.meetings',
         'com.google.android.apps.classroom',

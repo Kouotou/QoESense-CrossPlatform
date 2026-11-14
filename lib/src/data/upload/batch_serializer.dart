@@ -52,6 +52,7 @@ class BatchSerializer {
       'locationAgeMs': p.locationAgeMs,
       'throughputWindowMs': p.throughputWindowMs,
       'rttMethod': p.rttMethod,
+      'cellChangesSinceLastSample': p.cellChangesSinceLastSample,
     };
   }
 }

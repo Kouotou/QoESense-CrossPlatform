@@ -312,7 +312,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iosOpenSettings => 'Open Settings';
 
   @override
-  String get surveyTitle => 'How was your network experience just now?';
+  String get surveyTitle => 'How was your experience in the last few minutes?';
 
   @override
   String get surveyCaption => '1 = very poor, 5 = excellent';
@@ -346,4 +346,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get surveyNotNow => 'Not now';
+
+  @override
+  String get surveyContextMessengerCall => 'Messenger call';
+
+  @override
+  String get surveyContextMessengerChat => 'Messenger messages';
+
+  @override
+  String get uploadReminderTitle => 'QoESense data is waiting to be sent';
+
+  @override
+  String get uploadReminderBody =>
+      'Nothing has been uploaded for 3 days. Please connect this phone to Wi-Fi for a while so the study data can be sent. It stays safely on the phone until then.';
+
+  @override
+  String get autoStartTitle => 'Auto-start (important on this phone)';
+
+  @override
+  String get autoStartTranssion =>
+      'Infinix, Tecno and itel phones stop apps from restarting on their own. Open Phone Master → Auto-start management (or \"App launch\") and turn QoESense ON. Without this, collection stops after a reboot or an app update.';
+
+  @override
+  String get autoStartXiaomi =>
+      'Xiaomi, Redmi and POCO phones stop apps from restarting on their own. In Security → Autostart, turn QoESense ON. In the app\'s battery saver setting, choose \"No restrictions\".';
+
+  @override
+  String get autoStartOppo =>
+      'OPPO, realme and OnePlus phones stop apps from restarting on their own. In the Auto launch (or Startup manager) screen, turn QoESense ON.';
+
+  @override
+  String get autoStartVivo =>
+      'vivo phones stop apps from restarting on their own. In the Autostart (or Background power consumption) screen, allow QoESense.';
+
+  @override
+  String get autoStartHuawei =>
+      'Huawei and Honor phones stop apps from restarting on their own. In App launch, set QoESense to \"Manage manually\" and turn on Auto-launch, Secondary launch and Run in background.';
+
+  @override
+  String get autoStartSamsung =>
+      'Samsung phones can put apps to sleep. In Battery → Background usage limits, make sure QoESense is NOT in \"Sleeping apps\" or \"Deep sleeping apps\".';
+
+  @override
+  String get autoStartOther =>
+      'Some phones stop apps from restarting on their own. If this phone has an \"Auto-start\" or \"App launch\" setting, allow QoESense there.';
+
+  @override
+  String get autoStartButton => 'Open auto-start settings';
 }

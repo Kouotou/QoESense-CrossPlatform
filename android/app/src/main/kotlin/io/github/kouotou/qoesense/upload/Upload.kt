@@ -25,25 +25,32 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * Port of the reference service/upload/UploadScheduler.kt, with the same constraints and the
- * same cadence: hourly, unmetered network (Wi-Fi), battery not low, exponential backoff, and
- * unique work with KEEP.
+ * Port of the reference service/upload/UploadScheduler.kt, with the same constraints:
+ * unmetered network (Wi-Fi), battery not low, exponential backoff, unique periodic work.
+ * The period is 3 h instead of the reference's hourly (see schedule()).
  */
 object UploadScheduler {
     private const val WORK_NAME = "telemetry_upload"
     private const val ONE_OFF_NAME = "telemetry_upload_now"
+    const val UPLOAD_PERIOD_HOURS = 3L
 
     private val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.UNMETERED)
         .setRequiresBatteryNotLow(true)
         .build()
 
+    /**
+     * Every 3 hours (free-tier scale decision, 2026-11-14): fewer, larger Firestore batch
+     * documents per participant per day. UPDATE, not KEEP, so phones that already have the
+     * old hourly job switch to the new period on the next schedule() (app update or start),
+     * without losing their place in the schedule.
+     */
     fun schedule(context: Context) {
-        val request = PeriodicWorkRequestBuilder<UploadWorker>(1, TimeUnit.HOURS)
+        val request = PeriodicWorkRequestBuilder<UploadWorker>(UPLOAD_PERIOD_HOURS, TimeUnit.HOURS)
             .setConstraints(constraints)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
             .build()
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
     }
 
     /**

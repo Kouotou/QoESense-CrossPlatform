@@ -6,7 +6,10 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.SystemClock
 import android.telephony.CellInfo
+import android.telephony.CellIdentityNr
 import android.telephony.CellInfoLte
+import android.telephony.CellInfoNr
+import android.telephony.PhoneStateListener
 import android.telephony.PhysicalChannelConfig
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
@@ -35,6 +38,10 @@ import kotlinx.coroutines.withTimeoutOrNull
  *   every sample was 7-10 minutes old with an identical RSRP: the cause of the reference's
  *   duplicate rows. If no fresh list arrives within [FRESH_TIMEOUT_MS], it falls back to the
  *   cached list, and the stale check marks that reading STALE.
+ * - (report alignment, 2026-11-14) **serving-cell changes between captures**
+ *   ([CellChangeCounter]), fed by a CellInfo listener (TelephonyCallback on API 31+,
+ *   PhoneStateListener on API 29-30) and by each capture's own reading. Below API 29 only
+ *   the captures feed it, so it can undercount there.
  */
 class CellularTelemetrySource(private val context: Context) {
 
@@ -56,6 +63,7 @@ class CellularTelemetrySource(private val context: Context) {
         val physicalChannelStatus: MeasurementStatus,
         val networkType: String?,
         val networkTypeStatus: MeasurementStatus,
+        val cellChangesSinceLastSample: Int? = null,
     )
 
     private companion object {
@@ -69,6 +77,10 @@ class CellularTelemetrySource(private val context: Context) {
     private var telephonyCallback: TelephonyCallback? = null
     private var physicalChannelRestricted = false
     private var started = false
+
+    private val cellChanges = CellChangeCounter()
+    private var cellInfoCallback: TelephonyCallback? = null
+    private var cellInfoListener: PhoneStateListener? = null
 
     @SuppressLint("MissingPermission")
     fun start() {
@@ -90,7 +102,54 @@ class CellularTelemetrySource(private val context: Context) {
         }
     }
 
+    /**
+     * The CellInfo listener for [cellChanges]. Separate from the PhysicalChannelConfig
+     * callback, whose registration fails without carrier privileges. It needs fine location,
+     * so it's retried on each capture until that is granted. Idempotent.
+     */
+    @SuppressLint("MissingPermission")
+    private fun startCellInfoListener() {
+        if (cellInfoCallback != null || cellInfoListener != null) return
+        if (!hasTelephony || !PermissionUtils.hasForegroundLocation(context)) return
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val callback = object : TelephonyCallback(), TelephonyCallback.CellInfoListener {
+                    override fun onCellInfoChanged(cellInfo: MutableList<CellInfo>) {
+                        cellChanges.observe(servingCellKey(cellInfo))
+                    }
+                }
+                telephonyManager.registerTelephonyCallback(context.mainExecutor, callback)
+                cellInfoCallback = callback
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                @Suppress("DEPRECATION")
+                val listener = object : PhoneStateListener(context.mainExecutor) {
+                    @Deprecated("Deprecated in Java")
+                    override fun onCellInfoChanged(cellInfo: MutableList<CellInfo>?) {
+                        cellChanges.observe(servingCellKey(cellInfo.orEmpty()))
+                    }
+                }
+                @Suppress("DEPRECATION")
+                telephonyManager.listen(listener, PhoneStateListener.LISTEN_CELL_INFO)
+                cellInfoListener = listener
+            }
+        } catch (e: SecurityException) {
+            // Permission revoked between the check and the call: retried next capture.
+        }
+    }
+
+    private fun stopCellInfoListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            cellInfoCallback?.let { telephonyManager.unregisterTelephonyCallback(it) }
+        }
+        @Suppress("DEPRECATION")
+        cellInfoListener?.let { telephonyManager.listen(it, PhoneStateListener.LISTEN_NONE) }
+        cellInfoCallback = null
+        cellInfoListener = null
+    }
+
     fun stop() {
+        stopCellInfoListener()
+        cellChanges.reset()
         if (!started) return
         started = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -110,15 +169,24 @@ class CellularTelemetrySource(private val context: Context) {
         val physStatusIfNoValue = physicalChannelStatusWithoutValue()
 
         if (!phoneState || !PermissionUtils.hasForegroundLocation(context)) {
+            // No CellInfo without permission: the next count has no baseline.
+            stopCellInfoListener()
+            cellChanges.reset()
             val denied = MeasurementStatus.PERMISSION_DENIED
             return empty(denied, cqiStatus(denied), physStatusIfNoValue, networkType, networkTypeStatus)
         }
+        startCellInfoListener()
 
-        val lteCells = cellInfo().filterIsInstance<CellInfoLte>()
+        val allCells = cellInfo()
+        cellChanges.observe(servingCellKey(allCells))
+        val changes = cellChanges.takeForSample()
+
+        val lteCells = allCells.filterIsInstance<CellInfoLte>()
         val cell = lteCells.firstOrNull { it.isRegistered } ?: lteCells.firstOrNull()
         if (cell == null) {
             val unavailable = MeasurementStatus.UNAVAILABLE
             return empty(unavailable, cqiStatus(unavailable), physStatusIfNoValue, networkType, networkTypeStatus)
+                .copy(cellChangesSinceLastSample = changes)
         }
 
         val signalStrength = cell.cellSignalStrength
@@ -153,7 +221,24 @@ class CellularTelemetrySource(private val context: Context) {
             physicalChannelStatus = if (physChan?.hasAny == true) MeasurementStatus.OK else physStatusIfNoValue,
             networkType = networkType,
             networkTypeStatus = networkTypeStatus,
+            cellChangesSinceLastSample = changes,
         )
+    }
+
+    /**
+     * Identifies the registered (serving) cells, of any RAT, for [cellChanges]: the set of
+     * every registered cell, so the order of a dual-SIM list can't fake a change (see
+     * [CellChangeCounter.servingSetKey]). Null when no cell is registered (no service).
+     */
+    private fun servingCellKey(cells: List<CellInfo>): String? =
+        CellChangeCounter.servingSetKey(cells.filter { it.isRegistered }.map { cellKey(it) })
+
+    private fun cellKey(cell: CellInfo): String? = when {
+        cell is CellInfoLte -> cell.cellIdentity.let { CellChangeCounter.cellKey("LTE", it.pci, it.earfcn, it.ci.toLong()) }
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && cell is CellInfoNr ->
+            (cell.cellIdentity as CellIdentityNr).let { CellChangeCounter.cellKey("NR", it.pci, it.nrarfcn, it.nci) }
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> "${cell.javaClass.simpleName}:${cell.cellIdentity.hashCode()}"
+        else -> "${cell.javaClass.simpleName}:${cell.hashCode()}"
     }
 
     /** A fresh list from the modem when the platform supports it, else the cached list. */

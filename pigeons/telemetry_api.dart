@@ -134,6 +134,10 @@ class CapturedSampleMessage {
   MeasurementStatus radioStatus;
   int? cellInfoAgeMs;
 
+  /// Android only: serving-cell changes (handovers / reselections) seen since the previous
+  /// capture. Null on the first capture of a run, without permission, and always on iOS.
+  int? cellChangesSinceLastSample;
+
   int? cqi;
   MeasurementStatus cqiStatus;
 
@@ -220,7 +224,7 @@ abstract class AndroidCollectorApi {
   CapturedSampleMessage captureSample(int locationTimeoutMs, int staleAfterMs);
 
   /// Persists the flag (read by BootReceiver), starts/stops the foreground service and
-  /// schedules/cancels the hourly upload work.
+  /// schedules/cancels the 3-hourly upload work.
   void setCollectionEnabled(bool enabled);
 
   CollectorStatusMessage status();
@@ -235,13 +239,21 @@ abstract class AndroidCollectorApi {
   /// Called by the headless upload entrypoint when its run ends.
   void uploadRunFinished(bool success, int uploadedRows);
 
-  /// Opens a system settings screen: usageAccess, overlay, batteryOptimization or appDetails.
+  /// Opens a system settings screen: usageAccess, overlay, batteryOptimization, autoStart
+  /// (the manufacturer's auto-start screen, falling back to appDetails) or appDetails.
   void openSystemSettings(String target);
 
-  /// One-off upload now (same constraints as the hourly job).
+  /// The manufacturer family for the auto-start instructions: transsion, xiaomi, oppo,
+  /// vivo, huawei, samsung or other.
+  String autoStartBrand();
+
+  /// One-off upload now (same constraints as the 3-hourly job).
   void requestUploadNow();
 
   void recordConsent(int timestampMs);
+
+  /// Posts the "no upload for 3 days" reminder (texts localized by Dart).
+  void showUploadReminder(String title, String body);
 }
 
 /// Native -> Dart events for the collector engine.
@@ -317,6 +329,9 @@ abstract class IosCollectorApi {
   void openAppSettings();
 
   void recordConsent(int timestampMs);
+
+  /// Posts the "no upload for 3 days" reminder (texts localized by Dart).
+  void showUploadReminder(String title, String body);
 
   /// The When-In-Use prompt. Completes with the resulting status.
   @async

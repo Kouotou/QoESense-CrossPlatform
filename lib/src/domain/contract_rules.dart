@@ -65,6 +65,7 @@ List<String> contractViolations(TelemetrySample s) {
       if (p.fieldStatus[g] != FieldStatus.notSupported) v.add('iOS ${g.statusKey} must be NOT_SUPPORTED');
     }
     if (s.isRoaming != null) v.add('iOS isRoaming must be null (CTCarrier is deprecated)');
+    if (p.cellChangesSinceLastSample != null) v.add('iOS cellChangesSinceLastSample must be null');
     if (s.telemetryCapabilityTier != TelemetryCapabilityTier.iosRat) v.add('iOS tier must be IOS_RAT');
   } else {
     if (s.telemetryCapabilityTier == TelemetryCapabilityTier.iosRat) v.add('IOS_RAT on an Android sample');
@@ -89,6 +90,7 @@ List<String> contractViolations(TelemetrySample s) {
   nonNegative('cellInfoAgeMs', p.cellInfoAgeMs);
   nonNegative('locationAgeMs', p.locationAgeMs);
   nonNegative('throughputWindowMs', p.throughputWindowMs);
+  nonNegative('cellChangesSinceLastSample', p.cellChangesSinceLastSample);
   if (s.signalStrengthLevel != null && (s.signalStrengthLevel! < 0 || s.signalStrengthLevel! > 4)) {
     v.add('signalStrengthLevel must be 0-4');
   }

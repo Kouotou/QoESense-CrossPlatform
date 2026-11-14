@@ -6,7 +6,22 @@ import '../domain/enums.dart';
 import '../domain/telemetry_sample.dart';
 import '../platform/capability_source.dart';
 
-enum SettingsTarget { usageAccess, overlay, batteryOptimization, appDetails }
+enum SettingsTarget { usageAccess, overlay, batteryOptimization, autoStart, appDetails }
+
+/// Manufacturer families whose system stops apps from restarting on their own, each with
+/// its own auto-start screen and instructions (report alignment, 2026-11-14). Android only.
+enum AutoStartBrand {
+  transsion,
+  xiaomi,
+  oppo,
+  vivo,
+  huawei,
+  samsung,
+  other;
+
+  static AutoStartBrand fromWire(String name) =>
+      AutoStartBrand.values.firstWhere((b) => b.name == name, orElse: () => AutoStartBrand.other);
+}
 
 class CollectorStatus {
   const CollectorStatus({required this.enabled, required this.running, this.lastUploadMs});
@@ -24,6 +39,9 @@ abstract interface class CollectorControl {
   /// The reference "Run telemetry test": one full capture, recorded into the buffer.
   Future<TelemetrySample> runTestCapture();
   Future<void> openSettings(SettingsTarget target);
+
+  /// The phone's auto-start family on Android; null on iOS, which has no such setting.
+  Future<AutoStartBrand?> autoStartBrand();
   Future<void> uploadNow();
   Future<void> recordConsent(int timestampMs);
 }

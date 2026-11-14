@@ -281,6 +281,7 @@ class CapturedSampleMessage {
     this.signalStrengthLevel,
     required this.radioStatus,
     this.cellInfoAgeMs,
+    this.cellChangesSinceLastSample,
     this.cqi,
     required this.cqiStatus,
     this.cellBandwidthKhz,
@@ -329,6 +330,10 @@ class CapturedSampleMessage {
   MeasurementStatus radioStatus;
 
   int? cellInfoAgeMs;
+
+  /// Android only: serving-cell changes (handovers / reselections) seen since the previous
+  /// capture. Null on the first capture of a run, without permission, and always on iOS.
+  int? cellChangesSinceLastSample;
 
   int? cqi;
 
@@ -400,6 +405,7 @@ class CapturedSampleMessage {
       signalStrengthLevel,
       radioStatus,
       cellInfoAgeMs,
+      cellChangesSinceLastSample,
       cqi,
       cqiStatus,
       cellBandwidthKhz,
@@ -447,35 +453,36 @@ class CapturedSampleMessage {
       signalStrengthLevel: result[6] as int?,
       radioStatus: result[7]! as MeasurementStatus,
       cellInfoAgeMs: result[8] as int?,
-      cqi: result[9] as int?,
-      cqiStatus: result[10]! as MeasurementStatus,
-      cellBandwidthKhz: result[11] as int?,
-      downlinkChannelNumber: result[12] as int?,
-      uplinkChannelNumber: result[13] as int?,
-      physicalChannelStatus: result[14]! as MeasurementStatus,
-      networkType: result[15] as String?,
-      networkTypeStatus: result[16]! as MeasurementStatus,
-      connectionType: result[17] as String?,
-      isRoaming: result[18] as bool?,
-      connectivityStatus: result[19]! as MeasurementStatus,
-      throughputBytesPerSecond: result[20] as int?,
-      throughputWindowMs: result[21] as int?,
-      throughputStatus: result[22]! as MeasurementStatus,
-      foregroundAppPackage: result[23] as String?,
-      appSessionType: result[24]! as SessionTypeMessage,
-      foregroundAppStatus: result[25]! as MeasurementStatus,
-      latitude: result[26] as double?,
-      longitude: result[27] as double?,
-      locationAccuracyMeters: result[28] as double?,
-      locationAgeMs: result[29] as int?,
-      locationStatus: result[30]! as MeasurementStatus,
-      capabilitySet: (result[31]! as List<Object?>).cast<String>(),
-      deviceModel: result[32]! as String,
-      osSdkInt: result[33]! as int,
-      osVersion: result[34]! as String,
-      appId: result[35]! as String,
-      appVersion: result[36]! as String,
-      appBuild: result[37]! as int,
+      cellChangesSinceLastSample: result[9] as int?,
+      cqi: result[10] as int?,
+      cqiStatus: result[11]! as MeasurementStatus,
+      cellBandwidthKhz: result[12] as int?,
+      downlinkChannelNumber: result[13] as int?,
+      uplinkChannelNumber: result[14] as int?,
+      physicalChannelStatus: result[15]! as MeasurementStatus,
+      networkType: result[16] as String?,
+      networkTypeStatus: result[17]! as MeasurementStatus,
+      connectionType: result[18] as String?,
+      isRoaming: result[19] as bool?,
+      connectivityStatus: result[20]! as MeasurementStatus,
+      throughputBytesPerSecond: result[21] as int?,
+      throughputWindowMs: result[22] as int?,
+      throughputStatus: result[23]! as MeasurementStatus,
+      foregroundAppPackage: result[24] as String?,
+      appSessionType: result[25]! as SessionTypeMessage,
+      foregroundAppStatus: result[26]! as MeasurementStatus,
+      latitude: result[27] as double?,
+      longitude: result[28] as double?,
+      locationAccuracyMeters: result[29] as double?,
+      locationAgeMs: result[30] as int?,
+      locationStatus: result[31]! as MeasurementStatus,
+      capabilitySet: (result[32]! as List<Object?>).cast<String>(),
+      deviceModel: result[33]! as String,
+      osSdkInt: result[34]! as int,
+      osVersion: result[35]! as String,
+      appId: result[36]! as String,
+      appVersion: result[37]! as String,
+      appBuild: result[38]! as int,
     );
   }
 
@@ -488,7 +495,7 @@ class CapturedSampleMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(rsrp, other.rsrp) && _deepEquals(rsrq, other.rsrq) && _deepEquals(rssnr, other.rssnr) && _deepEquals(timingAdvance, other.timingAdvance) && _deepEquals(cellIdentityHash, other.cellIdentityHash) && _deepEquals(trackingAreaCode, other.trackingAreaCode) && _deepEquals(signalStrengthLevel, other.signalStrengthLevel) && _deepEquals(radioStatus, other.radioStatus) && _deepEquals(cellInfoAgeMs, other.cellInfoAgeMs) && _deepEquals(cqi, other.cqi) && _deepEquals(cqiStatus, other.cqiStatus) && _deepEquals(cellBandwidthKhz, other.cellBandwidthKhz) && _deepEquals(downlinkChannelNumber, other.downlinkChannelNumber) && _deepEquals(uplinkChannelNumber, other.uplinkChannelNumber) && _deepEquals(physicalChannelStatus, other.physicalChannelStatus) && _deepEquals(networkType, other.networkType) && _deepEquals(networkTypeStatus, other.networkTypeStatus) && _deepEquals(connectionType, other.connectionType) && _deepEquals(isRoaming, other.isRoaming) && _deepEquals(connectivityStatus, other.connectivityStatus) && _deepEquals(throughputBytesPerSecond, other.throughputBytesPerSecond) && _deepEquals(throughputWindowMs, other.throughputWindowMs) && _deepEquals(throughputStatus, other.throughputStatus) && _deepEquals(foregroundAppPackage, other.foregroundAppPackage) && _deepEquals(appSessionType, other.appSessionType) && _deepEquals(foregroundAppStatus, other.foregroundAppStatus) && _deepEquals(latitude, other.latitude) && _deepEquals(longitude, other.longitude) && _deepEquals(locationAccuracyMeters, other.locationAccuracyMeters) && _deepEquals(locationAgeMs, other.locationAgeMs) && _deepEquals(locationStatus, other.locationStatus) && _deepEquals(capabilitySet, other.capabilitySet) && _deepEquals(deviceModel, other.deviceModel) && _deepEquals(osSdkInt, other.osSdkInt) && _deepEquals(osVersion, other.osVersion) && _deepEquals(appId, other.appId) && _deepEquals(appVersion, other.appVersion) && _deepEquals(appBuild, other.appBuild);
+    return _deepEquals(rsrp, other.rsrp) && _deepEquals(rsrq, other.rsrq) && _deepEquals(rssnr, other.rssnr) && _deepEquals(timingAdvance, other.timingAdvance) && _deepEquals(cellIdentityHash, other.cellIdentityHash) && _deepEquals(trackingAreaCode, other.trackingAreaCode) && _deepEquals(signalStrengthLevel, other.signalStrengthLevel) && _deepEquals(radioStatus, other.radioStatus) && _deepEquals(cellInfoAgeMs, other.cellInfoAgeMs) && _deepEquals(cellChangesSinceLastSample, other.cellChangesSinceLastSample) && _deepEquals(cqi, other.cqi) && _deepEquals(cqiStatus, other.cqiStatus) && _deepEquals(cellBandwidthKhz, other.cellBandwidthKhz) && _deepEquals(downlinkChannelNumber, other.downlinkChannelNumber) && _deepEquals(uplinkChannelNumber, other.uplinkChannelNumber) && _deepEquals(physicalChannelStatus, other.physicalChannelStatus) && _deepEquals(networkType, other.networkType) && _deepEquals(networkTypeStatus, other.networkTypeStatus) && _deepEquals(connectionType, other.connectionType) && _deepEquals(isRoaming, other.isRoaming) && _deepEquals(connectivityStatus, other.connectivityStatus) && _deepEquals(throughputBytesPerSecond, other.throughputBytesPerSecond) && _deepEquals(throughputWindowMs, other.throughputWindowMs) && _deepEquals(throughputStatus, other.throughputStatus) && _deepEquals(foregroundAppPackage, other.foregroundAppPackage) && _deepEquals(appSessionType, other.appSessionType) && _deepEquals(foregroundAppStatus, other.foregroundAppStatus) && _deepEquals(latitude, other.latitude) && _deepEquals(longitude, other.longitude) && _deepEquals(locationAccuracyMeters, other.locationAccuracyMeters) && _deepEquals(locationAgeMs, other.locationAgeMs) && _deepEquals(locationStatus, other.locationStatus) && _deepEquals(capabilitySet, other.capabilitySet) && _deepEquals(deviceModel, other.deviceModel) && _deepEquals(osSdkInt, other.osSdkInt) && _deepEquals(osVersion, other.osVersion) && _deepEquals(appId, other.appId) && _deepEquals(appVersion, other.appVersion) && _deepEquals(appBuild, other.appBuild);
   }
 
   @override
@@ -497,7 +504,7 @@ class CapturedSampleMessage {
 
   @override
   String toString() {
-    return 'CapturedSampleMessage(rsrp: $rsrp, rsrq: $rsrq, rssnr: $rssnr, timingAdvance: $timingAdvance, cellIdentityHash: $cellIdentityHash, trackingAreaCode: $trackingAreaCode, signalStrengthLevel: $signalStrengthLevel, radioStatus: $radioStatus, cellInfoAgeMs: $cellInfoAgeMs, cqi: $cqi, cqiStatus: $cqiStatus, cellBandwidthKhz: $cellBandwidthKhz, downlinkChannelNumber: $downlinkChannelNumber, uplinkChannelNumber: $uplinkChannelNumber, physicalChannelStatus: $physicalChannelStatus, networkType: $networkType, networkTypeStatus: $networkTypeStatus, connectionType: $connectionType, isRoaming: $isRoaming, connectivityStatus: $connectivityStatus, throughputBytesPerSecond: $throughputBytesPerSecond, throughputWindowMs: $throughputWindowMs, throughputStatus: $throughputStatus, foregroundAppPackage: $foregroundAppPackage, appSessionType: $appSessionType, foregroundAppStatus: $foregroundAppStatus, latitude: $latitude, longitude: $longitude, locationAccuracyMeters: $locationAccuracyMeters, locationAgeMs: $locationAgeMs, locationStatus: $locationStatus, capabilitySet: $capabilitySet, deviceModel: $deviceModel, osSdkInt: $osSdkInt, osVersion: $osVersion, appId: $appId, appVersion: $appVersion, appBuild: $appBuild)';
+    return 'CapturedSampleMessage(rsrp: $rsrp, rsrq: $rsrq, rssnr: $rssnr, timingAdvance: $timingAdvance, cellIdentityHash: $cellIdentityHash, trackingAreaCode: $trackingAreaCode, signalStrengthLevel: $signalStrengthLevel, radioStatus: $radioStatus, cellInfoAgeMs: $cellInfoAgeMs, cellChangesSinceLastSample: $cellChangesSinceLastSample, cqi: $cqi, cqiStatus: $cqiStatus, cellBandwidthKhz: $cellBandwidthKhz, downlinkChannelNumber: $downlinkChannelNumber, uplinkChannelNumber: $uplinkChannelNumber, physicalChannelStatus: $physicalChannelStatus, networkType: $networkType, networkTypeStatus: $networkTypeStatus, connectionType: $connectionType, isRoaming: $isRoaming, connectivityStatus: $connectivityStatus, throughputBytesPerSecond: $throughputBytesPerSecond, throughputWindowMs: $throughputWindowMs, throughputStatus: $throughputStatus, foregroundAppPackage: $foregroundAppPackage, appSessionType: $appSessionType, foregroundAppStatus: $foregroundAppStatus, latitude: $latitude, longitude: $longitude, locationAccuracyMeters: $locationAccuracyMeters, locationAgeMs: $locationAgeMs, locationStatus: $locationStatus, capabilitySet: $capabilitySet, deviceModel: $deviceModel, osSdkInt: $osSdkInt, osVersion: $osVersion, appId: $appId, appVersion: $appVersion, appBuild: $appBuild)';
   }
 }
 
@@ -844,7 +851,7 @@ class AndroidCollectorApi {
   }
 
   /// Persists the flag (read by BootReceiver), starts/stops the foreground service and
-  /// schedules/cancels the hourly upload work.
+  /// schedules/cancels the 3-hourly upload work.
   Future<void> setCollectionEnabled(bool enabled) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.setCollectionEnabled$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
@@ -957,7 +964,8 @@ class AndroidCollectorApi {
     ;
   }
 
-  /// Opens a system settings screen: usageAccess, overlay, batteryOptimization or appDetails.
+  /// Opens a system settings screen: usageAccess, overlay, batteryOptimization, autoStart
+  /// (the manufacturer's auto-start screen, falling back to appDetails) or appDetails.
   Future<void> openSystemSettings(String target) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.openSystemSettings$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
@@ -976,7 +984,28 @@ class AndroidCollectorApi {
     ;
   }
 
-  /// One-off upload now (same constraints as the hourly job).
+  /// The manufacturer family for the auto-start instructions: transsion, xiaomi, oppo,
+  /// vivo, huawei, samsung or other.
+  Future<String> autoStartBrand() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.autoStartBrand$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
+  }
+
+  /// One-off upload now (same constraints as the 3-hourly job).
   Future<void> requestUploadNow() async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.requestUploadNow$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
@@ -1003,6 +1032,25 @@ class AndroidCollectorApi {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[timestampMs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Posts the "no upload for 3 days" reminder (texts localized by Dart).
+  Future<void> showUploadReminder(String title, String body) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.showUploadReminder$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[title, body]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
@@ -1335,6 +1383,25 @@ class IosCollectorApi {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[timestampMs]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// Posts the "no upload for 3 days" reminder (texts localized by Dart).
+  Future<void> showUploadReminder(String title, String body) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.IosCollectorApi.showUploadReminder$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[title, body]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
