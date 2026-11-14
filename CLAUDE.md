@@ -1,6 +1,7 @@
 # QoESense cross-platform (Flutter)
 
-> **On the Mac (Phase 4, iOS)? Read `docs/PHASE4_MAC_HANDOFF.md` first.** It has the decisions,
+> **On the Mac? Read `docs/PHASE6_MAC_HANDOFF.md` first** (the latest brief; it supersedes
+> PHASE4_MAC_HANDOFF.md). It has the decisions,
 > the state and the before-you-leave checklist that this session can't otherwise know.
 > **Back on Windows after the Mac session? Read `docs/PHASE4_MAC_SESSION_SUMMARY.md`:** what
 > was built and tested on the Mac, what is open, and what needs a Mac again.
