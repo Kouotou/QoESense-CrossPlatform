@@ -134,6 +134,31 @@ documents are never deleted, and excluded devices are never touched.
 the exporter rebuilds `samples.csv` from `samples.ndjson` with the new header before appending,
 so the CSV never mixes two layouts.
 
+### 4.1 Automatic daily export (set up 2026-11-16)
+
+| What | Where |
+|---|---|
+| Windows scheduled task | Task Scheduler → Task Scheduler Library → **QoESense** → **QoESense daily export** |
+| When | Daily at 14:00. If the PC was off or asleep, it runs as soon as it's back on (needs network; 3 retries, 1 h apart; only while the owner is logged on, so no password is stored) |
+| Script | `C:\Users\Ahmad\QoESense-exporter\functions\tools\run_scheduled_export.ps1` |
+| Exporter copy it runs | `C:\Users\Ahmad\QoESense-exporter`: a separate checkout of `backend/phase5-compat` (detached at 738ca87), so switching branches in `QoESense` can't break it. To update it: `git -C C:\Users\Ahmad\QoESense-exporter checkout --detach <commit>`, then `npm ci` in its `functions`. |
+| Output | `C:\Users\Ahmad\QoESense-exports` (samples / mos_responses as CSV + NDJSON, checkpoint.json) |
+| Snapshots | `C:\Users\Ahmad\QoESense-backups\exports\QoESense-exports_<date>_<time>.zip`, one per run, newest 30 kept |
+| Logs | `C:\Users\Ahmad\QoESense-backups\export-logs\export_<date>_<time>.log`, newest 90 kept |
+
+It runs **without `--delete-exported`**, so Firestore keeps every batch and is the primary copy;
+the export folder and the zips are the second and third copies. Turn deletion on only when
+the study's size needs it (§2): add `-DeleteExported` to the task's arguments. From then on, the
+zips are the only other copy, so also copy them off this PC (an external drive, or a private
+Google Drive folder, which fits the consent text's "Google Firebase/Cloud infrastructure").
+
+If a run fails (Task Scheduler's "Last Run Result" isn't 0x0), read the newest log. If it says
+the Google login expired, run `gcloud auth application-default login` again.
+
+First run, via Task Scheduler, 2026-11-16: result 0. It exported 6 new ratings and rebuilt
+`samples.csv` to 50 columns (3,522 rows). The snapshot zip (125 KB) opened cleanly, and every
+file matched the original byte for byte.
+
 ## 5. Still to do
 
 1. ~~Android on-device check~~: ✅ passed, 2026-11-14 (§3).
