@@ -172,3 +172,23 @@ experience in the last few minutes?". No 3G/2G detail: the study stays LTE.
 **Not run (no approval to delete production data):** `--delete-exported` against Firestore.
 It's covered by unit tests with a fake Firestore (chunking, checkpoint boundary, exclusions,
 idempotency, read counts).
+
+## 11. Tightened rules and App Check (2026-11-16)
+
+**Rules deployed to production at 12:45 UTC** (QoESense `main` 4dae474). The previous live
+rulesets are saved in `C:\Users\Ahmad\QoESense-backups\2026-11-16-rules`. A read-only audit
+before the deploy found every production document compatible.
+
+| Check after the deploy | Result | Evidence |
+|---|---|---|
+| Android test phone: automatic 3-hourly upload | PASS | batch accepted at 17:04 UTC |
+| Reference app participant: rating | PASS | rating accepted at 13:27 UTC |
+| iPhone (old build): rating | PASS | rating accepted at 18:36 UTC |
+| App Check build (debug provider) on the Infinix: activation in the headless collector | PASS | logcat `DebugAppCheckProvider` (the debug token is a secret; it isn't recorded here) |
+| App Check build: "Upload now" | PASS | `Worker result SUCCESS`, batch at 18:48 UTC |
+| App Check build: overlay rating | PASS | tapped **2** → native queue `score: 2` → Firestore `score 2, PERIODIC, OVERLAY` |
+| New survey wording on the device | PASS | French overlay: « Comment s'est passée votre expérience au cours des dernières minutes ? » |
+
+Test note: the overlay sits at a different height depending on the screen behind it, and it
+closes itself after 8 s. A first automated tap missed the buttons (no score was produced by
+that tap). The deterministic re-test above read the button positions live.
