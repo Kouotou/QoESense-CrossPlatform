@@ -78,6 +78,22 @@ Add these rows to the test matrix in §3 C and to `PHASE6_IOS_RESULTS.md`:
    Build a **release** build, install it **over** the existing app (keeping its buffer), and
    check that it opens. The free-team install lasts 7 days from this install.
 
+   **Install lifetime (the owner asked for 1 month, 2026-11-16).** Apple fixes it by account
+   type. No build setting changes it, so don't try to work around it:
+
+   | Owner's Apple account | How the install is made | Lifetime |
+   |---|---|---|
+   | Free (Personal Team) | Xcode run/install, as above | **7 days**: the profile can't be longer. Re-install from the Mac to renew (the data is kept). |
+   | **Paid Apple Developer Program** ($99/year) | Register the iPhone's UDID in the developer account. Then use a Development (or Ad Hoc) profile, built and installed from Xcode | **up to 1 year** (the profile's expiry) |
+   | Paid, via TestFlight | Archive → upload to App Store Connect → internal testing | **90 days** per build, and the phone needs no Mac to renew. This is an upload to Apple, so it needs the owner's explicit OK. |
+
+   Before signing, ask the owner which account is signed in. With a paid account, install a
+   Development build and **read the real expiry** from the installed profile (iPhone Settings →
+   General → VPN & Device Management, or `security cms -D -i` on the `embedded.mobileprovision`
+   inside the built app). Report that date. Never claim a lifetime you haven't read from the
+   profile. With the free account, report the 7-day date, and say that a month needs the paid
+   program.
+
 ### B. Check the free-tier upload on the iPhone
 
 1. On Wi-Fi, tap "Upload now" on the status screen. "Last upload" should update, and the
