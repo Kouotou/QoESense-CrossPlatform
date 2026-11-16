@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../../firebase_options.dart';
+import 'app_check.dart';
 import 'backend_ports.dart';
 import 'batch_document.dart';
 
@@ -18,6 +19,8 @@ Future<Backend> openBackend() async {
   final options = QoESenseFirebaseOptions.currentPlatform;
   if (options == null) return const Backend.unconfigured();
   if (Firebase.apps.isEmpty) await Firebase.initializeApp(options: options);
+  // Before the first Firestore/Auth call, so every request can carry a token.
+  await activateAppCheck();
   try {
     // No Firestore offline cache. Every write that matters is already queued durably in the
     // app's own SQLite (telemetry buffer, pending-MOS queue), and caching ~60 KB batch blobs
