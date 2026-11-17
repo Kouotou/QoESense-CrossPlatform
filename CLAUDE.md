@@ -1,6 +1,10 @@
 # QoESense cross-platform (Flutter)
 
-> **On the Mac? Read `docs/PHASE6_MAC_HANDOFF.md` first** (the latest brief; it supersedes
+> **Android only since 2026-11-17** (owner + supervisor): iOS is excluded from the study and not
+> released. Play Store release: `docs/PLAY_STORE_RELEASE.md` (upload key in `android/key.properties`,
+> gitignored, keystore outside the repo; never commit or print either).
+>
+> (Historical) **On the Mac? Read `docs/PHASE6_MAC_HANDOFF.md` first** (the latest brief; it supersedes
 > PHASE4_MAC_HANDOFF.md). It has the decisions,
 > the state and the before-you-leave checklist that this session can't otherwise know.
 > **Back on Windows after the Mac session? Read `docs/PHASE4_MAC_SESSION_SUMMARY.md`:** what

@@ -128,7 +128,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get backgroundBody =>
-      'Les données doivent être enregistrées même lorsque l\'application n\'est pas ouverte, Android exige donc une autorisation de localisation distincte « Toujours autoriser » pour la collecte en arrière-plan (sur Android 11+, cela peut ouvrir un écran des paramètres système plutôt qu\'une boîte de dialogue - choisissez « Toujours autoriser » à cet endroit).\n\nNous demandons également l\'accès aux notifications, utilisé uniquement pour la notification de statut « collecte active » à faible priorité et pour l\'invite occasionnelle d\'évaluation de la qualité en un clic - jamais pour des publicités ou des alertes sans rapport.';
+      'QoESense collecte des données de localisation pour permettre la mesure du signal réseau (Android ne fournit les mesures du signal cellulaire qu\'aux applications ayant accès à la localisation) et la cartographie de la couverture le long de vos trajets, même lorsque l\'application est fermée ou n\'est pas utilisée.\n\nLes données doivent être enregistrées même lorsque l\'application n\'est pas ouverte, Android exige donc une autorisation de localisation distincte « Toujours autoriser » pour la collecte en arrière-plan (sur Android 11+, cela peut ouvrir un écran des paramètres système plutôt qu\'une boîte de dialogue - choisissez « Toujours autoriser » à cet endroit).\n\nNous demandons également l\'accès aux notifications, utilisé uniquement pour la notification de statut « collecte active » à faible priorité et pour l\'invite occasionnelle d\'évaluation de la qualité en un clic - jamais pour des publicités ou des alertes sans rapport.';
 
   @override
   String get backgroundButtonGrant => 'Autoriser l\'accès';

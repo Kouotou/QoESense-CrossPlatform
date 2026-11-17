@@ -317,7 +317,7 @@ abstract class AppLocalizations {
   /// No description provided for @backgroundBody.
   ///
   /// In en, this message translates to:
-  /// **'Telemetry needs to be recorded while the app isn\'t open, so Android requires a separate \"Allow all the time\" location grant for background collection (on Android 11+ this may open a system Settings screen rather than a dialog - choose \"Allow all the time\" there).\n\nWe also ask for notification access, used only for the low-priority \"collection active\" status notification and the occasional one-tap quality rating prompt - never for ads or unrelated alerts.'**
+  /// **'QoESense collects location data to enable network signal measurement (Android only returns cell signal readings to apps with location access) and coverage mapping along your routes, even when the app is closed or not in use.\n\nTelemetry needs to be recorded while the app isn\'t open, so Android requires a separate \"Allow all the time\" location grant for background collection (on Android 11+ this may open a system Settings screen rather than a dialog - choose \"Allow all the time\" there).\n\nWe also ask for notification access, used only for the low-priority \"collection active\" status notification and the occasional one-tap quality rating prompt - never for ads or unrelated alerts.'**
   String get backgroundBody;
 
   /// No description provided for @backgroundButtonGrant.
