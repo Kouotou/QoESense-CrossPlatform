@@ -6,7 +6,7 @@ ID, no foreground app). The iOS code stays in the repo but isn't released or mai
 
 The app is published from **a colleague's existing Google Play developer account**, which they have
 agreed to let the owner use. Listing texts: [play/store-listing.md](play/store-listing.md).
-Privacy policy page: [play/privacy-policy.html](play/privacy-policy.html).
+Privacy policy page: [hosting/public/privacy-policy.html](../hosting/public/privacy-policy.html), live at https://qoesense.web.app/privacy-policy.html (deploy: `firebase deploy --only hosting` from the repo root).
 
 ## 1. What is ready (branch `release/play-store`)
 
@@ -59,11 +59,11 @@ Things to agree with them first:
      restarts after a reboot.
    - **On an Android 15 or 16 phone as well, if you can borrow one**: let it run for more than 6 hours
      with the screen off and confirm it keeps sampling (that's the §9 fix).
-2. **Publish the privacy policy at a public URL.** Choose one:
-   - **Firebase Hosting** (free on the Spark plan, same `qoesense` project): gives
-     `https://qoesense.web.app/privacy-policy.html`. Recommended, but it is a deployment, so it needs your
-     go-ahead.
-   - **Google Sites** (sites.google.com): paste the text, publish, and copy the URL.
+2. ✅ **Privacy policy published** (owner-approved, 2026-11-17) on Firebase Hosting (free on the Spark
+   plan, `qoesense` project): **https://qoesense.web.app/privacy-policy.html**. The source is
+   `hosting/public/`. To update it, edit the file and run `firebase deploy --only hosting` from this
+   repo. This repo's `firebase.json` has hosting only, so the deploy can't touch rules or functions.
+   The owner approved the 30-day deletion promise and accepted the background-location review risk.
 3. **Record two short screen videos** with the phone (≤ 30 s each), upload them to YouTube as
    **Unlisted**:
    - **Video A (background location)**: Welcome → Consent → Location screen → Background access screen
