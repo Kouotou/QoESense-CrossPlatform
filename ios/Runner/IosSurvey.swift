@@ -73,12 +73,12 @@ struct SurveyStrings {
       ? SurveyStrings(
         title: "Question rapide",
         body:
-          "Comment s'est passée votre expérience au cours des dernières minutes ? Appuyez longuement pour évaluer de 1 à 5 (1 = très mauvaise, 5 = excellente), ou touchez pour ouvrir."
+          "Comment s'est passée votre expérience Internet au cours des dernières minutes ? Appuyez longuement pour évaluer de 1 à 5 (1 = très mauvaise, 5 = excellente), ou touchez pour ouvrir."
       )
       : SurveyStrings(
         title: "Quick question",
         body:
-          "How was your experience in the last few minutes? Touch and hold to rate 1-5 (1 = very poor, 5 = excellent), or tap to open."
+          "How was your Internet experience in the last few minutes? Touch and hold to rate 1-5 (1 = very poor, 5 = excellent), or tap to open."
       )
   }
 }

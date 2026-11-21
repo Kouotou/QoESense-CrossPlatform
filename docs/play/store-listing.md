@@ -22,7 +22,7 @@ HOW IT WORKS
 Once you agree to take part, QoESense runs quietly in the background:
 • It records 4G/LTE signal measurements (signal strength and quality), the connection type and your
   location about once a minute, more often during a video call.
-• Now and then it asks one quick question: "How was your experience in the last few minutes?"
+• Now and then it asks one quick question: "How was your Internet experience in the last few minutes?"
   Tap a rating from 1 to 5 and it disappears.
 • It uploads its data over Wi-Fi. Without Wi-Fi for 2 days, it sends the waiting data over
   mobile data instead: about 1 to 2 MB a month, never while roaming, and you can turn this off.
@@ -66,7 +66,7 @@ COMMENT ÇA MARCHE
 Une fois votre accord donné, QoESense fonctionne discrètement en arrière-plan :
 • Elle enregistre les mesures du signal 4G/LTE (force et qualité), le type de connexion et votre
   position environ une fois par minute, plus souvent pendant un appel vidéo.
-• De temps en temps, elle pose une seule question : « Comment s'est passée votre expérience ces
+• De temps en temps, elle pose une seule question : « Comment s'est passée votre expérience Internet ces
   dernières minutes ? » Touchez une note de 1 à 5 et elle disparaît.
 • Elle envoie ses données en Wi-Fi. Sans Wi-Fi pendant 2 jours, elle envoie les données en
   attente par les données mobiles : environ 1 à 2 Mo par mois, jamais en itinérance, et vous
