@@ -109,6 +109,19 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
             ),
           ),
           ListTile(title: Text(l10n.statusLabelLastUpload), trailing: Text(_lastUpload(l10n, _status?.lastUploadMs))),
+          if (_status?.mobileDataUploads case final mobileData?)
+            SwitchListTile(
+              key: const ValueKey('mobileData'),
+              title: Text(l10n.statusMobileDataTitle),
+              subtitle: Text(l10n.statusMobileDataDesc),
+              value: mobileData,
+              onChanged: _busy
+                  ? null
+                  : (v) => _run(() async {
+                      await _s.control.setMobileDataUploads(v);
+                      return null;
+                    }),
+            ),
           ListTile(
             title: Text(l10n.statusLabelAnonymousId),
             subtitle: SelectableText(_deviceId ?? l10n.statusAnonymousIdPending),

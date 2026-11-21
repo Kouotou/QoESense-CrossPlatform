@@ -654,6 +654,9 @@ struct CollectorStatusMessage: Hashable, CustomStringConvertible {
   var collectionEnabled: Bool
   var serviceRunning: Bool
   var lastUploadMs: Int64? = nil
+  /// Android: whether uploads may use mobile data after 2 days without Wi-Fi (default true).
+  /// Null on iOS, which uploads on Wi-Fi only.
+  var mobileDataUploadsAllowed: Bool? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -661,11 +664,13 @@ struct CollectorStatusMessage: Hashable, CustomStringConvertible {
     let collectionEnabled = pigeonVar_list[0] as! Bool
     let serviceRunning = pigeonVar_list[1] as! Bool
     let lastUploadMs: Int64? = nilOrValue(pigeonVar_list[2])
+    let mobileDataUploadsAllowed: Bool? = nilOrValue(pigeonVar_list[3])
 
     return CollectorStatusMessage(
       collectionEnabled: collectionEnabled,
       serviceRunning: serviceRunning,
-      lastUploadMs: lastUploadMs
+      lastUploadMs: lastUploadMs,
+      mobileDataUploadsAllowed: mobileDataUploadsAllowed
     )
   }
   func toList() -> [Any?] {
@@ -673,13 +678,14 @@ struct CollectorStatusMessage: Hashable, CustomStringConvertible {
       collectionEnabled,
       serviceRunning,
       lastUploadMs,
+      mobileDataUploadsAllowed,
     ]
   }
   static func == (lhs: CollectorStatusMessage, rhs: CollectorStatusMessage) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return TelemetryApiPigeonInternal.deepEquals(lhs.collectionEnabled, rhs.collectionEnabled) && TelemetryApiPigeonInternal.deepEquals(lhs.serviceRunning, rhs.serviceRunning) && TelemetryApiPigeonInternal.deepEquals(lhs.lastUploadMs, rhs.lastUploadMs)
+    return TelemetryApiPigeonInternal.deepEquals(lhs.collectionEnabled, rhs.collectionEnabled) && TelemetryApiPigeonInternal.deepEquals(lhs.serviceRunning, rhs.serviceRunning) && TelemetryApiPigeonInternal.deepEquals(lhs.lastUploadMs, rhs.lastUploadMs) && TelemetryApiPigeonInternal.deepEquals(lhs.mobileDataUploadsAllowed, rhs.mobileDataUploadsAllowed)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -687,10 +693,11 @@ struct CollectorStatusMessage: Hashable, CustomStringConvertible {
     TelemetryApiPigeonInternal.deepHash(value: collectionEnabled, hasher: &hasher)
     TelemetryApiPigeonInternal.deepHash(value: serviceRunning, hasher: &hasher)
     TelemetryApiPigeonInternal.deepHash(value: lastUploadMs, hasher: &hasher)
+    TelemetryApiPigeonInternal.deepHash(value: mobileDataUploadsAllowed, hasher: &hasher)
   }
 
   public var description: String {
-    return "CollectorStatusMessage(collectionEnabled: \(String(describing: collectionEnabled)), serviceRunning: \(String(describing: serviceRunning)), lastUploadMs: \(String(describing: lastUploadMs)))"
+    return "CollectorStatusMessage(collectionEnabled: \(String(describing: collectionEnabled)), serviceRunning: \(String(describing: serviceRunning)), lastUploadMs: \(String(describing: lastUploadMs)), mobileDataUploadsAllowed: \(String(describing: mobileDataUploadsAllowed)))"
   }
 }
 
@@ -880,11 +887,15 @@ protocol AndroidCollectorApi {
   /// The manufacturer family for the auto-start instructions: transsion, xiaomi, oppo,
   /// vivo, huawei, samsung or other.
   func autoStartBrand() throws -> String
-  /// One-off upload now (same constraints as the 3-hourly job).
+  /// One-off upload now: Wi-Fi, or mobile data if the participant allows it (never roaming).
   func requestUploadNow() throws
   func recordConsent(timestampMs: Int64) throws
   /// Posts the "no upload for 3 days" reminder (texts localized by Dart).
   func showUploadReminder(title: String, body: String) throws
+  /// True while the screen is on and the phone unlocked: the survey only asks then.
+  func isUserActive() throws -> Bool
+  /// The participant's "upload on mobile data when there's no Wi-Fi" switch.
+  func setMobileDataUploadsAllowed(allowed: Bool) throws
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -1037,7 +1048,7 @@ class AndroidCollectorApiSetup {
     } else {
       autoStartBrandChannel.setMessageHandler(nil)
     }
-    /// One-off upload now (same constraints as the 3-hourly job).
+    /// One-off upload now: Wi-Fi, or mobile data if the participant allows it (never roaming).
     let requestUploadNowChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.requestUploadNow\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       requestUploadNowChannel.setMessageHandler { _, reply in
@@ -1082,6 +1093,36 @@ class AndroidCollectorApiSetup {
       }
     } else {
       showUploadReminderChannel.setMessageHandler(nil)
+    }
+    /// True while the screen is on and the phone unlocked: the survey only asks then.
+    let isUserActiveChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.isUserActive\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      isUserActiveChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.isUserActive()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      isUserActiveChannel.setMessageHandler(nil)
+    }
+    /// The participant's "upload on mobile data when there's no Wi-Fi" switch.
+    let setMobileDataUploadsAllowedChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.setMobileDataUploadsAllowed\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      setMobileDataUploadsAllowedChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let allowedArg = args[0] as! Bool
+        do {
+          try api.setMobileDataUploadsAllowed(allowed: allowedArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      setMobileDataUploadsAllowedChannel.setMessageHandler(nil)
     }
   }
 }

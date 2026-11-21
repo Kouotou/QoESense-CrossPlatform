@@ -17,6 +17,15 @@ class AndroidSampleSource implements SampleSource {
       mapCapturedSample(await _api.captureSample(locationTimeoutMs, staleAfterMs));
 }
 
+/// Screen on and unlocked (PowerManager.isInteractive, KeyguardManager.isKeyguardLocked).
+class AndroidUserActivity implements UserActivity {
+  AndroidUserActivity(this._api);
+  final AndroidCollectorApi _api;
+
+  @override
+  Future<bool> isUserActive() => _api.isUserActive();
+}
+
 class AndroidSurveyPresenter implements SurveyPresenter {
   AndroidSurveyPresenter(this._api);
   final AndroidCollectorApi _api;

@@ -18,7 +18,9 @@ Privacy policy page: [hosting/public/privacy-policy.html](../hosting/public/priv
 | Release signing | upload key, see §8. The bundle is verified as signed by `CN=QoESense, O=University of Buea, C=CM` |
 | Bundle | `flutter build appbundle --release` → `build/app/outputs/bundle/release/app-release.aab`. Code shrinking (R8) on, native debug symbols included for Play crash reports |
 | Android 15+ fix | the collector runs as a `location` foreground service; `dataSync` is only a fallback, with a clean stop at Android's 6-hour limit (see §9) |
-| App icon | new adaptive icon, no longer the Flutter logo |
+| App icon | Cameroon green / red / yellow stripes, a yellow star with "QoE" (adaptive + themed icon). Status-bar icon: the star. Source: `tool/make_logo.py` |
+| Uploads | Wi-Fi every 3 h as before. **Mobile data only after 2 days without an upload** (≈ 1–2 MB a month), never while roaming or under Data Saver, and the participant can switch it off on the Status screen (owner decision, 2026-11-21; `UploadNetworkPolicy`) |
+| Rating prompts | shown only after the phone has been **on and unlocked for 2 minutes**. A prompt that can't be shown isn't counted; missed POST_SESSION/ANOMALY events stay due for 10 min. An ignored pop-up becomes a notification answerable for 10 min (owner decision, 2026-11-21) |
 | Prominent disclosure | the background-access screen opens with Google's recommended sentence: "QoESense collects location data to enable … even when the app is closed or not in use." |
 | Privacy policy | written (EN + FR). **It needs a public URL**, see §3 step 2 |
 | Listing texts, 512 icon, feature graphic | ready. **Screenshots still to take** |
@@ -130,6 +132,10 @@ deletion: Yes** (by email, with the device ID). **Collection is required** (the 
 | App activity → **Installed apps** | Yes | App functionality | the package name of the app on screen |
 | App activity → **Other user-generated content** | Yes | App functionality | the 1–5 ratings and the "what were you doing" answer |
 | App info and performance → **Other app performance data** | Yes | App functionality | network signal and throughput/latency measurements |
+
+The consent text, this privacy policy and the listing say that uploads use mobile data after
+2 days without Wi-Fi (about 1–2 MB a month, switchable), and that the delay measurement uses a
+little mobile data (typically under 1 MB a day).
 | Device or other IDs | Yes | App functionality | the anonymous installation ID |
 
 Don't choose "Analytics" or "Advertising" as the purpose for location: background location for

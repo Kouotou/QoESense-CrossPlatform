@@ -36,8 +36,10 @@ class _Control implements CollectorControl {
   }
 
   bool? runningOverride;
+  bool? mobileData;
   @override
-  Future<CollectorStatus> status() async => CollectorStatus(enabled: enabled, running: runningOverride ?? enabled);
+  Future<CollectorStatus> status() async =>
+      CollectorStatus(enabled: enabled, running: runningOverride ?? enabled, mobileDataUploads: mobileData);
   @override
   Future<void> presentTestSurvey() async => log.add('testSurvey');
   @override
@@ -55,6 +57,8 @@ class _Control implements CollectorControl {
   Future<void> uploadNow() async => log.add('uploadNow');
   @override
   Future<void> recordConsent(int ms) async => log.add('consent');
+  @override
+  Future<void> setMobileDataUploads(bool allowed) async => log.add('mobileData:$allowed');
 }
 
 class _Perms implements PermissionGateway {
@@ -152,6 +156,28 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('collection')));
     await tester.pumpAndSettle();
     expect(log, contains('collection:true'));
+  });
+
+  testWidgets('the mobile-data switch shows on Android and stores the choice; hidden when null (iOS)', (tester) async {
+    kv.values[SettingsKeys.onboardingComplete] = 'true';
+    final svc = services();
+    await tester.pumpWidget(QoESenseApp(services: svc));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('mobileData')), findsNothing);
+
+    final control = svc.control as _Control..mobileData = true;
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(QoESenseApp(services: svc));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('mobileData')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text("Upload on mobile data when there's no Wi-Fi"), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('mobileData')));
+    await tester.pumpAndSettle();
+    expect(control.log, contains('mobileData:false'));
   });
 
   testWidgets('opening the app restarts collection that should be on but was killed', (tester) async {

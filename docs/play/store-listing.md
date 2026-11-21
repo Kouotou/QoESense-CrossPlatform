@@ -24,7 +24,8 @@ Once you agree to take part, QoESense runs quietly in the background:
   location about once a minute, more often during a video call.
 • Now and then it asks one quick question: "How was your experience in the last few minutes?"
   Tap a rating from 1 to 5 and it disappears.
-• It uploads its data only over Wi-Fi, so it never uses your mobile data.
+• It uploads its data over Wi-Fi. Without Wi-Fi for 2 days, it sends the waiting data over
+  mobile data instead: about 1 to 2 MB a month, never while roaming, and you can turn this off.
 
 YOUR PRIVACY
 • No name, phone number or email is ever asked for. Each installation gets a random anonymous ID.
@@ -67,7 +68,9 @@ Une fois votre accord donné, QoESense fonctionne discrètement en arrière-plan
   position environ une fois par minute, plus souvent pendant un appel vidéo.
 • De temps en temps, elle pose une seule question : « Comment s'est passée votre expérience ces
   dernières minutes ? » Touchez une note de 1 à 5 et elle disparaît.
-• Elle envoie ses données uniquement en Wi-Fi : elle n'utilise jamais vos données mobiles.
+• Elle envoie ses données en Wi-Fi. Sans Wi-Fi pendant 2 jours, elle envoie les données en
+  attente par les données mobiles : environ 1 à 2 Mo par mois, jamais en itinérance, et vous
+  pouvez le désactiver.
 
 VOTRE VIE PRIVÉE
 • Aucun nom, numéro ni e-mail n'est demandé. Chaque installation reçoit un identifiant anonyme
@@ -93,6 +96,6 @@ Les participants doivent avoir 18 ans ou plus. Questions : bilalkouotou@gmail.co
 
 | Asset | File | Status |
 |---|---|---|
-| App icon 512 × 512 | `docs/play/icon-512.png` | ready (replace with your own logo if you have one) |
+| App icon 512 × 512 | `docs/play/icon-512.png` | ready: Cameroon green/red/yellow, star with "QoE" (regenerate with `python tool/make_logo.py <repo>`) |
 | Feature graphic 1024 × 500 | `docs/play/feature-graphic-1024x500.png` | ready |
 | Phone screenshots (2–8, 9:16 or 16:9, min 320 px) | take them on the phone: Welcome, Consent, Status screen, the rating prompt | **to do** |

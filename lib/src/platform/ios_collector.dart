@@ -96,6 +96,10 @@ class IosCollectorControl implements CollectorControl {
 
   @override
   Future<void> recordConsent(int timestampMs) => _api.recordConsent(timestampMs);
+
+  /// iOS uploads on Wi-Fi only and shows no switch (iOS is not part of the study since 2026-11-17).
+  @override
+  Future<void> setMobileDataUploads(bool allowed) async {}
 }
 
 /// iOS permissions, asked natively (Core Location / UserNotifications) so the Always upgrade

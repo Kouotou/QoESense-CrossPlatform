@@ -24,10 +24,14 @@ enum AutoStartBrand {
 }
 
 class CollectorStatus {
-  const CollectorStatus({required this.enabled, required this.running, this.lastUploadMs});
+  const CollectorStatus({required this.enabled, required this.running, this.lastUploadMs, this.mobileDataUploads});
   final bool enabled;
   final bool running;
   final int? lastUploadMs;
+
+  /// Android: "upload on mobile data when there's no Wi-Fi". Null on iOS (Wi-Fi only), where
+  /// the switch isn't shown.
+  final bool? mobileDataUploads;
 }
 
 /// What the UI may ask the native collector to do.
@@ -44,6 +48,7 @@ abstract interface class CollectorControl {
   Future<AutoStartBrand?> autoStartBrand();
   Future<void> uploadNow();
   Future<void> recordConsent(int timestampMs);
+  Future<void> setMobileDataUploads(bool allowed);
 }
 
 /// Runtime-permission prompts (permission_handler on device, a fake in widget tests).

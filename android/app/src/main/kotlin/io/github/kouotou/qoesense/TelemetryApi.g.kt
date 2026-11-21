@@ -651,7 +651,12 @@ data class SurveyAnswerMessage (
 data class CollectorStatusMessage (
   val collectionEnabled: Boolean,
   val serviceRunning: Boolean,
-  val lastUploadMs: Long? = null
+  val lastUploadMs: Long? = null,
+  /**
+   * Android: whether uploads may use mobile data after 2 days without Wi-Fi (default true).
+   * Null on iOS, which uploads on Wi-Fi only.
+   */
+  val mobileDataUploadsAllowed: Boolean? = null
 )
  {
   companion object {
@@ -659,7 +664,8 @@ data class CollectorStatusMessage (
       val collectionEnabled = pigeonVar_list[0] as Boolean
       val serviceRunning = pigeonVar_list[1] as Boolean
       val lastUploadMs = pigeonVar_list[2] as Long?
-      return CollectorStatusMessage(collectionEnabled, serviceRunning, lastUploadMs)
+      val mobileDataUploadsAllowed = pigeonVar_list[3] as Boolean?
+      return CollectorStatusMessage(collectionEnabled, serviceRunning, lastUploadMs, mobileDataUploadsAllowed)
     }
   }
   fun toList(): List<Any?> {
@@ -667,6 +673,7 @@ data class CollectorStatusMessage (
       collectionEnabled,
       serviceRunning,
       lastUploadMs,
+      mobileDataUploadsAllowed,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -677,7 +684,7 @@ data class CollectorStatusMessage (
       return true
     }
     val other = other as CollectorStatusMessage
-    return TelemetryApiPigeonUtils.deepEquals(this.collectionEnabled, other.collectionEnabled) && TelemetryApiPigeonUtils.deepEquals(this.serviceRunning, other.serviceRunning) && TelemetryApiPigeonUtils.deepEquals(this.lastUploadMs, other.lastUploadMs)
+    return TelemetryApiPigeonUtils.deepEquals(this.collectionEnabled, other.collectionEnabled) && TelemetryApiPigeonUtils.deepEquals(this.serviceRunning, other.serviceRunning) && TelemetryApiPigeonUtils.deepEquals(this.lastUploadMs, other.lastUploadMs) && TelemetryApiPigeonUtils.deepEquals(this.mobileDataUploadsAllowed, other.mobileDataUploadsAllowed)
   }
 
   override fun hashCode(): Int {
@@ -685,10 +692,11 @@ data class CollectorStatusMessage (
     result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.collectionEnabled)
     result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.serviceRunning)
     result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.lastUploadMs)
+    result = 31 * result + TelemetryApiPigeonUtils.deepHash(this.mobileDataUploadsAllowed)
     return result
   }
   override fun toString(): String {
-    return "CollectorStatusMessage(collectionEnabled=$collectionEnabled, serviceRunning=$serviceRunning, lastUploadMs=$lastUploadMs)"
+    return "CollectorStatusMessage(collectionEnabled=$collectionEnabled, serviceRunning=$serviceRunning, lastUploadMs=$lastUploadMs, mobileDataUploadsAllowed=$mobileDataUploadsAllowed)"
   }
 }
 
@@ -895,11 +903,15 @@ interface AndroidCollectorApi {
    * vivo, huawei, samsung or other.
    */
   fun autoStartBrand(): String
-  /** One-off upload now (same constraints as the 3-hourly job). */
+  /** One-off upload now: Wi-Fi, or mobile data if the participant allows it (never roaming). */
   fun requestUploadNow()
   fun recordConsent(timestampMs: Long)
   /** Posts the "no upload for 3 days" reminder (texts localized by Dart). */
   fun showUploadReminder(title: String, body: String)
+  /** True while the screen is on and the phone unlocked: the survey only asks then. */
+  fun isUserActive(): Boolean
+  /** The participant's "upload on mobile data when there's no Wi-Fi" switch. */
+  fun setMobileDataUploadsAllowed(allowed: Boolean)
 
   companion object {
     /** The codec used by AndroidCollectorApi. */
@@ -1109,6 +1121,39 @@ interface AndroidCollectorApi {
             val bodyArg = args[1] as String
             val wrapped: List<Any?> = try {
               api.showUploadReminder(titleArg, bodyArg)
+              listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.isUserActive$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.isUserActive())
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.setMobileDataUploadsAllowed$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val allowedArg = args[0] as Boolean
+            val wrapped: List<Any?> = try {
+              api.setMobileDataUploadsAllowed(allowedArg)
               listOf(null)
             } catch (exception: Throwable) {
               TelemetryApiPigeonUtils.wrapError(exception)
