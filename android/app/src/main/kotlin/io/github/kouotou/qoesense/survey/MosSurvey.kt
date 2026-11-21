@@ -32,7 +32,8 @@ import java.util.UUID
  * strings and flags.
  */
 object SurveyPresenter {
-    private const val CHANNEL_ID = "mos_survey"
+    private const val CHANNEL_ID = "mos_survey_alert"
+    private const val OLD_CHANNEL_ID = "mos_survey"
     private const val NOTIFICATION_ID = 2
 
     fun present(context: Context, triggerType: String) {
@@ -62,8 +63,12 @@ object SurveyPresenter {
                 CHANNEL_ID,
                 context.getString(R.string.notif_survey_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply { description = context.getString(R.string.notif_survey_channel_desc) },
+            ).apply {
+                description = context.getString(R.string.notif_survey_channel_desc)
+                enableVibration(true) // default sound + vibration (the follow-up is posted silent)
+            },
         )
+        nm.deleteNotificationChannel(OLD_CHANNEL_ID) // its settings can't be changed after creation
         val pending = PendingIntent.getActivity(
             context,
             0,
@@ -112,6 +117,9 @@ class MosSurveyActivity : Activity() {
         promptedAt = intent.getLongExtra(EXTRA_PROMPTED_AT, -1).takeIf { it > 0 }
         mode = intent.getStringExtra(EXTRA_MODE) ?: "OVERLAY"
         setContentView(buildContent { score -> onScore(score, trigger, promptedAt, mode) })
+        // The pop-up rings and vibrates (per the phone's ring mode); opened from a notification
+        // the participant is already looking at it, so no second alert.
+        if (mode == "OVERLAY" && savedInstanceState == null) SurveyAlert.play(this)
         handler.postDelayed(autoDismiss, AUTO_DISMISS_MS)
     }
 

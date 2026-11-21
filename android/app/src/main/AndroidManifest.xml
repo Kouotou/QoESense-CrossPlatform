@@ -25,6 +25,8 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <!-- Short wake lock for the Doze wake-up tick (decision C). -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- The rating pop-up vibrates (per the phone's ring mode). -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:label="QoESense"

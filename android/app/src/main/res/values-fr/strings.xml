@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Survey and notification strings. The survey question was reworded on 2026-11-14 (report alignment). -->
 <resources>
-    <string name="mos_survey_title">Comment s\'est passée votre expérience au cours des dernières minutes ?</string>
+    <string name="mos_survey_title">Comment s\'est passée votre expérience Internet au cours des dernières minutes ?</string>
     <string name="mos_survey_caption">1 = très mauvaise, 5 = excellente</string>
     <string name="notif_collection_channel_name">Collecte en arrière-plan</string>
     <string name="notif_collection_channel_desc">S\'affiche lorsque QoESense collecte des données de télémétrie réseau en arrière-plan</string>
@@ -10,7 +10,7 @@
     <string name="notif_survey_channel_name">Invites d\'évaluation de la qualité</string>
     <string name="notif_survey_channel_desc">Invites occasionnelles en un clic demandant comment était votre expérience réseau</string>
     <string name="notif_survey_title">Question rapide</string>
-    <string name="notif_survey_text">Comment s\'est passée votre expérience au cours des dernières minutes ? Appuyez pour évaluer de 1 à 5.</string>
+    <string name="notif_survey_text">Comment s\'est passée votre expérience Internet au cours des dernières minutes ? Appuyez pour évaluer de 1 à 5.</string>
     <string name="notif_reminder_channel_name">Rappels d\'envoi</string>
     <string name="notif_reminder_channel_desc">Un rappel lorsque les données n\'ont pas pu être envoyées depuis plusieurs jours</string>
 </resources>

@@ -163,7 +163,7 @@ void main() {
     inbox.waiting = const SurveyPrompt(triggerType: MosTriggerType.anomaly, promptedAtMs: 1000);
     await tester.pumpWidget(QoESenseApp(services: services()));
     await tester.pumpAndSettle();
-    expect(find.text('How was your experience in the last few minutes?'), findsOneWidget);
+    expect(find.text('How was your Internet experience in the last few minutes?'), findsOneWidget);
 
     final submit = find.byKey(const ValueKey('submitSurvey'));
     expect(tester.widget<FilledButton>(submit).onPressed, isNull, reason: 'a score is required');
@@ -175,7 +175,7 @@ void main() {
     await tester.tap(submit);
     await tester.pumpAndSettle();
 
-    expect(find.text('How was your experience in the last few minutes?'), findsNothing);
+    expect(find.text('How was your Internet experience in the last few minutes?'), findsNothing);
     final a = inbox.submitted.single;
     expect(a.score, 4);
     expect(a.triggerType, MosTriggerType.anomaly);
@@ -192,7 +192,7 @@ void main() {
     kv.values[SettingsKeys.onboardingComplete] = 'true';
     await tester.pumpWidget(QoESenseApp(services: services()));
     await tester.pumpAndSettle();
-    expect(find.text('How was your experience in the last few minutes?'), findsNothing);
+    expect(find.text('How was your Internet experience in the last few minutes?'), findsNothing);
 
     inbox.tap(const SurveyPrompt(triggerType: MosTriggerType.periodic, promptedAtMs: 5));
     await tester.pumpAndSettle();
@@ -214,14 +214,14 @@ void main() {
     await tester.tap(find.text('Not now'));
     await tester.pumpAndSettle();
     expect(inbox.submitted, isEmpty);
-    expect(find.text('How was your experience in the last few minutes?'), findsNothing);
+    expect(find.text('How was your Internet experience in the last few minutes?'), findsNothing);
   });
 
   testWidgets('no survey sheet during onboarding', (tester) async {
     inbox.waiting = const SurveyPrompt(triggerType: MosTriggerType.periodic, promptedAtMs: 5);
     await tester.pumpWidget(QoESenseApp(services: services()));
     await tester.pumpAndSettle();
-    expect(find.text('How was your experience in the last few minutes?'), findsNothing);
+    expect(find.text('How was your Internet experience in the last few minutes?'), findsNothing);
     expect(inbox.waiting, isNotNull, reason: 'the prompt waits until onboarding is done');
   });
 }

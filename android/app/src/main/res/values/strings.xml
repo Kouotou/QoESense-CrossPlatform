@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Survey and notification strings. The survey question was reworded on 2026-11-14 (report alignment). -->
 <resources>
-    <string name="mos_survey_title">How was your experience in the last few minutes?</string>
+    <string name="mos_survey_title">How was your Internet experience in the last few minutes?</string>
     <string name="mos_survey_caption">1 = very poor, 5 = excellent</string>
     <string name="notif_collection_channel_name">Background collection</string>
     <string name="notif_collection_channel_desc">Shows when QoESense is collecting network telemetry in the background</string>
@@ -10,7 +10,7 @@
     <string name="notif_survey_channel_name">Quality rating prompts</string>
     <string name="notif_survey_channel_desc">Occasional one-tap prompts asking how your network experience was</string>
     <string name="notif_survey_title">Quick question</string>
-    <string name="notif_survey_text">How was your experience in the last few minutes? Tap to rate 1-5.</string>
+    <string name="notif_survey_text">How was your Internet experience in the last few minutes? Tap to rate 1-5.</string>
     <string name="notif_reminder_channel_name">Upload reminders</string>
     <string name="notif_reminder_channel_desc">A reminder when data hasn\'t been uploaded for several days</string>
 </resources>
