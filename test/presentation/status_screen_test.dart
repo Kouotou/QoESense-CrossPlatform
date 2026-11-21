@@ -148,11 +148,15 @@ void main() {
     expect(find.text('never'), findsOneWidget);
     expect(tester.widget<Text>(find.byKey(const ValueKey('buffered'))).data, '0');
 
+    final list = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('testCapture')), 200, scrollable: list);
     await tester.tap(find.byKey(const ValueKey('testCapture')));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('message')), 200, scrollable: list);
     expect(find.byKey(const ValueKey('message')), findsOneWidget);
     expect(await buffer.count(), 1);
 
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('collection')), -200, scrollable: list);
     await tester.tap(find.byKey(const ValueKey('collection')));
     await tester.pumpAndSettle();
     expect(log, contains('collection:true'));
@@ -174,7 +178,8 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text("Upload on mobile data when there's no Wi-Fi"), findsOneWidget);
+    expect(find.text('Upload without Wi-Fi'), findsOneWidget);
+    expect(find.text('Your messages, browsing history and contacts are never collected.'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('mobileData')));
     await tester.pumpAndSettle();
     expect(control.log, contains('mobileData:false'));

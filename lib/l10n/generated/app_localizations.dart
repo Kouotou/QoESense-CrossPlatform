@@ -419,7 +419,7 @@ abstract class AppLocalizations {
   /// No description provided for @statusCollectionInactiveDesc.
   ///
   /// In en, this message translates to:
-  /// **'Background collection is off. It normally starts automatically after onboarding - this toggle is mainly for testing.'**
+  /// **'Collection is paused.'**
   String get statusCollectionInactiveDesc;
 
   /// No description provided for @statusLabelBufferedSamples.
@@ -539,7 +539,7 @@ abstract class AppLocalizations {
   /// No description provided for @statusCollectionActiveDesc.
   ///
   /// In en, this message translates to:
-  /// **'The background service samples every ~60 s (every ~15 s during a video call). Data stays on this phone until an upload is confirmed (over Wi-Fi, or over mobile data after 2 days without Wi-Fi).'**
+  /// **'Measuring network quality in the background.'**
   String get statusCollectionActiveDesc;
 
   /// No description provided for @statusBackendNotConfigured.
@@ -557,14 +557,20 @@ abstract class AppLocalizations {
   /// No description provided for @statusMobileDataTitle.
   ///
   /// In en, this message translates to:
-  /// **'Upload on mobile data when there\'s no Wi-Fi'**
+  /// **'Upload without Wi-Fi'**
   String get statusMobileDataTitle;
 
   /// No description provided for @statusMobileDataDesc.
   ///
   /// In en, this message translates to:
-  /// **'If this phone hasn\'t been on Wi-Fi for 2 days, the waiting data is sent over mobile data (about 1 to 2 MB a month). Never while roaming, and not when Android\'s Data Saver is on.'**
+  /// **'After 2 days without Wi-Fi (about 1–2 MB a month).'**
   String get statusMobileDataDesc;
+
+  /// No description provided for @statusPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your messages, browsing history and contacts are never collected.'**
+  String get statusPrivacyNote;
 
   /// No description provided for @statusTestCaptureDone.
   ///

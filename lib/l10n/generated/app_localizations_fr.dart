@@ -181,8 +181,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statusCollectionTitle => 'Collecte';
 
   @override
-  String get statusCollectionInactiveDesc =>
-      'La collecte en arrière-plan est désactivée. Elle démarre normalement automatiquement après la configuration initiale - ce bouton sert surtout aux tests.';
+  String get statusCollectionInactiveDesc => 'La collecte est en pause.';
 
   @override
   String get statusLabelBufferedSamples => 'Échantillons en mémoire tampon';
@@ -246,8 +245,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get statusCollectionActiveDesc =>
-      'Le service en arrière-plan effectue une mesure toutes les ~60 s (toutes les ~15 s pendant un appel vidéo). Les données restent sur ce téléphone jusqu\'à ce qu\'un envoi soit confirmé (via Wi-Fi, ou via les données mobiles après 2 jours sans Wi-Fi).';
+  String get statusCollectionActiveDesc => 'Mesure de la qualité du réseau en arrière-plan.';
 
   @override
   String get statusBackendNotConfigured =>
@@ -257,11 +255,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statusUploadNow => 'Envoyer maintenant';
 
   @override
-  String get statusMobileDataTitle => 'Envoyer par données mobiles sans Wi-Fi';
+  String get statusMobileDataTitle => 'Envoyer sans Wi-Fi';
 
   @override
-  String get statusMobileDataDesc =>
-      'Si ce téléphone n\'a pas été connecté au Wi-Fi depuis 2 jours, les données en attente sont envoyées par les données mobiles (environ 1 à 2 Mo par mois). Jamais en itinérance, ni lorsque l\'économiseur de données d\'Android est activé.';
+  String get statusMobileDataDesc => 'Après 2 jours sans Wi-Fi (environ 1 à 2 Mo par mois).';
+
+  @override
+  String get statusPrivacyNote =>
+      'Vos messages, votre historique de navigation et vos contacts ne sont jamais collectés.';
 
   @override
   String statusTestCaptureDone(String summary) {

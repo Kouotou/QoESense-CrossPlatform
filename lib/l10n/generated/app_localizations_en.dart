@@ -181,8 +181,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusCollectionTitle => 'Collection';
 
   @override
-  String get statusCollectionInactiveDesc =>
-      'Background collection is off. It normally starts automatically after onboarding - this toggle is mainly for testing.';
+  String get statusCollectionInactiveDesc => 'Collection is paused.';
 
   @override
   String get statusLabelBufferedSamples => 'Buffered samples';
@@ -246,8 +245,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get statusCollectionActiveDesc =>
-      'The background service samples every ~60 s (every ~15 s during a video call). Data stays on this phone until an upload is confirmed (over Wi-Fi, or over mobile data after 2 days without Wi-Fi).';
+  String get statusCollectionActiveDesc => 'Measuring network quality in the background.';
 
   @override
   String get statusBackendNotConfigured =>
@@ -257,11 +255,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusUploadNow => 'Upload now';
 
   @override
-  String get statusMobileDataTitle => 'Upload on mobile data when there\'s no Wi-Fi';
+  String get statusMobileDataTitle => 'Upload without Wi-Fi';
 
   @override
-  String get statusMobileDataDesc =>
-      'If this phone hasn\'t been on Wi-Fi for 2 days, the waiting data is sent over mobile data (about 1 to 2 MB a month). Never while roaming, and not when Android\'s Data Saver is on.';
+  String get statusMobileDataDesc => 'After 2 days without Wi-Fi (about 1–2 MB a month).';
+
+  @override
+  String get statusPrivacyNote => 'Your messages, browsing history and contacts are never collected.';
 
   @override
   String statusTestCaptureDone(String summary) {
