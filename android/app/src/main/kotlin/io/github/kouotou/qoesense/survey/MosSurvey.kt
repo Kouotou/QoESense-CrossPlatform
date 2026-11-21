@@ -44,7 +44,18 @@ object SurveyPresenter {
         }
     }
 
-    private fun showNotification(context: Context, triggerType: String, promptedAtMs: Long) {
+    /** How long a rating notification stays answerable (owner decision, 2026-11-21). */
+    const val NOTIFICATION_WINDOW_MS = 10 * 60 * 1000L
+
+    /**
+     * The participant didn't touch the overlay within 8 s: leave a quiet notification they can
+     * still answer for [NOTIFICATION_WINDOW_MS]. After that it disappears, because the rating
+     * would no longer match the moment.
+     */
+    fun showFollowUp(context: Context, triggerType: String, promptedAtMs: Long) =
+        showNotification(context, triggerType, promptedAtMs, silent = true)
+
+    private fun showNotification(context: Context, triggerType: String, promptedAtMs: Long, silent: Boolean = false) {
         val nm = context.getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(
             NotificationChannel(
@@ -62,9 +73,11 @@ object SurveyPresenter {
         val n = NotificationCompat.Builder(context, CHANNEL_ID)
             .setContentTitle(context.getString(R.string.notif_survey_title))
             .setContentText(context.getString(R.string.notif_survey_text))
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_stat_qoesense)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
+            .setSilent(silent)
+            .setTimeoutAfter(NOTIFICATION_WINDOW_MS)
             .setContentIntent(pending)
             .build()
         nm.notify(NOTIFICATION_ID, n)
@@ -74,7 +87,7 @@ object SurveyPresenter {
 /**
  * Port of the reference MosSurveyActivity + MosSurveyScreen:
  * - a translucent card with the title, five buttons 1–5 and the caption;
- * - auto-dismissed after 8 s;
+ * - auto-dismissed after 8 s; an unanswered pop-up then leaves a 10-minute notification;
  * - outside the recents list.
  *
  * Built with plain Views, so it needs no Compose dependency and no Flutter engine to appear
@@ -83,13 +96,21 @@ object SurveyPresenter {
  */
 class MosSurveyActivity : Activity() {
     private val handler = Handler(Looper.getMainLooper())
-    private val autoDismiss = Runnable { finish() }
+    private var trigger = "PERIODIC"
+    private var promptedAt: Long? = null
+    private var mode = "OVERLAY"
+
+    /** Not answered in 8 s: close, and if this was the pop-up, leave a 10-minute notification. */
+    private val autoDismiss = Runnable {
+        if (mode == "OVERLAY") SurveyPresenter.showFollowUp(this, trigger, promptedAt ?: System.currentTimeMillis())
+        finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val trigger = intent.getStringExtra(EXTRA_TRIGGER) ?: "PERIODIC"
-        val promptedAt = intent.getLongExtra(EXTRA_PROMPTED_AT, -1).takeIf { it > 0 }
-        val mode = intent.getStringExtra(EXTRA_MODE) ?: "OVERLAY"
+        trigger = intent.getStringExtra(EXTRA_TRIGGER) ?: "PERIODIC"
+        promptedAt = intent.getLongExtra(EXTRA_PROMPTED_AT, -1).takeIf { it > 0 }
+        mode = intent.getStringExtra(EXTRA_MODE) ?: "OVERLAY"
         setContentView(buildContent { score -> onScore(score, trigger, promptedAt, mode) })
         handler.postDelayed(autoDismiss, AUTO_DISMISS_MS)
     }

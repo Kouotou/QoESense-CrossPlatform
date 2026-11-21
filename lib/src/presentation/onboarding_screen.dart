@@ -229,14 +229,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> with WidgetsBinding
     ),
   );
 
+  /// The status takes the full width, with its button underneath. Side by side, the long
+  /// (French) button labels squeezed the status into a one-word-per-line column.
   Widget _accessRow(bool granted, String yes, String no, String button, SettingsTarget target) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4),
-    child: Row(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(granted ? Icons.check_circle : Icons.radio_button_unchecked, color: granted ? Colors.green : null),
-        const SizedBox(width: 8),
-        Expanded(child: Text(granted ? yes : no)),
-        if (!granted) TextButton(onPressed: () => _s.control.openSettings(target), child: Text(button)),
+        Row(
+          children: [
+            Icon(granted ? Icons.check_circle : Icons.radio_button_unchecked, color: granted ? Colors.green : null),
+            const SizedBox(width: 12),
+            Expanded(child: Text(granted ? yes : no)),
+          ],
+        ),
+        if (!granted)
+          Padding(
+            padding: const EdgeInsets.only(left: 36, top: 4),
+            child: OutlinedButton(onPressed: () => _s.control.openSettings(target), child: Text(button)),
+          ),
       ],
     ),
   );

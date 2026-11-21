@@ -25,6 +25,13 @@ class CollectorPrefs(context: Context) {
             prefs.edit().putLong(KEY_LAST_UPLOAD, value ?: -1).apply()
         }
 
+    /** "Upload on mobile data when there's no Wi-Fi" (Status screen). On by default. */
+    var mobileDataUploadsAllowed: Boolean
+        get() = prefs.getBoolean(KEY_MOBILE_DATA, true)
+        set(value) {
+            prefs.edit().putBoolean(KEY_MOBILE_DATA, value).commit()
+        }
+
     var consentMs: Long?
         get() = prefs.getLong(KEY_CONSENT, -1).takeIf { it >= 0 }
         set(value) {
@@ -82,5 +89,6 @@ class CollectorPrefs(context: Context) {
         const val KEY_LAST_UPLOAD = "last_upload_ms"
         const val KEY_CONSENT = "consent_ms"
         const val KEY_ANSWERS = "pending_survey_answers"
+        const val KEY_MOBILE_DATA = "mobile_data_uploads_allowed"
     }
 }

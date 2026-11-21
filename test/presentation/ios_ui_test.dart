@@ -58,6 +58,8 @@ class _Control implements CollectorControl {
   Future<void> uploadNow() async => log.add('uploadNow');
   @override
   Future<void> recordConsent(int ms) async => log.add('consent');
+  @override
+  Future<void> setMobileDataUploads(bool allowed) async => log.add('mobileData:$allowed');
 }
 
 class _Perms implements PermissionGateway {

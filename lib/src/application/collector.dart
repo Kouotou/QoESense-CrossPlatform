@@ -24,7 +24,8 @@ abstract interface class RttProbe {
 
 /// Port of the reference TelemetryForegroundService loop body (../QoESense
 /// service/TelemetryForegroundService.kt), step for step:
-/// capture → buffer → periodic check → session-end check → RSRP window → anomaly check;
+/// capture → buffer → (user-activity check →) periodic check → session-end check → RSRP
+/// window → anomaly check;
 /// a failed tick is logged and the loop continues; fixed-rate delay from the tick start.
 /// It runs in the headless Flutter engine that the native foreground service starts.
 class Collector {
@@ -81,7 +82,9 @@ class Collector {
       );
       await buffer.append(sample);
       onSample?.call(sample);
-      await surveys.maybeTriggerPeriodic();
+      // Prompts only while the phone is in use; an event missed while it wasn't goes first.
+      await surveys.observeUserActivity();
+      if (!await surveys.maybeTriggerPending()) await surveys.maybeTriggerPeriodic();
 
       final previous = lastSessionType;
       lastSessionType = sample.appSessionType;

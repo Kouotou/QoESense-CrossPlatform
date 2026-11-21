@@ -49,6 +49,7 @@ class _CollectorPlatform {
     : platform = ClientPlatform.android,
       source = AndroidSampleSource(api),
       presenter = AndroidSurveyPresenter(api),
+      activity = AndroidUserActivity(api),
       answers = AndroidSurveyAnswerQueue(api),
       disable = (() => api.setCollectionEnabled(false)),
       showReminder = api.showUploadReminder,
@@ -59,6 +60,7 @@ class _CollectorPlatform {
     : platform = ClientPlatform.ios,
       source = IosSampleSource(api),
       presenter = IosSurveyPresenter(api),
+      activity = const AlwaysActive(),
       answers = IosSurveyAnswerQueue(api),
       disable = (() => api.setCollectionEnabled(false)),
       showReminder = api.showUploadReminder,
@@ -68,6 +70,9 @@ class _CollectorPlatform {
   final ClientPlatform platform;
   final SampleSource source;
   final SurveyPresenter presenter;
+
+  /// Android asks only while the phone is in use; iOS notifications wait, so no gate.
+  final UserActivity activity;
   final SurveyAnswerQueue answers;
   final Future<void> Function() disable;
 
@@ -107,7 +112,7 @@ Future<void> runCollector() async {
     source: p.source,
     rtt: HttpRttProbe(),
     buffer: buffer,
-    surveys: SurveyScheduler(store: kv, presenter: p.presenter),
+    surveys: SurveyScheduler(store: kv, presenter: p.presenter, activity: p.activity),
     pathAnomalies: p.platform == ClientPlatform.ios ? PathAnomalyDetector() : null,
     onError: (e, st) => _log('tick failed; continuing next interval', e, st),
     onSample: (s) {
@@ -227,7 +232,8 @@ Future<({bool success, int uploaded})> drainBuffer(TelemetryBuffer buffer, Backe
 }
 
 /// Body of the `uploadMain` entrypoint, run in a headless engine by the native Android
-/// UploadWorker (WorkManager: every 3 h, Wi-Fi, battery not low). It always reports back
+/// UploadWorker (WorkManager: every 3 h, battery not low; Wi-Fi, or mobile data after 2 days
+/// without an upload - the worker decides before starting this engine, UploadNetworkPolicy). It always reports back
 /// through uploadRunFinished so the worker can finish. iOS uploads from the collector engine.
 Future<void> runUpload() async {
   WidgetsFlutterBinding.ensureInitialized();

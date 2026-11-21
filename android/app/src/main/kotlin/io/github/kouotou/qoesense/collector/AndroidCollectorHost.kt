@@ -127,6 +127,7 @@ class AndroidCollectorHost(
         collectionEnabled = prefs.collectionEnabled,
         serviceRunning = CollectorService.isRunning,
         lastUploadMs = prefs.lastUploadMs,
+        mobileDataUploadsAllowed = prefs.mobileDataUploadsAllowed,
     )
 
     override fun presentSurvey(triggerType: String) = SurveyPresenter.present(appContext, triggerType)
@@ -159,6 +160,17 @@ class AndroidCollectorHost(
     override fun requestUploadNow() = UploadScheduler.runOnce(appContext)
 
     override fun showUploadReminder(title: String, body: String) = UploadReminderNotifier.show(appContext, title, body)
+
+    /** Screen on and keyguard dismissed: someone is using the phone right now. */
+    override fun isUserActive(): Boolean {
+        val power = appContext.getSystemService(android.os.PowerManager::class.java)
+        val keyguard = appContext.getSystemService(android.app.KeyguardManager::class.java)
+        return power.isInteractive && !keyguard.isKeyguardLocked
+    }
+
+    override fun setMobileDataUploadsAllowed(allowed: Boolean) {
+        prefs.mobileDataUploadsAllowed = allowed
+    }
 
     override fun recordConsent(timestampMs: Long) {
         prefs.consentMs = timestampMs

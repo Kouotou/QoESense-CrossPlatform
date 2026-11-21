@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../l10n/generated/app_localizations.dart';
@@ -109,6 +110,23 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
             ),
           ),
           ListTile(title: Text(l10n.statusLabelLastUpload), trailing: Text(_lastUpload(l10n, _status?.lastUploadMs))),
+          if (_status?.mobileDataUploads case final mobileData?)
+            SwitchListTile(
+              key: const ValueKey('mobileData'),
+              title: Text(l10n.statusMobileDataTitle),
+              subtitle: Text(l10n.statusMobileDataDesc),
+              value: mobileData,
+              onChanged: _busy
+                  ? null
+                  : (v) => _run(() async {
+                      await _s.control.setMobileDataUploads(v);
+                      return null;
+                    }),
+            ),
+          ListTile(
+            leading: const Icon(Icons.lock_outline),
+            title: Text(l10n.statusPrivacyNote, style: Theme.of(context).textTheme.bodySmall),
+          ),
           ListTile(
             title: Text(l10n.statusLabelAnonymousId),
             subtitle: SelectableText(_deviceId ?? l10n.statusAnonymousIdPending),
@@ -119,27 +137,30 @@ class _StatusScreenState extends State<StatusScreen> with WidgetsBindingObserver
               spacing: 8,
               runSpacing: 8,
               children: [
-                OutlinedButton(
-                  key: const ValueKey('testCapture'),
-                  onPressed: _busy
-                      ? null
-                      : () => _run(() async {
-                          final s = await _s.control.runTestCapture();
-                          return l10n.statusTestCaptureDone(
-                            '${s.networkType ?? '-'} · RSRP ${s.rsrp ?? '-'} · RTT ${s.rttMs ?? '-'} ms',
-                          );
-                        }),
-                  child: Text(l10n.statusButtonRunTest),
-                ),
-                OutlinedButton(
-                  onPressed: _busy
-                      ? null
-                      : () => _run(() async {
-                          await _s.control.presentTestSurvey();
-                          return l10n.statusTestSurveySent;
-                        }),
-                  child: Text(l10n.statusButtonSendTestSurvey),
-                ),
+                // The two test buttons are for the research team: not in the store build.
+                if (!kReleaseMode)
+                  OutlinedButton(
+                    key: const ValueKey('testCapture'),
+                    onPressed: _busy
+                        ? null
+                        : () => _run(() async {
+                            final s = await _s.control.runTestCapture();
+                            return l10n.statusTestCaptureDone(
+                              '${s.networkType ?? '-'} · RSRP ${s.rsrp ?? '-'} · RTT ${s.rttMs ?? '-'} ms',
+                            );
+                          }),
+                    child: Text(l10n.statusButtonRunTest),
+                  ),
+                if (!kReleaseMode)
+                  OutlinedButton(
+                    onPressed: _busy
+                        ? null
+                        : () => _run(() async {
+                            await _s.control.presentTestSurvey();
+                            return l10n.statusTestSurveySent;
+                          }),
+                    child: Text(l10n.statusButtonSendTestSurvey),
+                  ),
                 OutlinedButton(
                   onPressed: _busy || !_s.backend.isConfigured
                       ? null

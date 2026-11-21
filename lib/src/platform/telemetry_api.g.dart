@@ -601,6 +601,7 @@ class CollectorStatusMessage {
     required this.collectionEnabled,
     required this.serviceRunning,
     this.lastUploadMs,
+    this.mobileDataUploadsAllowed,
   });
 
   bool collectionEnabled;
@@ -609,11 +610,16 @@ class CollectorStatusMessage {
 
   int? lastUploadMs;
 
+  /// Android: whether uploads may use mobile data after 2 days without Wi-Fi (default true).
+  /// Null on iOS, which uploads on Wi-Fi only.
+  bool? mobileDataUploadsAllowed;
+
   List<Object?> _toList() {
     return <Object?>[
       collectionEnabled,
       serviceRunning,
       lastUploadMs,
+      mobileDataUploadsAllowed,
     ];
   }
 
@@ -626,6 +632,7 @@ class CollectorStatusMessage {
       collectionEnabled: result[0]! as bool,
       serviceRunning: result[1]! as bool,
       lastUploadMs: result[2] as int?,
+      mobileDataUploadsAllowed: result[3] as bool?,
     );
   }
 
@@ -638,7 +645,7 @@ class CollectorStatusMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(collectionEnabled, other.collectionEnabled) && _deepEquals(serviceRunning, other.serviceRunning) && _deepEquals(lastUploadMs, other.lastUploadMs);
+    return _deepEquals(collectionEnabled, other.collectionEnabled) && _deepEquals(serviceRunning, other.serviceRunning) && _deepEquals(lastUploadMs, other.lastUploadMs) && _deepEquals(mobileDataUploadsAllowed, other.mobileDataUploadsAllowed);
   }
 
   @override
@@ -647,7 +654,7 @@ class CollectorStatusMessage {
 
   @override
   String toString() {
-    return 'CollectorStatusMessage(collectionEnabled: $collectionEnabled, serviceRunning: $serviceRunning, lastUploadMs: $lastUploadMs)';
+    return 'CollectorStatusMessage(collectionEnabled: $collectionEnabled, serviceRunning: $serviceRunning, lastUploadMs: $lastUploadMs, mobileDataUploadsAllowed: $mobileDataUploadsAllowed)';
   }
 }
 
@@ -1005,7 +1012,7 @@ class AndroidCollectorApi {
     return pigeonVar_replyValue! as String;
   }
 
-  /// One-off upload now (same constraints as the 3-hourly job).
+  /// One-off upload now: Wi-Fi, or mobile data if the participant allows it (never roaming).
   Future<void> requestUploadNow() async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.requestUploadNow$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
@@ -1051,6 +1058,45 @@ class AndroidCollectorApi {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[title, body]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  /// True while the screen is on and the phone unlocked: the survey only asks then.
+  Future<bool> isUserActive() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.isUserActive$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as bool;
+  }
+
+  /// The participant's "upload on mobile data when there's no Wi-Fi" switch.
+  Future<void> setMobileDataUploadsAllowed(bool allowed) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.setMobileDataUploadsAllowed$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[allowed]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(

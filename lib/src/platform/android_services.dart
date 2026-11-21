@@ -21,7 +21,12 @@ class AndroidCollectorControl implements CollectorControl {
   @override
   Future<CollectorStatus> status() async {
     final s = await _api.status();
-    return CollectorStatus(enabled: s.collectionEnabled, running: s.serviceRunning, lastUploadMs: s.lastUploadMs);
+    return CollectorStatus(
+      enabled: s.collectionEnabled,
+      running: s.serviceRunning,
+      lastUploadMs: s.lastUploadMs,
+      mobileDataUploads: s.mobileDataUploadsAllowed ?? true,
+    );
   }
 
   @override
@@ -62,6 +67,9 @@ class AndroidCollectorControl implements CollectorControl {
 
   @override
   Future<void> recordConsent(int timestampMs) => _api.recordConsent(timestampMs);
+
+  @override
+  Future<void> setMobileDataUploads(bool allowed) => _api.setMobileDataUploadsAllowed(allowed);
 }
 
 class PermissionHandlerGateway implements PermissionGateway {

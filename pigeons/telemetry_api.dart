@@ -213,6 +213,10 @@ class CollectorStatusMessage {
   bool collectionEnabled;
   bool serviceRunning;
   int? lastUploadMs;
+
+  /// Android: whether uploads may use mobile data after 2 days without Wi-Fi (default true).
+  /// Null on iOS, which uploads on Wi-Fi only.
+  bool? mobileDataUploadsAllowed;
 }
 
 @HostApi()
@@ -247,13 +251,19 @@ abstract class AndroidCollectorApi {
   /// vivo, huawei, samsung or other.
   String autoStartBrand();
 
-  /// One-off upload now (same constraints as the 3-hourly job).
+  /// One-off upload now: Wi-Fi, or mobile data if the participant allows it (never roaming).
   void requestUploadNow();
 
   void recordConsent(int timestampMs);
 
   /// Posts the "no upload for 3 days" reminder (texts localized by Dart).
   void showUploadReminder(String title, String body);
+
+  /// True while the screen is on and the phone unlocked: the survey only asks then.
+  bool isUserActive();
+
+  /// The participant's "upload on mobile data when there's no Wi-Fi" switch.
+  void setMobileDataUploadsAllowed(bool allowed);
 }
 
 /// Native -> Dart events for the collector engine.

@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -32,7 +31,7 @@ import kotlinx.coroutines.launch
 
 /**
  * The native foreground service. Same lifecycle as the reference TelemetryForegroundService:
- * - type dataSync|location;
+ * - type location (dataSync only as a fallback, see [ForegroundTypes]);
  * - a low-priority, silent, ongoing notification;
  * - START_STICKY, so the system restarts it after a kill.
  *
@@ -54,7 +53,13 @@ class CollectorService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        ServiceCompat.startForeground(this, NOTIFICATION_ID, buildNotification(), foregroundTypes())
+        if (!enterForeground()) {
+            // Android refused every type (e.g. Android 15+ after the dataSync 6-hour budget, or a
+            // background start it doesn't allow). Stop cleanly instead of crashing; the watchdog
+            // alarm retries, and opening the app restarts collection.
+            stopSelf()
+            return START_NOT_STICKY
+        }
         isRunning = true
         if (engine == null) startEngine()
         WakeAlarm.schedule(this)
@@ -63,15 +68,31 @@ class CollectorService : Service() {
     }
 
     /**
-     * On API 34+, the location type may only be requested while location is granted,
-     * otherwise startForeground throws. Without it, collection continues and the location
-     * fields come back PERMISSION_DENIED.
+     * Tries [ForegroundTypes.candidates] in order. On API 34+ the location type throws unless
+     * location is granted (and, for a background start, "Allow all the time"); without it,
+     * collection continues and the location fields come back PERMISSION_DENIED.
      */
-    private fun foregroundTypes(): Int {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
-        var types = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-        if (PermissionUtils.hasForegroundLocation(this)) types = types or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-        return types
+    private fun enterForeground(): Boolean {
+        val hasLocation = PermissionUtils.hasForegroundLocation(this)
+        for (type in ForegroundTypes.candidates(Build.VERSION.SDK_INT, hasLocation)) {
+            try {
+                ServiceCompat.startForeground(this, NOTIFICATION_ID, buildNotification(), type)
+                Log.i(TAG, "foreground with type $type")
+                return true
+            } catch (e: Exception) { // SecurityException, ForegroundServiceStartNotAllowedException
+                Log.w(TAG, "foreground type $type refused", e)
+            }
+        }
+        return false
+    }
+
+    /**
+     * Android 15+: a dataSync service reached its 6-hour background budget. It must stop within
+     * seconds or the app crashes. Only reached when running as the dataSync fallback.
+     */
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        Log.w(TAG, "foreground service time limit reached (type $fgsType); stopping until the app is opened")
+        stopSelf()
     }
 
     private fun startEngine() {
@@ -109,7 +130,7 @@ class CollectorService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.notif_collection_title))
             .setContentText(getString(R.string.notif_collection_text))
-            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setSmallIcon(R.drawable.ic_stat_qoesense)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setContentIntent(open)
@@ -140,8 +161,13 @@ class CollectorService : Service() {
             }
         }
 
+        /** Never throws: a refused background start (Android 12+/15+ limits) is logged, not fatal. */
         fun start(context: Context) {
-            ContextCompat.startForegroundService(context, Intent(context, CollectorService::class.java))
+            try {
+                ContextCompat.startForegroundService(context, Intent(context, CollectorService::class.java))
+            } catch (e: Exception) {
+                Log.w(TAG, "collector start refused", e)
+            }
         }
 
         fun stop(context: Context) {

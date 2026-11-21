@@ -1,6 +1,9 @@
 package io.github.kouotou.qoesense.upload
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -13,11 +16,13 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.github.kouotou.qoesense.AndroidCollectorApi
 import io.github.kouotou.qoesense.collector.AndroidCollectorHost
+import io.github.kouotou.qoesense.collector.CollectorPrefs
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -25,9 +30,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * Port of the reference service/upload/UploadScheduler.kt, with the same constraints:
- * unmetered network (Wi-Fi), battery not low, exponential backoff, unique periodic work.
- * The period is 3 h instead of the reference's hourly (see schedule()).
+ * Port of the reference service/upload/UploadScheduler.kt: battery not low, exponential
+ * backoff, unique periodic work, every 3 h instead of hourly (see schedule()).
+ *
+ * Network (2026-11-21): the reference ran on unmetered networks only. The job now runs on any
+ * non-roaming network, and the worker applies [UploadNetworkPolicy]: Wi-Fi always, mobile data
+ * only after 2 days without an upload (or on "Upload now"), if the participant allows it.
  */
 object UploadScheduler {
     private const val WORK_NAME = "telemetry_upload"
@@ -35,7 +43,7 @@ object UploadScheduler {
     const val UPLOAD_PERIOD_HOURS = 3L
 
     private val constraints = Constraints.Builder()
-        .setRequiredNetworkType(NetworkType.UNMETERED)
+        .setRequiredNetworkType(NetworkType.NOT_ROAMING)
         .setRequiresBatteryNotLow(true)
         .build()
 
@@ -59,7 +67,10 @@ object UploadScheduler {
      * found on the test phone on 2026-11-14.
      */
     fun runOnce(context: Context) {
-        val request = OneTimeWorkRequestBuilder<UploadWorker>().setConstraints(constraints).build()
+        val request = OneTimeWorkRequestBuilder<UploadWorker>()
+            .setConstraints(constraints)
+            .setInputData(workDataOf(UploadWorker.KEY_USER_REQUESTED to true))
+            .build()
         WorkManager.getInstance(context).enqueueUniqueWork(ONE_OFF_NAME, ExistingWorkPolicy.REPLACE, request)
     }
 
@@ -86,6 +97,10 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
             return Result.success()
         }
         try {
+            if (!networkAllowed()) {
+                Log.i(TAG, "on mobile data and not due yet (or not allowed) - skipping this run")
+                return Result.success()
+            }
             return drainOnce()
         } finally {
             RUNNING.set(false)
@@ -120,8 +135,38 @@ class UploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker
         }
     }
 
-    private companion object {
-        const val TAG = "QoESenseUploadWorker"
-        val RUNNING = java.util.concurrent.atomic.AtomicBoolean(false)
+    private fun networkAllowed(): Boolean {
+        val prefs = CollectorPrefs(applicationContext)
+        return UploadNetworkPolicy.mayUpload(
+            network = currentNetwork(applicationContext) ?: return false,
+            mobileDataAllowed = prefs.mobileDataUploadsAllowed,
+            userRequested = inputData.getBoolean(KEY_USER_REQUESTED, false),
+            lastUploadMs = prefs.lastUploadMs,
+            consentMs = prefs.consentMs,
+            nowMs = System.currentTimeMillis(),
+        )
+    }
+
+    companion object {
+        const val KEY_USER_REQUESTED = "user_requested"
+        private const val TAG = "QoESenseUploadWorker"
+        private val RUNNING = java.util.concurrent.atomic.AtomicBoolean(false)
+
+        /** The active network as the policy sees it; null when there is none. */
+        fun currentNetwork(context: Context): UploadNetworkPolicy.Network? {
+            val cm = context.getSystemService(ConnectivityManager::class.java)
+            val caps = cm.getNetworkCapabilities(cm.activeNetwork ?: return null) ?: return null
+            val unmetered = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED) ||
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED))
+            val roaming = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)
+            } else {
+                @Suppress("DEPRECATION")
+                cm.activeNetworkInfo?.isRoaming == true
+            }
+            val dataSaver = cm.restrictBackgroundStatus == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED
+            return UploadNetworkPolicy.Network(unmetered = unmetered, roaming = roaming, dataSaverOn = dataSaver)
+        }
     }
 }

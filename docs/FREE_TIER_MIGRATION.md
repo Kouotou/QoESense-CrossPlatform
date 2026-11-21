@@ -108,16 +108,20 @@ rows, and they are still stored.
 
 ```powershell
 cd C:\Users\Ahmad\AndroidStudioProjects\QoESense\functions
-node tools\export_firestore.js --exclude UD1DfRM9K9Wow7GaL8BrGfbSFiG2,0y5ZtaFlJbMVBMyigwzN6TrKEHq1
+node tools\export_firestore.js --exclude UD1DfRM9K9Wow7GaL8BrGfbSFiG2,0y5ZtaFlJbMVBMyigwzN6TrKEHq1,CtfZDEkcvqYAyjB9B6160BRpPQt1,DZsd6fEiQNPtkICrI2oOoecvRkG2,CnptUH8MGZMjcMURX36EF9Hr9xe2
 # Option A, once the study runs at scale (deletes exported batch documents afterwards):
-node tools\export_firestore.js --exclude UD1DfRM9K9Wow7GaL8BrGfbSFiG2,0y5ZtaFlJbMVBMyigwzN6TrKEHq1 --delete-exported
+node tools\export_firestore.js --exclude UD1DfRM9K9Wow7GaL8BrGfbSFiG2,0y5ZtaFlJbMVBMyigwzN6TrKEHq1,CtfZDEkcvqYAyjB9B6160BRpPQt1,DZsd6fEiQNPtkICrI2oOoecvRkG2,CnptUH8MGZMjcMURX36EF9Hr9xe2 --delete-exported
 # Files: C:\Users\<you>\QoESense-exports\samples.csv, mos_responses.csv (+ .ndjson)
 # Optional, free BigQuery copy:
 bq load --location=africa-south1 --source_format=NEWLINE_DELIMITED_JSON --replace qoesense_free_export.samples C:\Users\Ahmad\QoESense-exports\samples.ndjson <schema.json>
 ```
 
 It needs the Google login already set up on this PC (`gcloud auth application-default login`).
-The two `--exclude` IDs are the **test devices**: the friend's iPhone and the Android test phone.
+The `--exclude` IDs are the **test devices**: the friend's iPhone, and the Android test phone
+(Infinix) under each identity it has had. It got a new anonymous ID with each fresh install of
+the release build on 2026-11-21: `Ctf…` (13:29), `DZs…` (13:38) and `Cnpt…` (13:43, current).
+The scheduled task passes the same list with `-Exclude`. **Add any future test install's ID
+here and to the task's arguments** (Task Scheduler → the task → Actions → Edit).
 
 **`--delete-exported` (off by default).** It runs only after the export files and
 `checkpoint.json` are written and flushed to disk. It then deletes each device's batch
