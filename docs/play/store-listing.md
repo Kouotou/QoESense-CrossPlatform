@@ -8,7 +8,7 @@ with the texts below.
 **App name** (max 30): `QoESense`
 
 **Short description** (max 80):
-`Research app: measures mobile network quality and asks how your apps felt.`
+`Research app measuring mobile network quality and your Internet experience.`
 
 **Full description** (max 4,000):
 
@@ -45,14 +45,14 @@ Participants should be 18 or older. Questions: bilalkouotou@gmail.com
 ```
 
 **App category:** Tools · **Tags:** choose "Network", "Research" if offered
-**Contact email:** bilalkouotou@gmail.com · **Website:** the privacy-policy page's site (optional)
+**Contact email:** bilalkouotou@gmail.com · **Website:** https://qoesense.vercel.app
 
 ## Français
 
 **Nom** : `QoESense`
 
 **Description courte** (80 max) :
-`Appli de recherche : mesure la qualité du réseau mobile et votre ressenti.`
+`Appli de recherche : qualité du réseau mobile et votre expérience Internet.`
 
 **Description complète** :
 
