@@ -1,0 +1,29 @@
+Language: French (France) - fr-FR
+
+App name:
+QoESense
+
+Short description:
+Appli de recherche : qualité du réseau mobile et votre expérience Internet.
+
+Full description:
+QoESense est une application de recherche issue d'un projet de Master à l'Université de Buea (Cameroun). Elle étudie l'effet des conditions du réseau mobile sur votre expérience des applications du quotidien comme WhatsApp, Facebook, Instagram, TikTok et les appels vidéo, afin de pouvoir un jour prédire cette expérience à partir des seules mesures du réseau.
+
+COMMENT ÇA MARCHE
+Une fois votre accord donné, QoESense fonctionne discrètement en arrière-plan :
+• Elle enregistre les mesures du signal 4G/LTE (force et qualité), le type de connexion et votre position environ une fois par minute, plus souvent pendant un appel vidéo.
+• De temps en temps, elle pose une seule question : « Comment s'est passée votre expérience Internet ces dernières minutes ? » Touchez une note de 1 à 5 et elle disparaît.
+• Elle envoie ses données en Wi-Fi. Sans Wi-Fi pendant 2 jours, elle envoie les données en attente par les données mobiles : environ 1 à 2 Mo par mois, jamais en itinérance, et vous pouvez le désactiver.
+
+VOTRE VIE PRIVÉE
+• Aucun nom, numéro ni e-mail n'est demandé. Chaque installation reçoit un identifiant anonyme aléatoire.
+• Elle ne lit jamais vos messages, appels, photos, contacts, historique ni ce que vous tapez.
+• Pour savoir quand un réseau social ou un appel vidéo est utilisé, elle regarde quelle application est à l'écran, jamais son contenu.
+• Les données servent uniquement à la recherche académique, jamais à la publicité, et ne sont jamais vendues.
+• Vous pouvez arrêter à tout moment depuis l'application, ou la désinstaller.
+
+AUTORISATIONS
+Localisation (y compris en arrière-plan : Android ne fournit les mesures du signal cellulaire qu'aux applications ayant accès à la localisation), accès aux données d'utilisation (application à l'écran), affichage par-dessus les autres applications (la question de notation), notifications et exemption d'optimisation de la batterie. Chaque autorisation est expliquée dans l'application avant d'être demandée.
+
+Les participants doivent avoir 18 ans ou plus. Questions : bilalkouotou@gmail.com
+Site web : https://qoesense.vercel.app
