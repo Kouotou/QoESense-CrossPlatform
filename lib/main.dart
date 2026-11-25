@@ -42,6 +42,7 @@ Future<void> main() async {
       buffer: buffer,
       settings: DriftKeyValueStore(db),
       backend: backend,
+      backgroundPopupStatus: AndroidCollectorApi().backgroundPopupStatus,
     );
   }
   runApp(QoESenseApp(services: services));

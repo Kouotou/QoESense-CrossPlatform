@@ -882,7 +882,8 @@ protocol AndroidCollectorApi {
   /// Called by the headless upload entrypoint when its run ends.
   func uploadRunFinished(success: Bool, uploadedRows: Int64) throws
   /// Opens a system settings screen: usageAccess, overlay, batteryOptimization, autoStart
-  /// (the manufacturer's auto-start screen, falling back to appDetails) or appDetails.
+  /// (the manufacturer's auto-start screen, falling back to appDetails), backgroundPopup
+  /// (Xiaomi's permission editor, falling back to appDetails) or appDetails.
   func openSystemSettings(target: String) throws
   /// The manufacturer family for the auto-start instructions: transsion, xiaomi, oppo,
   /// vivo, huawei, samsung or other.
@@ -896,6 +897,10 @@ protocol AndroidCollectorApi {
   func isUserActive() throws -> Bool
   /// The participant's "upload on mobile data when there's no Wi-Fi" switch.
   func setMobileDataUploadsAllowed(allowed: Bool) throws
+  /// Xiaomi's extra "show pop-up windows while running in the background" permission, which
+  /// silently blocks the rating pop-up even with overlay access: allowed, denied,
+  /// notApplicable (other brands) or unknown (the check failed).
+  func backgroundPopupStatus() throws -> String
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -1017,7 +1022,8 @@ class AndroidCollectorApiSetup {
       uploadRunFinishedChannel.setMessageHandler(nil)
     }
     /// Opens a system settings screen: usageAccess, overlay, batteryOptimization, autoStart
-    /// (the manufacturer's auto-start screen, falling back to appDetails) or appDetails.
+    /// (the manufacturer's auto-start screen, falling back to appDetails), backgroundPopup
+    /// (Xiaomi's permission editor, falling back to appDetails) or appDetails.
     let openSystemSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.openSystemSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       openSystemSettingsChannel.setMessageHandler { message, reply in
@@ -1123,6 +1129,22 @@ class AndroidCollectorApiSetup {
       }
     } else {
       setMobileDataUploadsAllowedChannel.setMessageHandler(nil)
+    }
+    /// Xiaomi's extra "show pop-up windows while running in the background" permission, which
+    /// silently blocks the rating pop-up even with overlay access: allowed, denied,
+    /// notApplicable (other brands) or unknown (the check failed).
+    let backgroundPopupStatusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.qoesense.AndroidCollectorApi.backgroundPopupStatus\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      backgroundPopupStatusChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.backgroundPopupStatus()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      backgroundPopupStatusChannel.setMessageHandler(nil)
     }
   }
 }

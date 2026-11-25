@@ -155,6 +155,17 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('finish')));
     await tester.pumpAndSettle();
     expect(log, ['consent', 'perm:whenInUse', 'perm:always+notifications', 'settings:appDetails', 'collection:true']);
+    // The welcome check lists only what exists on iOS.
+    expect(find.text('Welcome to QoESense'), findsOneWidget);
+    expect(find.byKey(const ValueKey('missing:overlay')), findsNothing);
+    expect(find.byKey(const ValueKey('missing:usageAccess')), findsNothing);
+    final next = find.byKey(const ValueKey('welcomeSkip')).evaluate().isEmpty
+        ? find.byKey(const ValueKey('welcomeContinue'))
+        : find.byKey(const ValueKey('welcomeSkip'));
+    await tester.ensureVisible(next);
+    await tester.pumpAndSettle();
+    await tester.tap(next);
+    await tester.pumpAndSettle();
     expect(find.text('Collection'), findsOneWidget);
   });
 

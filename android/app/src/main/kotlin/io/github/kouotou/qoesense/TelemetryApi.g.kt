@@ -895,7 +895,8 @@ interface AndroidCollectorApi {
   fun uploadRunFinished(success: Boolean, uploadedRows: Long)
   /**
    * Opens a system settings screen: usageAccess, overlay, batteryOptimization, autoStart
-   * (the manufacturer's auto-start screen, falling back to appDetails) or appDetails.
+   * (the manufacturer's auto-start screen, falling back to appDetails), backgroundPopup
+   * (Xiaomi's permission editor, falling back to appDetails) or appDetails.
    */
   fun openSystemSettings(target: String)
   /**
@@ -912,6 +913,12 @@ interface AndroidCollectorApi {
   fun isUserActive(): Boolean
   /** The participant's "upload on mobile data when there's no Wi-Fi" switch. */
   fun setMobileDataUploadsAllowed(allowed: Boolean)
+  /**
+   * Xiaomi's extra "show pop-up windows while running in the background" permission, which
+   * silently blocks the rating pop-up even with overlay access: allowed, denied,
+   * notApplicable (other brands) or unknown (the check failed).
+   */
+  fun backgroundPopupStatus(): String
 
   companion object {
     /** The codec used by AndroidCollectorApi. */
@@ -1155,6 +1162,21 @@ interface AndroidCollectorApi {
             val wrapped: List<Any?> = try {
               api.setMobileDataUploadsAllowed(allowedArg)
               listOf(null)
+            } catch (exception: Throwable) {
+              TelemetryApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.qoesense.AndroidCollectorApi.backgroundPopupStatus$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.backgroundPopupStatus())
             } catch (exception: Throwable) {
               TelemetryApiPigeonUtils.wrapError(exception)
             }

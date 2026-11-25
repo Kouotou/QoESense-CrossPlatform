@@ -6,6 +6,9 @@ abstract final class SettingsKeys {
 
   static const onboardingComplete = 'onboarding.complete';
 
+  /// The welcome / setup check after onboarding was seen and closed (WelcomeCheckScreen).
+  static const welcomeCheckSeen = 'onboarding.welcomeCheckSeen';
+
   /// Prefix for the stored AppInfo fields (see appInfoToMap).
   static const appInfoPrefix = 'app.';
 

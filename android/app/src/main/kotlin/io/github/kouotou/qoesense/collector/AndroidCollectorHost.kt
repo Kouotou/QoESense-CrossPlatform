@@ -150,6 +150,7 @@ class AndroidCollectorHost(
             @Suppress("BatteryLife")
             "batteryOptimization" -> Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pkg)
             "autoStart" -> return AutoStart.open(appContext)
+            "backgroundPopup" -> return BackgroundPopups.open(appContext)
             else -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkg)
         }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         appContext.startActivity(intent)
@@ -167,6 +168,8 @@ class AndroidCollectorHost(
         val keyguard = appContext.getSystemService(android.app.KeyguardManager::class.java)
         return power.isInteractive && !keyguard.isKeyguardLocked
     }
+
+    override fun backgroundPopupStatus(): String = BackgroundPopups.status(appContext)
 
     override fun setMobileDataUploadsAllowed(allowed: Boolean) {
         prefs.mobileDataUploadsAllowed = allowed

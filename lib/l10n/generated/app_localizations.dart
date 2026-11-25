@@ -817,6 +817,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open auto-start settings'**
   String get autoStartButton;
+
+  /// No description provided for @welcomeCheckHello.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome!'**
+  String get welcomeCheckHello;
+
+  /// No description provided for @welcomeCheckAlmost.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost there!'**
+  String get welcomeCheckAlmost;
+
+  /// No description provided for @welcomeCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to QoESense'**
+  String get welcomeCheckTitle;
+
+  /// No description provided for @welcomeCheckChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking that everything is set up…'**
+  String get welcomeCheckChecking;
+
+  /// No description provided for @welcomeCheckDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, you are now done with all the steps.'**
+  String get welcomeCheckDone;
+
+  /// No description provided for @welcomeCheckDoneDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'QoESense now works quietly in the background. A few times a day it will ask how your Internet was in the last few minutes.'**
+  String get welcomeCheckDoneDetail;
+
+  /// No description provided for @welcomeCheckContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get welcomeCheckContinue;
+
+  /// No description provided for @welcomeCheckMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A few settings are still not allowed'**
+  String get welcomeCheckMissingTitle;
+
+  /// No description provided for @welcomeCheckMissingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The study needs them to work. Tap Allow next to each one, then come back here.'**
+  String get welcomeCheckMissingBody;
+
+  /// No description provided for @welcomeCheckAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get welcomeCheckAllow;
+
+  /// No description provided for @welcomeCheckSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue anyway'**
+  String get welcomeCheckSkip;
+
+  /// No description provided for @checkLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location (precise)'**
+  String get checkLocation;
+
+  /// No description provided for @checkPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone access (network information)'**
+  String get checkPhone;
+
+  /// No description provided for @checkBackgroundLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location all the time'**
+  String get checkBackgroundLocation;
+
+  /// No description provided for @checkBackgroundLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose \"Allow all the time\".'**
+  String get checkBackgroundLocationHint;
+
+  /// No description provided for @checkNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get checkNotifications;
+
+  /// No description provided for @checkUsageAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage access'**
+  String get checkUsageAccess;
+
+  /// No description provided for @checkBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery: no restrictions'**
+  String get checkBattery;
+
+  /// No description provided for @checkOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display over other apps (for the rating question)'**
+  String get checkOverlay;
+
+  /// No description provided for @checkBackgroundPopups.
+  ///
+  /// In en, this message translates to:
+  /// **'Pop-up windows in the background (Xiaomi)'**
+  String get checkBackgroundPopups;
+
+  /// No description provided for @checkBackgroundPopupsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open \"Display pop-up windows while running in the background\" and choose Allow.'**
+  String get checkBackgroundPopupsHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

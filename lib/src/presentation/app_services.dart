@@ -6,7 +6,7 @@ import '../domain/enums.dart';
 import '../domain/telemetry_sample.dart';
 import '../platform/capability_source.dart';
 
-enum SettingsTarget { usageAccess, overlay, batteryOptimization, autoStart, appDetails }
+enum SettingsTarget { usageAccess, overlay, batteryOptimization, autoStart, backgroundPopup, appDetails }
 
 /// Manufacturer families whose system stops apps from restarting on their own, each with
 /// its own auto-start screen and instructions (report alignment, 2026-11-14). Android only.
@@ -92,6 +92,7 @@ class AppServices {
     required this.backend,
     this.platform = ClientPlatform.android,
     this.surveyInbox,
+    this.backgroundPopupStatus,
   });
 
   final CapabilitySource capabilities;
@@ -106,4 +107,8 @@ class AppServices {
 
   /// iOS only (null on Android).
   final SurveyInbox? surveyInbox;
+
+  /// Android: Xiaomi's background pop-up permission (allowed, denied, notApplicable or
+  /// unknown). Null on iOS.
+  final Future<String> Function()? backgroundPopupStatus;
 }

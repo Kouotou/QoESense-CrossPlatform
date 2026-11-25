@@ -244,7 +244,8 @@ abstract class AndroidCollectorApi {
   void uploadRunFinished(bool success, int uploadedRows);
 
   /// Opens a system settings screen: usageAccess, overlay, batteryOptimization, autoStart
-  /// (the manufacturer's auto-start screen, falling back to appDetails) or appDetails.
+  /// (the manufacturer's auto-start screen, falling back to appDetails), backgroundPopup
+  /// (Xiaomi's permission editor, falling back to appDetails) or appDetails.
   void openSystemSettings(String target);
 
   /// The manufacturer family for the auto-start instructions: transsion, xiaomi, oppo,
@@ -264,6 +265,11 @@ abstract class AndroidCollectorApi {
 
   /// The participant's "upload on mobile data when there's no Wi-Fi" switch.
   void setMobileDataUploadsAllowed(bool allowed);
+
+  /// Xiaomi's extra "show pop-up windows while running in the background" permission, which
+  /// silently blocks the rating pop-up even with overlay access: allowed, denied,
+  /// notApplicable (other brands) or unknown (the check failed).
+  String backgroundPopupStatus();
 }
 
 /// Native -> Dart events for the collector engine.

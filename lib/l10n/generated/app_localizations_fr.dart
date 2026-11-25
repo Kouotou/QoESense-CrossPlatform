@@ -401,4 +401,70 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get autoStartButton => 'Ouvrir les réglages de démarrage automatique';
+
+  @override
+  String get welcomeCheckHello => 'Bienvenue !';
+
+  @override
+  String get welcomeCheckAlmost => 'Presque fini !';
+
+  @override
+  String get welcomeCheckTitle => 'Bienvenue dans QoESense';
+
+  @override
+  String get welcomeCheckChecking => 'Vérification de vos réglages…';
+
+  @override
+  String get welcomeCheckDone => 'Bienvenue, vous avez terminé toutes les étapes.';
+
+  @override
+  String get welcomeCheckDoneDetail =>
+      'QoESense fonctionne maintenant discrètement en arrière-plan. Quelques fois par jour, elle vous demandera comment s\'est passée votre expérience Internet ces dernières minutes.';
+
+  @override
+  String get welcomeCheckContinue => 'Continuer';
+
+  @override
+  String get welcomeCheckMissingTitle => 'Certains réglages ne sont pas encore autorisés';
+
+  @override
+  String get welcomeCheckMissingBody =>
+      'L\'étude en a besoin pour fonctionner. Touchez Autoriser à côté de chacun, puis revenez ici.';
+
+  @override
+  String get welcomeCheckAllow => 'Autoriser';
+
+  @override
+  String get welcomeCheckSkip => 'Continuer quand même';
+
+  @override
+  String get checkLocation => 'Localisation (précise)';
+
+  @override
+  String get checkPhone => 'Accès au téléphone (informations réseau)';
+
+  @override
+  String get checkBackgroundLocation => 'Localisation en permanence';
+
+  @override
+  String get checkBackgroundLocationHint => 'Choisissez « Toujours autoriser ».';
+
+  @override
+  String get checkNotifications => 'Notifications';
+
+  @override
+  String get checkUsageAccess => 'Accès aux données d\'utilisation';
+
+  @override
+  String get checkBattery => 'Batterie : aucune restriction';
+
+  @override
+  String get checkOverlay => 'Affichage par-dessus les autres applis (pour la question de notation)';
+
+  @override
+  String get checkBackgroundPopups => 'Fenêtres pop-up en arrière-plan (Xiaomi)';
+
+  @override
+  String get checkBackgroundPopupsHint =>
+      'Ouvrez « Afficher les fenêtres pop-up lors de l\'exécution en arrière-plan » et choisissez Autoriser.';
 }

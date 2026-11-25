@@ -972,7 +972,8 @@ class AndroidCollectorApi {
   }
 
   /// Opens a system settings screen: usageAccess, overlay, batteryOptimization, autoStart
-  /// (the manufacturer's auto-start screen, falling back to appDetails) or appDetails.
+  /// (the manufacturer's auto-start screen, falling back to appDetails), backgroundPopup
+  /// (Xiaomi's permission editor, falling back to appDetails) or appDetails.
   Future<void> openSystemSettings(String target) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.openSystemSettings$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
@@ -1105,6 +1106,28 @@ class AndroidCollectorApi {
         isNullValid: true,
     )
     ;
+  }
+
+  /// Xiaomi's extra "show pop-up windows while running in the background" permission, which
+  /// silently blocks the rating pop-up even with overlay access: allowed, denied,
+  /// notApplicable (other brands) or unknown (the check failed).
+  Future<String> backgroundPopupStatus() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.qoesense.AndroidCollectorApi.backgroundPopupStatus$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as String;
   }
 }
 

@@ -400,4 +400,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autoStartButton => 'Open auto-start settings';
+
+  @override
+  String get welcomeCheckHello => 'Welcome!';
+
+  @override
+  String get welcomeCheckAlmost => 'Almost there!';
+
+  @override
+  String get welcomeCheckTitle => 'Welcome to QoESense';
+
+  @override
+  String get welcomeCheckChecking => 'Checking that everything is set up…';
+
+  @override
+  String get welcomeCheckDone => 'Welcome, you are now done with all the steps.';
+
+  @override
+  String get welcomeCheckDoneDetail =>
+      'QoESense now works quietly in the background. A few times a day it will ask how your Internet was in the last few minutes.';
+
+  @override
+  String get welcomeCheckContinue => 'Continue';
+
+  @override
+  String get welcomeCheckMissingTitle => 'A few settings are still not allowed';
+
+  @override
+  String get welcomeCheckMissingBody =>
+      'The study needs them to work. Tap Allow next to each one, then come back here.';
+
+  @override
+  String get welcomeCheckAllow => 'Allow';
+
+  @override
+  String get welcomeCheckSkip => 'Continue anyway';
+
+  @override
+  String get checkLocation => 'Location (precise)';
+
+  @override
+  String get checkPhone => 'Phone access (network information)';
+
+  @override
+  String get checkBackgroundLocation => 'Location all the time';
+
+  @override
+  String get checkBackgroundLocationHint => 'Choose \"Allow all the time\".';
+
+  @override
+  String get checkNotifications => 'Notifications';
+
+  @override
+  String get checkUsageAccess => 'Usage access';
+
+  @override
+  String get checkBattery => 'Battery: no restrictions';
+
+  @override
+  String get checkOverlay => 'Display over other apps (for the rating question)';
+
+  @override
+  String get checkBackgroundPopups => 'Pop-up windows in the background (Xiaomi)';
+
+  @override
+  String get checkBackgroundPopupsHint =>
+      'Open \"Display pop-up windows while running in the background\" and choose Allow.';
 }

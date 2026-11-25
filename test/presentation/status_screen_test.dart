@@ -15,12 +15,16 @@ import 'package:qoesense/src/presentation/qoesense_app.dart';
 import '../support/fixtures.dart';
 
 class _Caps implements CapabilitySource {
+  _Caps([this.state = FieldAvailability.permissionMissing]) : missing = const {};
+  _Caps.withMissing(this.state, this.missing);
+  final FieldAvailability state;
+  final Set<FieldGroup> missing;
   @override
   Future<PlatformCapabilities> load() async => PlatformCapabilities(
     platform: ClientPlatform.android,
     osMajorVersion: 34,
     deviceModel: 'SM-A155F',
-    groups: {for (final g in FieldGroup.values) g: FieldAvailability.permissionMissing},
+    groups: {for (final g in FieldGroup.values) g: missing.contains(g) ? FieldAvailability.permissionMissing : state},
   );
 }
 
@@ -62,14 +66,15 @@ class _Control implements CollectorControl {
 }
 
 class _Perms implements PermissionGateway {
-  _Perms(this.log);
+  _Perms(this.log, {this.battery = false});
   final List<String> log;
+  final bool battery;
   @override
   Future<void> requestForeground() async => log.add('perm:foreground');
   @override
   Future<void> requestBackground() async => log.add('perm:background');
   @override
-  Future<bool> isBatteryOptimizationIgnored() async => false;
+  Future<bool> isBatteryOptimizationIgnored() async => battery;
 }
 
 void main() {
@@ -114,7 +119,59 @@ void main() {
     await tester.pumpAndSettle();
     expect(log, ['consent', 'perm:foreground', 'perm:background', 'collection:true']);
     expect(kv.values[SettingsKeys.onboardingComplete], 'true');
+    // The welcome check comes next; nothing is granted in this fake, so it lists what's missing.
+    expect(find.text('Welcome to QoESense'), findsOneWidget);
+    expect(find.byKey(const ValueKey('missing:overlay')), findsOneWidget);
+    expect(find.byKey(const ValueKey('missing:battery')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('welcomeSkip')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('welcomeSkip')));
+    await tester.pumpAndSettle();
+    expect(kv.values[SettingsKeys.welcomeCheckSeen], 'true');
     expect(find.text('Collection'), findsOneWidget); // status screen
+  });
+
+  testWidgets('welcome check: all allowed shows the done message and Continue', (tester) async {
+    kv.values[SettingsKeys.onboardingComplete] = 'true';
+    final svc = AppServices(
+      capabilities: _Caps(FieldAvailability.available),
+      control: _Control(log, buffer),
+      permissions: _Perms(log, battery: true),
+      buffer: buffer,
+      settings: kv,
+      backend: const Backend.unconfigured(),
+      backgroundPopupStatus: () async => 'allowed',
+    );
+    await tester.pumpWidget(QoESenseApp(services: svc));
+    await tester.pumpAndSettle();
+    expect(find.text('Welcome, you are now done with all the steps.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('missing:overlay')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('welcomeContinue')));
+    await tester.pumpAndSettle();
+    expect(find.text('Collection'), findsOneWidget);
+  });
+
+  testWidgets('welcome check: a missing item opens its settings screen; Xiaomi pop-ups are listed', (tester) async {
+    kv.values[SettingsKeys.onboardingComplete] = 'true';
+    final svc = AppServices(
+      capabilities: _Caps.withMissing(FieldAvailability.available, {FieldGroup.surveyOverlay}),
+      control: _Control(log, buffer),
+      permissions: _Perms(log, battery: true),
+      buffer: buffer,
+      settings: kv,
+      backend: const Backend.unconfigured(),
+      backgroundPopupStatus: () async => 'denied',
+    );
+    await tester.pumpWidget(QoESenseApp(services: svc));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('missing:overlay')), findsOneWidget);
+    expect(find.byKey(const ValueKey('missing:backgroundPopups')), findsOneWidget);
+    expect(find.byKey(const ValueKey('missing:location')), findsNothing);
+    await tester.tap(
+      find.descendant(of: find.byKey(const ValueKey('missing:backgroundPopups')), matching: find.text('Allow')),
+    );
+    await tester.pumpAndSettle();
+    expect(log, contains('settings:backgroundPopup'));
   });
 
   testWidgets('the last onboarding step shows the brand auto-start instructions and opens its screen', (tester) async {
@@ -142,6 +199,7 @@ void main() {
 
   testWidgets('status screen: toggle, buffered count, test capture, unconfigured backend notice', (tester) async {
     kv.values[SettingsKeys.onboardingComplete] = 'true';
+    kv.values[SettingsKeys.welcomeCheckSeen] = 'true';
     await tester.pumpWidget(QoESenseApp(services: services()));
     await tester.pumpAndSettle();
     expect(find.textContaining("Uploads aren't set up"), findsOneWidget);
@@ -164,6 +222,7 @@ void main() {
 
   testWidgets('the mobile-data switch shows on Android and stores the choice; hidden when null (iOS)', (tester) async {
     kv.values[SettingsKeys.onboardingComplete] = 'true';
+    kv.values[SettingsKeys.welcomeCheckSeen] = 'true';
     final svc = services();
     await tester.pumpWidget(QoESenseApp(services: svc));
     await tester.pumpAndSettle();
@@ -187,6 +246,7 @@ void main() {
 
   testWidgets('opening the app restarts collection that should be on but was killed', (tester) async {
     kv.values[SettingsKeys.onboardingComplete] = 'true';
+    kv.values[SettingsKeys.welcomeCheckSeen] = 'true';
     final svc = services();
     (svc.control as _Control).enabled = true; // flag on...
     final control = svc.control as _Control;

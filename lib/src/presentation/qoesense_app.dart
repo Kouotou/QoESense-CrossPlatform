@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../application/settings_keys.dart';
+import '../domain/enums.dart';
 import 'app_services.dart';
 import 'onboarding_screen.dart';
 import 'status_screen.dart';
 import 'survey_sheet.dart';
+import 'welcome_check_screen.dart';
 
 /// Root: the onboarding flow until it's finished, then the status screen (reference
 /// MainActivity behaviour).
@@ -21,6 +23,9 @@ class QoESenseApp extends StatefulWidget {
 
 class _QoESenseAppState extends State<QoESenseApp> with WidgetsBindingObserver {
   bool? _onboarded;
+
+  /// The welcome / setup check, between onboarding and the status screen.
+  bool _welcome = false;
   final _navigator = GlobalKey<NavigatorState>();
   StreamSubscription<void>? _surveyTaps;
   bool _sheetOpen = false;
@@ -51,7 +56,7 @@ class _QoESenseAppState extends State<QoESenseApp> with WidgetsBindingObserver {
   Future<void> _showOpenedSurvey() async {
     final inbox = _s.surveyInbox;
     final context = _navigator.currentContext;
-    if (inbox == null || context == null || _sheetOpen || _onboarded != true) return;
+    if (inbox == null || context == null || _sheetOpen || _onboarded != true || _welcome) return;
     final prompt = await inbox.takeOpened();
     if (prompt == null || !context.mounted) return;
     _sheetOpen = true;
@@ -70,7 +75,18 @@ class _QoESenseAppState extends State<QoESenseApp> with WidgetsBindingObserver {
       final status = await _s.control.status();
       if (status.enabled && !status.running) await _s.control.setCollectionEnabled(true);
     }
-    if (mounted) setState(() => _onboarded = done);
+    // Android installs from before the welcome screen see it once, so a participant whose
+    // rating pop-up is blocked (e.g. Xiaomi) can fix it.
+    final welcome =
+        done &&
+        _s.platform == ClientPlatform.android &&
+        await _s.settings.read(SettingsKeys.welcomeCheckSeen) != 'true';
+    if (mounted) {
+      setState(() {
+        _onboarded = done;
+        _welcome = welcome;
+      });
+    }
     if (done) WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_showOpenedSurvey()));
   }
 
@@ -86,7 +102,18 @@ class _QoESenseAppState extends State<QoESenseApp> with WidgetsBindingObserver {
   Future<void> _finished() async {
     await _s.settings.write(SettingsKeys.onboardingComplete, 'true');
     await _s.control.setCollectionEnabled(true); // reference: collection starts after onboarding
-    if (mounted) setState(() => _onboarded = true);
+    if (mounted) {
+      setState(() {
+        _onboarded = true;
+        _welcome = true;
+      });
+    }
+  }
+
+  Future<void> _welcomeClosed() async {
+    await _s.settings.write(SettingsKeys.welcomeCheckSeen, 'true');
+    if (mounted) setState(() => _welcome = false);
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_showOpenedSurvey()));
   }
 
   @override
@@ -100,6 +127,7 @@ class _QoESenseAppState extends State<QoESenseApp> with WidgetsBindingObserver {
     home: switch (_onboarded) {
       null => const Scaffold(body: Center(child: CircularProgressIndicator())),
       false => OnboardingScreen(services: _s, onConsented: _consented, onFinished: _finished),
+      true when _welcome => WelcomeCheckScreen(services: _s, onContinue: _welcomeClosed),
       true => StatusScreen(services: _s),
     },
   );

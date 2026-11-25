@@ -36,14 +36,45 @@ object SurveyPresenter {
     private const val OLD_CHANNEL_ID = "mos_survey"
     private const val NOTIFICATION_ID = 2
 
+    /** How long the pop-up has to appear before the notification is posted instead. */
+    private const val OVERLAY_CHECK_MS = 3_000L
+
+    /** Set by MosSurveyActivity.onCreate: proves that a pop-up really opened. */
+    @Volatile
+    var lastOverlayShownMs = 0L
+
+    private val main = Handler(Looper.getMainLooper())
+
+    /**
+     * The pop-up when overlay access is granted, else the notification.
+     *
+     * Some systems drop a background activity start **silently**, with no exception: Xiaomi
+     * without its "pop-up windows while running in the background" permission, and other
+     * vendors' background-start limits. The participant then never saw a prompt (2026-11-25).
+     * So the pop-up has [OVERLAY_CHECK_MS] to report that it opened; if it didn't, the
+     * notification (sound and vibration) is posted instead.
+     */
     fun present(context: Context, triggerType: String) {
         val now = System.currentTimeMillis()
-        if (PermissionUtils.hasOverlayPermission(context)) {
-            context.startActivity(MosSurveyActivity.intent(context, triggerType, now, "OVERLAY"))
-        } else {
+        if (!PermissionUtils.hasOverlayPermission(context)) {
             showNotification(context, triggerType, now)
+            return
         }
+        val app = context.applicationContext
+        try {
+            app.startActivity(MosSurveyActivity.intent(app, triggerType, now, "OVERLAY"))
+        } catch (e: RuntimeException) {
+            showNotification(app, triggerType, now)
+            return
+        }
+        main.postDelayed({
+            if (lastOverlayShownMs < now) showNotification(app, triggerType, now)
+        }, OVERLAY_CHECK_MS)
     }
+
+    /** The pop-up opened after all (a slow start): the notification is no longer needed. */
+    fun cancelNotification(context: Context) =
+        context.getSystemService(NotificationManager::class.java).cancel(NOTIFICATION_ID)
 
     /** How long a rating notification stays answerable (owner decision, 2026-11-21). */
     const val NOTIFICATION_WINDOW_MS = 10 * 60 * 1000L
@@ -116,6 +147,10 @@ class MosSurveyActivity : Activity() {
         trigger = intent.getStringExtra(EXTRA_TRIGGER) ?: "PERIODIC"
         promptedAt = intent.getLongExtra(EXTRA_PROMPTED_AT, -1).takeIf { it > 0 }
         mode = intent.getStringExtra(EXTRA_MODE) ?: "OVERLAY"
+        if (mode == "OVERLAY") {
+            SurveyPresenter.lastOverlayShownMs = System.currentTimeMillis()
+            if (savedInstanceState == null) SurveyPresenter.cancelNotification(this)
+        }
         setContentView(buildContent { score -> onScore(score, trigger, promptedAt, mode) })
         // The pop-up rings and vibrates (per the phone's ring mode); opened from a notification
         // the participant is already looking at it, so no second alert.
